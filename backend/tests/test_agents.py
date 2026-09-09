@@ -1,5 +1,6 @@
 """Unit tests for the 9 BHUVISION agents and SAR processing."""
 
+from pathlib import Path
 import numpy as np
 import pytest
 
@@ -49,7 +50,8 @@ async def test_input_validation():
     geo = GeoMetadata(width=256, height=256, band_count=3, crs="EPSG:4326")
     meta = ImageryMetadata(id="img-1", filename="test.png", sensor_type=SensorType.OPTICAL, geo=geo)
     # Using existing test file
-    inp = ImageryInput(id="img-1", path="g:/Satquery Ai/.gitignore", metadata=meta, role="primary")
+    gitignore_path = str(Path(__file__).resolve().parents[2] / ".gitignore")
+    inp = ImageryInput(id="img-1", path=gitignore_path, metadata=meta, role="primary")
     
     res = await validator.validate([inp], trace)
     assert res.file_valid is True
