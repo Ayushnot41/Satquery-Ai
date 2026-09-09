@@ -1,198 +1,223 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import {
+  fetchBenchmarkProtocol,
+  runBenchmarkSuite,
+  resetBenchmarkProtocol,
+  BenchmarkProtocolState,
+} from "../../lib/api";
 
 export function EvaluationView() {
-  const benchmarkRows = [
-    {
-      dataset: "BigEarthNet.txt",
-      task: "Optical-SAR Joint VQA",
-      metric: "Accuracy (%)",
-      baseline: "58.4 (RGB Only)",
-      bhuvision: "76.8 (+18.4%)",
-      status: "Verified",
-      notes: "S1 SAR backscatter improves cloudy scene reasoning significantly.",
-    },
-    {
-      dataset: "BigEarthNet.txt",
-      task: "Referring Expression Grounding",
-      metric: "Accuracy@0.5",
-      baseline: "42.1 (General VLM)",
-      bhuvision: "64.5 (+22.4%)",
-      status: "Verified",
-      notes: "Pixel coordinates grounded via morphological change detection.",
-    },
-    {
-      dataset: "VRSBench-Ref",
-      task: "Non-Unique Object Referring",
-      metric: "Accuracy@0.5",
-      baseline: "49.6 (GeoChat)",
-      bhuvision: "61.2 (+11.6%)",
-      status: "Benchmark",
-      notes: "Spatial relative position prompts prevent duplicate object misidentification.",
-    },
-    {
-      dataset: "RSVQA-HR",
-      task: "Presence & Count Verification",
-      metric: "Average Accuracy (AA)",
-      baseline: "78.2",
-      bhuvision: "84.9 (+6.7%)",
-      status: "Benchmark",
-      notes: "Interval binning prevents count class imbalance skew.",
-    },
-    {
-      dataset: "Internal SIH26167",
-      task: "Agent Routing Accuracy",
-      metric: "Path Accuracy (%)",
-      baseline: "62.0 (LLM Chat)",
-      bhuvision: "98.5% (Controlled Graph)",
-      status: "Empirical",
-      notes: "Deterministic keyword & regex routing eliminates agent drifting.",
-    },
-  ];
+  const [protocolState, setProtocolState] = useState<BenchmarkProtocolState | null>(null);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const loadProtocol = async () => {
+    try {
+      const data = await fetchBenchmarkProtocol();
+      setProtocolState(data);
+    } catch (err) {
+      console.error("Failed to fetch benchmark protocol:", err);
+    }
+  };
+
+  useEffect(() => {
+    loadProtocol();
+  }, []);
+
+  const handleRunEvaluation = async () => {
+    setIsRunning(true);
+    setToastMessage("Deploying test splits across FastAPI compute pipeline...");
+    try {
+      const updated = await runBenchmarkSuite();
+      setProtocolState(updated);
+      setToastMessage("Benchmark evaluation complete. Certified metrics populated.");
+      setTimeout(() => setToastMessage(null), 4000);
+    } catch (err) {
+      console.error("Benchmark run failed:", err);
+      setToastMessage("Evaluation pipeline failed. Check server connection.");
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const handleResetProtocol = async () => {
+    try {
+      const reset = await resetBenchmarkProtocol();
+      setProtocolState(reset);
+      setToastMessage("Protocol reset to 'Not evaluated yet' baseline.");
+      setTimeout(() => setToastMessage(null), 3000);
+    } catch (err) {
+      console.error("Reset failed:", err);
+    }
+  };
+
+  // Fallback default state if API is not yet loaded
+  const categories = protocolState?.categories || [];
+  const isEvaluated = protocolState?.is_evaluated || false;
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-6 text-white select-none">
-      <div className="mb-6 bg-[#111827] border border-[#1F2937] p-5 rounded-xl">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-          <h1 className="text-base font-bold font-mono tracking-wider text-white uppercase">
-            Scientific Evaluation & Benchmark Evidence // SIH26167
-          </h1>
+    <div className="w-full max-w-7xl mx-auto p-6 select-none space-y-6">
+      {/* Toast notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#0A0F1C] border border-cyan-500/50 text-cyan-300 px-4 py-2.5 rounded-lg shadow-xl shadow-cyan-950/40 font-mono text-xs flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+          {toastMessage}
         </div>
-        <p className="text-xs text-gray-400 mt-1">
-          BHUVISION is systematically evaluated against standardized remote sensing datasets. No fabricated numbers.
-        </p>
+      )}
+
+      {/* Main Title Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <svg
+              className="w-5 h-5 text-cyan-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="12" cy="8" r="7" />
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+            </svg>
+            <h1 className="text-xl font-bold font-sans tracking-tight text-white">
+              Benchmark &amp; Validation Protocol
+            </h1>
+          </div>
+          <p className="text-xs text-gray-400 mt-1 font-mono">
+            Standardised accuracy, visual grounding IoU, and bi-temporal change metrics across remote-sensing benchmarks.
+          </p>
+        </div>
+
+        {/* Action Controls */}
+        <div className="flex items-center gap-3">
+          {isEvaluated && (
+            <button
+              onClick={handleResetProtocol}
+              disabled={isRunning}
+              className="px-3.5 py-1.5 rounded-lg text-xs font-mono text-gray-400 hover:text-white bg-[#111827] border border-[#1F2937] hover:border-gray-500 transition-colors cursor-pointer"
+            >
+              Reset Protocol
+            </button>
+          )}
+          <button
+            onClick={handleRunEvaluation}
+            disabled={isRunning}
+            className={`px-4 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-2 cursor-pointer shadow-lg ${
+              isRunning
+                ? "bg-cyan-950 text-cyan-400 border border-cyan-500/50 animate-pulse cursor-wait"
+                : "bg-cyan-600 hover:bg-cyan-500 text-white shadow-cyan-600/20"
+            }`}
+          >
+            {isRunning ? (
+              <>
+                <svg className="w-3.5 h-3.5 animate-spin text-cyan-400" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                <span>Evaluating Test Splits...</span>
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                <span>Run Benchmark Suite</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Benchmark Table */}
-      <div className="bg-[#111827] border border-[#1F2937] rounded-xl overflow-hidden shadow-xl mb-8">
-        <div className="px-5 py-3 border-b border-[#1F2937] bg-[#0A0F1C] flex items-center justify-between">
-          <span className="text-xs font-mono uppercase font-bold text-gray-300">
-            Remote Sensing Multimodal Benchmarks
-          </span>
-          <span className="text-[11px] font-mono text-gray-400">Hardware: L40S / RTX 4090 GPU (FP8 Quantized)</span>
+      {/* Official Evaluation Protocol Notice Card */}
+      <div className="bg-[#091122] border border-cyan-500/30 rounded-xl p-4 flex items-start gap-3.5 shadow-xl shadow-cyan-950/20">
+        <div className="w-6 h-6 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center shrink-0 mt-0.5">
+          <svg className="w-3.5 h-3.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
         </div>
+        <div className="space-y-1">
+          <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-300">
+            Official Evaluation Protocol Notice
+          </h2>
+          <p className="text-xs text-cyan-100/70 font-mono leading-relaxed">
+            Benchmark evaluation conforms strictly to standard remote-sensing validation suites (RSVQA, LEVIR-CD, DIOR-RSVG, and xBD). In strict compliance with ISRO judging standards, metric scores populate only when verified evaluation runs complete on the FastAPI compute pipeline.
+          </p>
+          {protocolState?.last_run_at && (
+            <p className="text-[10px] font-mono text-emerald-400 pt-1">
+              ✓ Verified Evaluation Run Logged: {new Date(protocolState.last_run_at).toUTCString()}
+            </p>
+          )}
+        </div>
+      </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-[#1F2937]/50 text-gray-400 uppercase text-[10px] border-b border-gray-800">
-              <tr>
-                <th className="py-3 px-4">Dataset</th>
-                <th className="py-3 px-4">Task</th>
-                <th className="py-3 px-4">Metric</th>
-                <th className="py-3 px-4">Baseline</th>
-                <th className="py-3 px-4">BHUVISION</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Scientific Context</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-800 text-gray-200">
-              {benchmarkRows.map((row, idx) => (
-                <tr key={idx} className="hover:bg-gray-800/40 transition-colors">
-                  <td className="py-3.5 px-4 font-bold text-blue-400">{row.dataset}</td>
-                  <td className="py-3.5 px-4">{row.task}</td>
-                  <td className="py-3.5 px-4 text-gray-400">{row.metric}</td>
-                  <td className="py-3.5 px-4 text-gray-400">{row.baseline}</td>
-                  <td className="py-3.5 px-4 font-bold text-emerald-400">{row.bhuvision}</td>
-                  <td className="py-3.5 px-4">
-                    <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 uppercase">
-                      {row.status}
+      {/* 2x2 Grid of Benchmark Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {categories.map((cat) => (
+          <div
+            key={cat.category_id}
+            className="bg-[#111827] border border-[#1F2937] rounded-xl flex flex-col overflow-hidden shadow-xl"
+          >
+            {/* Card Header */}
+            <div className="px-5 py-3 border-b border-[#1F2937] bg-[#0A0F1C] flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-[9px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
+                  {cat.tag}
+                </span>
+                <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                  {cat.title}
+                </span>
+              </div>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono text-gray-400 bg-[#111827] border border-[#1F2937]">
+                {cat.metrics_count} metrics configured
+              </span>
+            </div>
+
+            {/* Metric Items */}
+            <div className="p-4 flex flex-col gap-3">
+              {cat.metrics.map((metric) => (
+                <div
+                  key={metric.id}
+                  className="bg-[#0A0F1C] border border-[#1F2937] hover:border-gray-700 rounded-lg p-3.5 flex items-center justify-between transition-colors"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-mono font-bold text-white">
+                      {metric.name}
                     </span>
-                  </td>
-                  <td className="py-3.5 px-4 text-gray-400 text-[11px] font-sans">{row.notes}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                    <span className="text-[10px] font-mono text-gray-500">
+                      Dataset: {metric.dataset}
+                    </span>
+                    {metric.evaluated && metric.baseline && (
+                      <span className="text-[9px] font-mono text-gray-400">
+                        Baseline: {metric.baseline}
+                      </span>
+                    )}
+                  </div>
 
-      {/* Latency & Failure Mode Analysis */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-[#111827] border border-[#1F2937] p-5 rounded-xl">
-          <h3 className="text-xs uppercase font-mono font-bold text-cyan-400 mb-3 tracking-wider">
-            Latency Breakdown by Pipeline Stage
-          </h3>
-          <div className="space-y-3 text-xs font-mono">
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-gray-400">Agent 1: Query Intent Planning</span>
-                <span className="text-white font-bold">12 ms</span>
-              </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-blue-500 h-full w-[4%]" />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-gray-400">Agent 2: Geo Validation & CRS Check</span>
-                <span className="text-white font-bold">18 ms</span>
-              </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-blue-500 h-full w-[6%]" />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-gray-400">Agent 5: CV Change Detection (512x512)</span>
-                <span className="text-white font-bold">85 ms</span>
-              </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-purple-500 h-full w-[24%]" />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-gray-400">SAR Lee Speckle Filter & Backscatter dB</span>
-                <span className="text-white font-bold">65 ms</span>
-              </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-indigo-500 h-full w-[18%]" />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-gray-400">Agent 4: VLM Inference (vLLM / Gateway)</span>
-                <span className="text-white font-bold">650 ms</span>
-              </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-emerald-500 h-full w-[75%]" />
-              </div>
-            </div>
-            <div className="pt-2 border-t border-gray-800 flex justify-between font-bold text-white">
-              <span>Total Investigation Turnaround:</span>
-              <span className="text-emerald-400">~830 ms</span>
+                  <div>
+                    {metric.value ? (
+                      <div className="flex items-center gap-1.5">
+                        <span className="px-3 py-1 rounded text-xs font-mono font-bold bg-emerald-950/70 text-emerald-300 border border-emerald-500/40 shadow-sm">
+                          {metric.value}
+                        </span>
+                        <span className="text-[9px] font-mono uppercase text-emerald-400">
+                          VERIFIED
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="px-3 py-1 rounded text-xs font-mono text-gray-500 bg-[#111827] border border-[#1F2937] shadow-inner">
+                        Not evaluated yet
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-
-        {/* Known Failure Modes */}
-        <div className="bg-[#111827] border border-[#1F2937] p-5 rounded-xl">
-          <h3 className="text-xs uppercase font-mono font-bold text-amber-400 mb-3 tracking-wider">
-            Honest Scientific Limitations & Failure Analysis
-          </h3>
-          <ul className="space-y-2.5 text-xs text-gray-300 font-sans">
-            <li className="flex items-start gap-2">
-              <span className="text-amber-400 font-bold shrink-0">1.</span>
-              <span>
-                <strong>Sub-10m Object Resolution:</strong> Sentinel-2 GSD (10m) cannot resolve individual passenger vehicles or small residential chimneys. High-resolution commercial aerial imagery required for sub-meter objects.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-amber-400 font-bold shrink-0">2.</span>
-              <span>
-                <strong>SAR Layover & Shadow in Mountainous Terrain:</strong> Steep slopes cause radar geometric distortion (foreshortening/layover). Corrected by DEM-assisted orthorectification in post-processing.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-amber-400 font-bold shrink-0">3.</span>
-              <span>
-                <strong>Seasonal Phenology Misinterpreted as Deforestation:</strong> Deciduous canopy shed during winter produces low NDVI resembling cleared forest. Mitigated by injecting seasonal acquisition metadata into Query Planner.
-              </span>
-            </li>
-          </ul>
-        </div>
+        ))}
       </div>
     </div>
   );

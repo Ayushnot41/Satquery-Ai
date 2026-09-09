@@ -23,6 +23,7 @@ from .api.traffic import router as traffic_router
 from .api.futuristic import router as futuristic_router, debate_router
 from .api.nasa_tile import router as nasa_tile_router
 from .api.auth import router as auth_router
+from .api.benchmark import router as benchmark_router
 from .core.config import settings
 from .core.logging import get_logger, setup_logging
 
@@ -109,6 +110,7 @@ app.include_router(futuristic_router, prefix="/api")
 app.include_router(debate_router, prefix="/api")
 app.include_router(nasa_tile_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
+app.include_router(benchmark_router, prefix="/api")
 
 
 @app.get("/", tags=["Root"])
