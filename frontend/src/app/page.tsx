@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Sidebar } from "../components/layout/Sidebar";
 import { Header } from "../components/layout/Header";
 import { MissionHome } from "../components/screens/MissionHome";
 import { MissionView } from "../components/screens/MissionView";
 import { InvestigationWorkspace } from "../components/screens/InvestigationWorkspace";
 import { AgentDebateView } from "../components/screens/AgentDebateView";
 import { EvaluationView } from "../components/screens/EvaluationView";
+import { AnalysisHistoryView } from "../components/screens/AnalysisHistoryView";
 import { AnalysisResultsView } from "../components/analysis/AnalysisResultsView";
 import { NewAnalysisView, NewAnalysisState } from "../components/analysis/NewAnalysisView";
 import {
@@ -29,6 +31,8 @@ export default function Home() {
   const [initialQuery, setInitialQuery] = useState<string>("Where has construction increased between these two dates?");
   const [healthStatus, setHealthStatus] = useState<string>("online");
   const [currentResult, setCurrentResult] = useState<AnalysisResult | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+  const [showSpecialistModal, setShowSpecialistModal] = useState<boolean>(false);
 
   useEffect(() => {
     checkHealth().then((h) => {
@@ -184,7 +188,14 @@ export default function Home() {
         systemHealth={healthStatus}
       />
 
-      <main className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-row overflow-hidden">
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onOpenProfile={() => setShowProfileModal(true)}
+          onOpenSpecialists={() => setShowSpecialistModal(true)}
+        />
+        <main className="flex-1 flex flex-col overflow-y-auto">
         {activeTab === "home" && (
           <MissionHome
             onStartInvestigation={handleStartInvestigation}
@@ -232,7 +243,18 @@ export default function Home() {
         )}
 
         {activeTab === "evaluation" && <EvaluationView />}
+
+        {activeTab === "history" && (
+          <AnalysisHistoryView
+            onSelectResult={(result) => {
+              setCurrentResult(result);
+              setActiveTab("analysis_results");
+            }}
+            onNewAnalysis={() => setActiveTab("new_analysis")}
+          />
+        )}
       </main>
+      </div>
 
       {/* Global Mission-Critical Footer */}
       <footer className="w-full bg-[#070B14] border-t border-[#1F2937] px-6 py-4 text-xs text-gray-500 font-mono">

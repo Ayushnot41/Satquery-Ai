@@ -1,4 +1,5 @@
 import { InvestigationResponse } from "../types/investigation";
+export type { InvestigationResponse };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
@@ -248,4 +249,96 @@ export function investigationResponseToAnalysisResult(
     imageUrls: imageUrls || [],
     previewUrl: imageUrls && imageUrls.length > 0 ? imageUrls[0] : undefined,
   };
+}
+
+
+// ─── Benchmark & History Protocol API ─────────────────────────────────────────
+
+export interface BenchmarkMetric {
+  id: string;
+  name: string;
+  dataset: string;
+  value: string | null;
+  numeric_value?: number;
+  baseline?: string;
+  evaluated: boolean;
+  notes?: string;
+}
+
+export interface BenchmarkCategory {
+  category_id: string;
+  tag: string;
+  title: string;
+  metrics_count: number;
+  metrics: BenchmarkMetric[];
+}
+
+export interface BenchmarkProtocolState {
+  is_evaluated: boolean;
+  last_run_at: string | null;
+  categories: BenchmarkCategory[];
+}
+
+export async function fetchInvestigationHistory(): Promise<InvestigationResponse[]> {
+  try {
+    const res = await fetch(`${API_BASE}/investigate`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error("fetchInvestigationHistory failed:", err);
+    return [];
+  }
+}
+
+export async function deleteInvestigation(id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/investigate/${id}`, { method: "DELETE" });
+    return res.ok;
+  } catch (err) {
+    console.error("deleteInvestigation failed:", err);
+    return false;
+  }
+}
+
+export async function clearInvestigationCache(): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/investigate/clear-cache`, { method: "POST" });
+    return res.ok;
+  } catch (err) {
+    console.error("clearInvestigationCache failed:", err);
+    return false;
+  }
+}
+
+export async function fetchBenchmarkProtocol(): Promise<BenchmarkProtocolState> {
+  try {
+    const res = await fetch(`${API_BASE}/benchmark/protocol`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error("fetchBenchmarkProtocol failed:", err);
+    return { is_evaluated: false, last_run_at: null, categories: [] };
+  }
+}
+
+export async function runBenchmarkSuite(): Promise<BenchmarkProtocolState> {
+  try {
+    const res = await fetch(`${API_BASE}/benchmark/run`, { method: "POST" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error("runBenchmarkSuite failed:", err);
+    throw err;
+  }
+}
+
+export async function resetBenchmarkProtocol(): Promise<BenchmarkProtocolState> {
+  try {
+    const res = await fetch(`${API_BASE}/benchmark/reset`, { method: "POST" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error("resetBenchmarkProtocol failed:", err);
+    throw err;
+  }
 }

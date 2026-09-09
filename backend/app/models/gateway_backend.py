@@ -14,6 +14,7 @@ OmniRoute (secondary), or FreeLLMAPI (tertiary fallback) with robust model fallb
 """
 
 from __future__ import annotations
+import os
 
 import asyncio
 import base64
@@ -30,6 +31,47 @@ from ..core.logging import get_logger
 from .base import VLMBackend, VLMResponse
 
 logger = get_logger("models.gateway")
+
+# Agent ID -> model mapping (loaded from settings at import time)
+AGENT_MODEL_MAP: dict[int, str] = {
+    1: settings.agent1_model,
+    2: settings.agent2_model,
+    3: settings.agent3_model,
+    4: settings.agent4_model,
+    5: settings.agent5_model,
+    6: settings.agent6_model,
+    7: settings.agent7_model,
+    8: settings.agent8_model,
+    9: settings.agent9_model,
+}
+
+# Gateway priority: AstraGPT6 -> OpenRouter -> OmniRoute -> FreeLLMAPI
+_GATEWAYS = [
+    {
+        "name": "AstraGPT6",
+        "base_url": settings.astra_base_url,
+        "api_key": settings.astra_api_key or os.environ.get("ASTRA_API_KEY", ""),
+        "enabled": bool(settings.astra_api_key or os.environ.get("ASTRA_API_KEY")),
+    },
+    {
+        "name": "OpenRouter",
+        "base_url": "https://openrouter.ai/api/v1",
+        "api_key": settings.openrouter_api_key or "",
+        "enabled": bool(settings.openrouter_api_key),
+    },
+    {
+        "name": "OmniRoute",
+        "base_url": settings.omniroute_base_url,
+        "api_key": settings.omniroute_api_key,
+        "enabled": True,
+    },
+    {
+        "name": "FreeLLMAPI",
+        "base_url": settings.freellm_base_url,
+        "api_key": settings.freellm_api_key,
+        "enabled": True,
+    },
+]
 
 # Fallback vision models on OpenRouter (free tier included for 100% uptime)
 VISION_FALLBACK_MODELS = [
