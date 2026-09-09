@@ -188,3 +188,57 @@ export interface DemoScenario {
   expected_task_type: string;
   category: "construction" | "flood" | "vegetation";
 }
+
+// ============================================================
+// ANALYSIS RESULTS PAGE — New types for the Results screen
+// ============================================================
+
+export type AnalysisMode = "single_image" | "bi_temporal" | "optical_sar";
+
+export type AnalysisStatus = "processing" | "complete" | "inconclusive" | "error";
+
+export interface EvidenceRegion {
+  id: string;
+  label: string;
+  score?: number | null;
+  /** Normalized 0-1 bounding box */
+  bbox?: { x: number; y: number; width: number; height: number } | null;
+  /** URL for a mask image overlay */
+  mask_url?: string | null;
+  type: "bounding_box" | "mask" | "region";
+}
+
+export interface EvidencePayload {
+  type: "bounding_box" | "mask" | "region";
+  regions: EvidenceRegion[];
+}
+
+export interface TraceStep {
+  step: string;
+  tool: string;
+  duration_ms: number;
+  status: "success" | "warning" | "failed";
+  detail?: string | null;
+  timestamp_offset_ms?: number | null;
+}
+
+export interface AnalysisResult {
+  run_id: string;
+  created_at: string;
+  mode: AnalysisMode;
+  mission_context: string;
+  question: string;
+  input_ids: string[];
+  /** Human-readable answer synthesized by the 9-agent council */
+  answer: string;
+  status: AnalysisStatus;
+  /** 0-100, empirically calibrated — null if not yet computed */
+  confidence: number | null;
+  /** Task-specific numeric or string metrics */
+  metrics: Record<string, number | string>;
+  evidence: EvidencePayload;
+  limitations: string[];
+  trace: TraceStep[];
+  imageUrls?: string[];
+  previewUrl?: string;
+}

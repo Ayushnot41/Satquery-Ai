@@ -50,32 +50,48 @@ class ChangeDetectionAgent(AgentBase):
             # Step 1: Align images to same dimensions
             before, after = self._align_images(image_before, image_after)
 
-            # Step 2: Convert to grayscale if needed
-            gray_before = self._to_grayscale(before)
-            gray_after = self._to_grayscale(after)
+            # Attempt Neural Siamese U-Net inference first
+            used_neural = False
+            method_used = "pixel_differencing_with_morphological_cleanup"
+            try:
+                from ..models.siamese_unet import get_trained_change_model, run_siamese_inference
+                if get_trained_change_model() is not None:
+                    change_mask, _, change_pct = run_siamese_inference(before, after)
+                    regions = self._extract_regions(change_mask)
+                    total_pixels = change_mask.shape[0] * change_mask.shape[1]
+                    changed_pixels = int(np.sum(change_mask))
+                    used_neural = True
+                    method_used = "siamese_unet_deep_learning"
+            except Exception:
+                used_neural = False
 
-            # Step 3: Compute pixel difference
-            diff = np.abs(gray_after.astype(np.float32) - gray_before.astype(np.float32))
+            if not used_neural:
+                    # Step 2: Convert to grayscale if needed
+                gray_before = self._to_grayscale(before)
+                gray_after = self._to_grayscale(after)
 
-            # Step 4: Threshold to get binary change mask
-            change_mask = (diff > thresh).astype(np.uint8)
+                # Step 3: Compute pixel difference
+                diff = np.abs(gray_after.astype(np.float32) - gray_before.astype(np.float32))
 
-            # Step 5: Morphological operations to clean noise
-            change_mask = self._morphological_cleanup(change_mask)
+                # Step 4: Threshold to get binary change mask
+                change_mask = (diff > thresh).astype(np.uint8)
 
-            # Step 6: Connected component analysis
-            regions = self._extract_regions(change_mask)
+                # Step 5: Morphological operations to clean noise
+                change_mask = self._morphological_cleanup(change_mask)
 
-            # Step 7: Compute statistics
-            total_pixels = change_mask.shape[0] * change_mask.shape[1]
-            changed_pixels = int(np.sum(change_mask))
-            change_pct = (changed_pixels / total_pixels * 100) if total_pixels > 0 else 0.0
+                # Step 6: Connected component analysis
+                regions = self._extract_regions(change_mask)
+
+                # Step 7: Compute statistics
+                total_pixels = change_mask.shape[0] * change_mask.shape[1]
+                changed_pixels = int(np.sum(change_mask))
+                change_pct = (changed_pixels / total_pixels * 100) if total_pixels > 0 else 0.0
 
             result = ChangeResult(
                 has_change=len(regions) > 0,
                 change_summary=self._generate_summary(regions, change_pct),
                 change_regions=regions,
-                method_used="pixel_differencing_with_morphological_cleanup",
+                method_used=method_used,
                 total_changed_pixels=changed_pixels,
                 total_pixels=total_pixels,
                 change_percentage=round(change_pct, 2),

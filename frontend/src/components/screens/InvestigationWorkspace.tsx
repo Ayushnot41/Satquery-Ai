@@ -9,15 +9,18 @@ import { EvidencePanel } from "../workspace/EvidencePanel";
 import { ConfidenceCard } from "../workspace/ConfidenceCard";
 import { AuditTraceModal } from "../workspace/AuditTraceModal";
 import { LocationSearchBar, LocationItem } from "../shared/LocationSearchBar";
+import { AnalysisResult } from "../../types/investigation";
 
 interface InvestigationWorkspaceProps {
   initialScenarioId?: string;
   initialQuery?: string;
+  onViewResults?: (result: AnalysisResult) => void;
 }
 
 export function InvestigationWorkspace({
   initialScenarioId,
   initialQuery = "Where has construction increased between these two dates?",
+  onViewResults,
 }: InvestigationWorkspaceProps) {
   const [query, setQuery] = useState<string>(initialQuery);
   const [loading, setLoading] = useState<boolean>(false);
@@ -218,6 +221,55 @@ export function InvestigationWorkspace({
         isOpen={showTraceModal}
         onClose={() => setShowTraceModal(false)}
       />
+
+      {/* ─── View Full Results CTA ─────────────────────────────── */}
+      {investigation && investigation.status === "complete" && onViewResults && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => {
+              // Map InvestigationResponse to AnalysisResult for the results screen
+              const mode = investigation.plan?.requires_sar
+                ? "optical_sar"
+                : investigation.plan?.requires_temporal
+                ? "bi_temporal"
+                : "single_image";
+              const result: AnalysisResult = {
+                run_id: `RUN-${investigation.investigation_id.slice(0, 5)}`,
+                created_at: investigation.created_at,
+                mode,
+                mission_context: investigation.plan?.investigation_summary ?? "General",
+                question: investigation.question,
+                input_ids: ["investigation-" + investigation.investigation_id],
+                answer: investigation.answer,
+                status: investigation.status === "complete" ? "complete" : "inconclusive",
+                confidence:
+                  investigation.confidence?.confidence_score != null
+                    ? Math.round(investigation.confidence.confidence_score * 100)
+                    : null,
+                metrics: {},
+                evidence: { type: "bounding_box", regions: [] },
+                limitations: investigation.confidence?.uncertainties ?? [],
+                trace: (investigation.trace?.events ?? []).map((e, idx) => ({
+                  step: e.event_type,
+                  tool: e.agent_name,
+                  duration_ms: e.duration_ms ?? 0,
+                  status: "success" as const,
+                  detail: e.message,
+                  timestamp_offset_ms: idx * 100,
+                })),
+              };
+              onViewResults(result);
+            }}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/20 border border-blue-400/30 transition-all flex items-center gap-2 font-mono uppercase tracking-wider cursor-pointer"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            View Full Results Report
+          </button>
+        </div>
+      )}
     </div>
   );
 }
