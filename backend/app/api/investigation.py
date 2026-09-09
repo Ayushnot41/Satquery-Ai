@@ -88,11 +88,31 @@ async def start_investigation(request: InvestigationRequest) -> InvestigationRes
 
     # Map requested imagery IDs or create curated demo fallback imagery
     for idx, img_id in enumerate(request.imagery_ids):
+        resolved_path = None
+        meta = None
+
         if img_id in IMAGERY_REGISTRY:
             meta = IMAGERY_REGISTRY[img_id]
-            file_path = str(settings.upload_path / f"{meta.id}_{meta.filename}")
+            candidates = [
+                settings.upload_path / meta.filename,
+                settings.upload_path / f"{meta.id}_{meta.filename}",
+            ]
+            for cand in candidates:
+                if cand.exists():
+                    resolved_path = cand
+                    break
+
+        if resolved_path is None:
+            # Look on disk for matching uploaded file by ID prefix
+            matched = list(settings.upload_path.glob(f"{img_id}*"))
+            if matched and matched[0].is_file():
+                resolved_path = matched[0]
+                meta = extract_metadata(resolved_path, img_id)
+                IMAGERY_REGISTRY[img_id] = meta
+
+        if resolved_path is not None and meta is not None:
             role = "before" if idx == 0 and len(request.imagery_ids) > 1 else ("after" if idx == 1 else "primary")
-            imagery_inputs.append(ImageryInput(id=img_id, path=file_path, metadata=meta, role=role))
+            imagery_inputs.append(ImageryInput(id=img_id, path=str(resolved_path), metadata=meta, role=role))
         else:
             # Generate deterministic demo fixture
             sensor = SensorType.SAR if "sar" in img_id.lower() else SensorType.OPTICAL
