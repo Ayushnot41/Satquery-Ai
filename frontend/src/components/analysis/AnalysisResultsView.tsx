@@ -213,7 +213,10 @@ export function AnalysisResultsView({ result: propResult, onBack }: AnalysisResu
 
         {/* LEFT — Imagery Panel */}
         <div className="lg:col-span-1">
-          <ImageryPanel mode={result.mode} />
+          <ImageryPanel
+            mode={result.mode}
+            imageUrls={result.imageUrls}
+          />
         </div>
 
         {/* CENTER — Evidence Overlay */}
@@ -223,6 +226,7 @@ export function AnalysisResultsView({ result: propResult, onBack }: AnalysisResu
             mode={result.mode}
             confidence={result.confidence}
             sarMetrics={sarMetrics as Record<string, string | number> | undefined}
+            imageUrls={result.imageUrls}
           />
         </div>
 

@@ -91,7 +91,7 @@ class Settings(BaseSettings):
             return self.openai_base_url  # https://openrouter.ai/api/v1
         return self.freellm_base_url
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
+    model_config = {"env_file": [".env", "backend/.env"], "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
 # Singleton

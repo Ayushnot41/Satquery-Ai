@@ -9,6 +9,7 @@ interface EvidenceOverlayProps {
   confidence: number | null;
   isLoading?: boolean;
   sarMetrics?: Record<string, string | number>;
+  imageUrls?: string[];
 }
 
 // Mode accent config
@@ -138,6 +139,7 @@ export function EvidenceOverlay({
   confidence,
   isLoading = false,
   sarMetrics,
+  imageUrls,
 }: EvidenceOverlayProps) {
   const [showOverlay, setShowOverlay] = useState(true);
   const [activeRegionId, setActiveRegionId] = useState<string | null>(null);
@@ -215,16 +217,24 @@ export function EvidenceOverlay({
         className="relative overflow-hidden bg-[#0A0F1C]"
         style={{ height: "300px" }}
       >
-        {/* Background imagery representative gradient */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-br ${
-            mode === "optical_sar"
-              ? "from-gray-900 via-zinc-800 to-stone-900"
-              : mode === "bi_temporal"
-              ? "from-slate-700 via-blue-900 to-indigo-900"
-              : "from-amber-900 via-orange-800 to-rose-900"
-          } opacity-80`}
-        />
+        {/* Background imagery: Real uploaded raster or representative gradient */}
+        {imageUrls && imageUrls.length > 0 && imageUrls[0] ? (
+          <img
+            src={imageUrls[0]}
+            alt="Evidence Base Scene"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div
+            className={`absolute inset-0 bg-gradient-to-br ${
+              mode === "optical_sar"
+                ? "from-gray-900 via-zinc-800 to-stone-900"
+                : mode === "bi_temporal"
+                ? "from-slate-700 via-blue-900 to-indigo-900"
+                : "from-amber-900 via-orange-800 to-rose-900"
+            } opacity-80`}
+          />
+        )}
         {/* Grid texture */}
         <div
           className="absolute inset-0 opacity-10"

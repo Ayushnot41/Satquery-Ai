@@ -239,4 +239,6 @@ export interface AnalysisResult {
   evidence: EvidencePayload;
   limitations: string[];
   trace: TraceStep[];
+  imageUrls?: string[];
+  previewUrl?: string;
 }

@@ -82,7 +82,17 @@ function ZoomControls({
 }
 
 // ─── Wipe Slider for Bi-Temporal ───────────────────────────────────────────
-function BiTemporalWipe({ preGradient, postGradient }: { preGradient: string; postGradient: string }) {
+function BiTemporalWipe({
+  preGradient,
+  postGradient,
+  preUrl,
+  postUrl,
+}: {
+  preGradient: string;
+  postGradient: string;
+  preUrl?: string;
+  postUrl?: string;
+}) {
   const [wipePos, setWipePos] = useState(50); // 0-100%
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
@@ -131,7 +141,11 @@ function BiTemporalWipe({ preGradient, postGradient }: { preGradient: string; po
     <div ref={containerRef} className="relative w-full h-full overflow-hidden cursor-ew-resize select-none"
       onMouseDown={onMouseDown} onTouchStart={onTouchStart}>
       {/* POST image (full width, below) */}
-      <ImagePlaceholder gradient={postGradient} label="T2 — POST-EVENT" microLabel="Sentinel-2 2026-07-19" />
+      {postUrl ? (
+        <img src={postUrl} alt="Post Event" className="w-full h-full object-cover" />
+      ) : (
+        <ImagePlaceholder gradient={postGradient} label="T2 — POST-EVENT" microLabel="Sentinel-2 2026-07-19" />
+      )}
 
       {/* PRE image clipped to left of wipe line */}
       <div
