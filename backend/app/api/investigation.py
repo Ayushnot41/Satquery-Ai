@@ -19,6 +19,8 @@ from ..geospatial.raster import extract_metadata
 from ..models.base import VLMBackend
 from ..models.demo_backend import DemoBackend
 from ..models.gateway_backend import GatewayBackend
+from ..models.local_lora_backend import LocalLoRABackend
+from ..models.vllm_backend import VLLMBackend
 from ..schemas.imagery import ImageryInput, SensorType
 from ..schemas.investigation import (
     InvestigationRequest,
@@ -35,13 +37,10 @@ INVESTIGATION_CACHE: dict[str, InvestigationResponse] = {}
 def get_vlm_backend() -> VLMBackend:
     if settings.vlm_backend == "gateway":
         return GatewayBackend()
-    elif settings.vlm_backend == "local":
-        try:
-            from ..models.vlm_loader import LocalVLMBackend
-            return LocalVLMBackend()
-        except Exception as e:
-            print(f"Failed to load LocalVLMBackend: {e}")
-            return DemoBackend()
+    if settings.vlm_backend == "local_lora":
+        return LocalLoRABackend()
+    if settings.vlm_backend == "vllm":
+        return VLLMBackend()
     return DemoBackend()
 
 
@@ -90,9 +89,7 @@ async def start_investigation(request: InvestigationRequest) -> InvestigationRes
     for idx, img_id in enumerate(request.imagery_ids):
         if img_id in IMAGERY_REGISTRY:
             meta = IMAGERY_REGISTRY[img_id]
-            c1 = settings.upload_path / meta.filename
-            c2 = settings.upload_path / f"{meta.id}_{meta.filename}"
-            file_path = str(c1 if c1.exists() else c2)
+            file_path = str(settings.upload_path / f"{meta.id}_{meta.filename}")
             role = "before" if idx == 0 and len(request.imagery_ids) > 1 else ("after" if idx == 1 else "primary")
             imagery_inputs.append(ImageryInput(id=img_id, path=file_path, metadata=meta, role=role))
         else:
