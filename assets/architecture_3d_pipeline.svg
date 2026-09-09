@@ -1,178 +1,425 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 680" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" width="100%" height="100%">
   <defs>
-    <linearGradient id="tier1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0F172A"/>
-      <stop offset="100%" stop-color="#1E293B"/>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#040714"/>
+      <stop offset="50%" stop-color="#080F26"/>
+      <stop offset="100%" stop-color="#02040A"/>
     </linearGradient>
-    <linearGradient id="tier2Grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0F2557"/>
-      <stop offset="100%" stop-color="#1A365D"/>
+
+    <!-- Tier 1 Gradients (Cyan/Sky) -->
+    <linearGradient id="t1Top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#075985" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#0c2340" stop-opacity="0.95"/>
     </linearGradient>
-    <linearGradient id="tier3Grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1E1B4B"/>
-      <stop offset="100%" stop-color="#312E81"/>
+    <linearGradient id="t1SideL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0369a1"/>
+      <stop offset="100%" stop-color="#082f49"/>
     </linearGradient>
-    <linearGradient id="pulseLine" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#38BDF8" stop-opacity="1"/>
-      <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.2"/>
+    <linearGradient id="t1SideR" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#03456b"/>
     </linearGradient>
-    <filter id="shadow3D" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.6"/>
+
+    <!-- Tier 2 Gradients (Royal Blue/Indigo) -->
+    <linearGradient id="t2Top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1d4ed8" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#0e1e4a" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="t2SideL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e40af"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="t2SideR" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#172554"/>
+    </linearGradient>
+
+    <!-- Tier 3 Gradients (Violet/Purple) -->
+    <linearGradient id="t3Top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6d28d9" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#1e103d" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="t3SideL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#5b21b6"/>
+      <stop offset="100%" stop-color="#180c30"/>
+    </linearGradient>
+    <linearGradient id="t3SideR" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#2e1065"/>
+    </linearGradient>
+
+    <!-- Card Backgrounds -->
+    <linearGradient id="cardBgCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#082f49" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#031d30" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="cardBgBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#172554" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0b1329" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="cardBgPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2e1065" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#170836" stop-opacity="0.95"/>
+    </linearGradient>
+
+    <!-- Laser Conduit Vertical Gradient -->
+    <linearGradient id="laserBeam" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#818cf8" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#c084fc" stop-opacity="0.8"/>
+    </linearGradient>
+
+    <!-- Filters & Glows -->
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
     </filter>
+    <filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glowPurple" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="platformShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.75"/>
+    </filter>
+
+    <!-- Tech Grid Pattern -->
+    <pattern id="techGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.6" stroke-opacity="0.4"/>
+    </pattern>
+
+    <style>
+      .font-sans { font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .font-mono { font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace; }
+      
+      @keyframes dashStream {
+        to { stroke-dashoffset: -40; }
+      }
+      @keyframes pulseLight {
+        0%, 100% { opacity: 0.3; transform: scale(0.96); }
+        50% { opacity: 1; transform: scale(1.04); }
+      }
+      @keyframes laserScan {
+        0% { transform: translateY(0px); opacity: 0.2; }
+        50% { opacity: 0.9; }
+        100% { transform: translateY(500px); opacity: 0.2; }
+      }
+      @keyframes beaconBlink {
+        0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px #10b981); }
+        50% { opacity: 0.3; filter: none; }
+      }
+
+      .stream-line { stroke-dasharray: 8, 6; animation: dashStream 1.8s linear infinite; }
+      .stream-fast { stroke-dasharray: 6, 4; animation: dashStream 1.2s linear infinite; }
+      .scan-beam { animation: laserScan 3.5s ease-in-out infinite; }
+      .status-dot { animation: beaconBlink 1.4s ease-in-out infinite; }
+    </style>
   </defs>
 
-  <style>
-    @keyframes pulseDash { to { stroke-dashoffset: -40; } }
-    @keyframes tierHover { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-3px); } }
-    @keyframes floatTitle { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-2px); } }
-    .pulse-data { stroke-dasharray: 6, 6; animation: pulseDash 1.5s linear infinite; }
-    .tier-1-anim { animation: tierHover 5s ease-in-out infinite; }
-    .tier-2-anim { animation: tierHover 5s ease-in-out 1.2s infinite; }
-    .tier-3-anim { animation: tierHover 5s ease-in-out 2.4s infinite; }
-    .title-anim { animation: floatTitle 4s ease-in-out infinite; }
-    .font-sans { font-family: 'Space Grotesk', -apple-system, sans-serif; }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
-  </style>
+  <!-- Deep Cosmic Canvas Background -->
+  <rect width="1200" height="760" fill="url(#bgGrad)"/>
+  <rect width="1200" height="760" fill="url(#techGrid)"/>
 
-  <rect width="1100" height="680" fill="#030712"/>
+  <!-- Radial Atmosphere Flares -->
+  <circle cx="200" cy="120" r="280" fill="#0284c7" opacity="0.08" filter="url(#glowCyan)"/>
+  <circle cx="1000" cy="400" r="320" fill="#6d28d9" opacity="0.08" filter="url(#glowPurple)"/>
+  <circle cx="600" cy="650" r="350" fill="#1d4ed8" opacity="0.07" filter="url(#glowBlue)"/>
 
-  <!-- Title Header -->
-  <g transform="translate(50, 40)" class="title-anim">
-    <text x="0" y="0" fill="#38BDF8" font-size="12" font-weight="bold" class="font-mono">
-      SYSTEM TOPOLOGY // MULTI-TIER 3D ISOMETRIC SPECIFICATION
-    </text>
-    <text x="0" y="28" fill="#FFFFFF" font-size="24" font-weight="bold" class="font-sans">
+  <!-- Tactical Header HUD -->
+  <g transform="translate(60, 42)">
+    <rect x="0" y="0" width="180" height="24" rx="4" fill="#0c1e3d" stroke="#38bdf8" stroke-width="1"/>
+    <circle cx="14" cy="12" r="4" fill="#10b981" class="status-dot"/>
+    <text x="26" y="16" fill="#38bdf8" font-size="10" font-weight="bold" class="font-mono">SYSTEM TOPOLOGY // 3D</text>
+
+    <text x="0" y="52" fill="#ffffff" font-size="24" font-weight="bold" class="font-sans">
       BHUVISION 3-Tier Cognitive &amp; Spatial Architecture
     </text>
-  </g>
-
-  <!-- ================= TIER 1 (TOP): 3D SPATIAL PRESENTATION ================= -->
-  <g transform="translate(100, 110)" filter="url(#shadow3D)" class="tier-1-anim">
-    <polygon points="450,0 900,60 450,120 0,60" fill="#0B1329" stroke="#0284C7" stroke-width="2"/>
-    <polygon points="0,60 450,120 450,140 0,80" fill="#061220"/>
-    <polygon points="450,120 900,60 900,80 450,140" fill="#040D17"/>
-    
-    <!-- Tier Label -->
-    <text x="450" y="45" text-anchor="middle" fill="#38BDF8" font-size="13" font-weight="bold" class="font-mono">
-      TIER 1: PRESENTATION &amp; 3D SPATIAL SURVEILLANCE COCKPIT
+    <text x="0" y="72" fill="#94a3b8" font-size="12" class="font-mono">
+      Defense-grade asynchronous pipeline connecting 3D WebGL, 9 specialist AI agents, and orbital radar constellations
     </text>
-    
-    <!-- 3 Blocks on Platform -->
-    <g transform="translate(160, 48)">
-      <rect x="0" y="0" width="160" height="34" rx="4" fill="#071933" stroke="#38BDF8" stroke-width="1.2"/>
-      <text x="80" y="21" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="bold" class="font-sans">
-        Three.js 3D Earth Engine
+  </g>
+
+  <!-- Central Vertical Backbone Laser Conduit (Through all 3 tiers) -->
+  <line x1="600" y1="180" x2="600" y2="670" stroke="url(#laserBeam)" stroke-width="3" opacity="0.75"/>
+  <line x1="600" y1="180" x2="600" y2="670" stroke="#ffffff" stroke-width="1" stroke-dasharray="4, 8" opacity="0.8"/>
+  
+  <!-- Sweeping Laser Scan Pulse along Central Conduit -->
+  <g class="scan-beam">
+    <ellipse cx="600" cy="190" rx="30" ry="6" fill="#38bdf8" filter="url(#glowCyan)"/>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- TIER 3 (BOTTOM): MULTI-MODAL EARTH OBSERVATION & SATELLITE RADAR SENSORS  -->
+  <!-- ========================================================================= -->
+  <g id="tier3-group" transform="translate(150, 490)">
+    <!-- Animated 3D Floating Levitation -->
+    <animateTransform attributeName="transform" type="translate" values="150,490; 150,483; 150,490" dur="5.2s" repeatCount="indefinite"/>
+
+    <!-- Base 3D Isometric Platform (Diamond / Hexagon) -->
+    <g filter="url(#platformShadow)">
+      <!-- Top Platform Face -->
+      <polygon points="450,0 900,60 450,120 0,60" fill="url(#t3Top)" stroke="#a855f7" stroke-width="2.2"/>
+      <!-- Left Extruded Bevel Face -->
+      <polygon points="0,60 450,120 450,145 0,85" fill="url(#t3SideL)" stroke="#7c3aed" stroke-width="1.2"/>
+      <!-- Right Extruded Bevel Face -->
+      <polygon points="450,120 900,60 900,85 450,145" fill="url(#t3SideR)" stroke="#5b21b6" stroke-width="1.2"/>
+    </g>
+
+    <!-- Platform Neon Perimeter Glow Lines -->
+    <polyline points="0,60 450,120 900,60" fill="none" stroke="#c084fc" stroke-width="1.8" opacity="0.8" filter="url(#glowPurple)"/>
+
+    <!-- Tier Title Pill -->
+    <g transform="translate(450, 20)">
+      <rect x="-240" y="-14" width="480" height="26" rx="13" fill="#13082b" stroke="#a855f7" stroke-width="1.4"/>
+      <circle cx="-222" cy="-1" r="4" fill="#a855f7"/>
+      <text x="0" y="4" text-anchor="middle" fill="#e9d5ff" font-size="11" font-weight="bold" class="font-mono">
+        TIER 3: MULTI-MODAL SATELLITE SENSORS &amp; AI GATEWAYS
       </text>
     </g>
-    <g transform="translate(370, 48)">
-      <rect x="0" y="0" width="160" height="34" rx="4" fill="#071933" stroke="#38BDF8" stroke-width="1.2"/>
-      <text x="80" y="21" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="bold" class="font-sans">
-        2D Nadir &amp; 3D Oblique Tilt
-      </text>
+
+    <!-- 4 High-Tech Component Cards on Platform -->
+    <!-- Card 1: ISRO Cartosat & RISAT -->
+    <g transform="translate(60, 46)">
+      <rect x="0" y="0" width="180" height="46" rx="6" fill="url(#cardBgPurple)" stroke="#c084fc" stroke-width="1.4" filter="url(#glowPurple)"/>
+      <circle cx="16" cy="16" r="4" fill="#10b981" class="status-dot"/>
+      <text x="28" y="18" fill="#ffffff" font-size="11" font-weight="bold" class="font-sans">ISRO RISAT / Cartosat</text>
+      <text x="28" y="34" fill="#d8b4fe" font-size="9" class="font-mono">0.28m Optical + C-SAR</text>
     </g>
-    <g transform="translate(580, 48)">
-      <rect x="0" y="0" width="160" height="34" rx="4" fill="#071933" stroke="#38BDF8" stroke-width="1.2"/>
-      <text x="80" y="21" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="bold" class="font-sans">
-        Temporal Bi-Slippy Slider
-      </text>
+
+    <!-- Card 2: Copernicus Sentinel-1 & 2 -->
+    <g transform="translate(260, 46)">
+      <rect x="0" y="0" width="185" height="46" rx="6" fill="url(#cardBgPurple)" stroke="#a855f7" stroke-width="1.4"/>
+      <circle cx="16" cy="16" r="4" fill="#38bdf8"/>
+      <text x="28" y="18" fill="#ffffff" font-size="11" font-weight="bold" class="font-sans">Copernicus Sentinel-1/2</text>
+      <text x="28" y="34" fill="#d8b4fe" font-size="9" class="font-mono">5.405 GHz SAR + 13-Band</text>
+    </g>
+
+    <!-- Card 3: ESRI & NASA GIBS -->
+    <g transform="translate(465, 46)">
+      <rect x="0" y="0" width="180" height="46" rx="6" fill="url(#cardBgPurple)" stroke="#a855f7" stroke-width="1.4"/>
+      <circle cx="16" cy="16" r="4" fill="#f59e0b"/>
+      <text x="28" y="18" fill="#ffffff" font-size="11" font-weight="bold" class="font-sans">ESRI &amp; NASA GIBS</text>
+      <text x="28" y="34" fill="#d8b4fe" font-size="9" class="font-mono">0.3m Basemap + MODIS/VIIRS</text>
+    </g>
+
+    <!-- Card 4: Multi-Model AI Gateways -->
+    <g transform="translate(665, 46)">
+      <rect x="0" y="0" width="180" height="46" rx="6" fill="url(#cardBgPurple)" stroke="#c084fc" stroke-width="1.4" filter="url(#glowPurple)"/>
+      <circle cx="16" cy="16" r="4" fill="#a855f7"/>
+      <text x="28" y="18" fill="#ffffff" font-size="11" font-weight="bold" class="font-sans">OpenRouter / OmniRoute</text>
+      <text x="28" y="34" fill="#d8b4fe" font-size="9" class="font-mono">Dedicated 9-Model Pool</text>
     </g>
   </g>
 
-  <!-- Connectors Tier 1 to Tier 2 -->
-  <g stroke="#38BDF8" stroke-width="1.8" class="pulse-data">
-    <line x1="320" y1="235" x2="320" y2="295"/>
-    <line x1="550" y1="245" x2="550" y2="305"/>
-    <line x1="780" y1="235" x2="780" y2="295"/>
+  <!-- ========================================================================= -->
+  <!-- VERTICAL STREAMING DATA BUS (TIER 2 TO TIER 3)                           -->
+  <!-- ========================================================================= -->
+  <g>
+    <!-- 4 High-Voltage Optical Fiber Streams -->
+    <line x1="300" y1="430" x2="300" y2="505" stroke="#818cf8" stroke-width="2.5" class="stream-line"/>
+    <line x1="480" y1="445" x2="480" y2="515" stroke="#a855f7" stroke-width="2.5" class="stream-line"/>
+    <line x1="720" y1="445" x2="720" y2="515" stroke="#a855f7" stroke-width="2.5" class="stream-line"/>
+    <line x1="900" y1="430" x2="900" y2="505" stroke="#818cf8" stroke-width="2.5" class="stream-line"/>
+
+    <!-- Animated Downward Streaming Photons (Packets) -->
+    <circle cx="300" cy="435" r="4" fill="#c084fc" filter="url(#glowPurple)">
+      <animate attributeName="cy" from="430" to="505" dur="1.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="1.4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="480" cy="445" r="4" fill="#818cf8" filter="url(#glowBlue)">
+      <animate attributeName="cy" from="445" to="515" dur="1.6s" repeatCount="indefinite" begin="0.4s"/>
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="1.6s" repeatCount="indefinite" begin="0.4s"/>
+    </circle>
+    <circle cx="720" cy="445" r="4" fill="#818cf8" filter="url(#glowBlue)">
+      <animate attributeName="cy" from="445" to="515" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
+    </circle>
+    <circle cx="900" cy="435" r="4" fill="#c084fc" filter="url(#glowPurple)">
+      <animate attributeName="cy" from="430" to="505" dur="1.4s" repeatCount="indefinite" begin="0.2s"/>
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="1.4s" repeatCount="indefinite" begin="0.2s"/>
+    </circle>
   </g>
 
-  <!-- ================= TIER 2 (MIDDLE): 9-AGENT COGNITIVE ENGINE ================= -->
-  <g transform="translate(100, 290)" filter="url(#shadow3D)" class="tier-2-anim">
-    <polygon points="450,0 900,60 450,120 0,60" fill="#0A1E3F" stroke="#3B82F6" stroke-width="2"/>
-    <polygon points="0,60 450,120 450,140 0,80" fill="#07152D"/>
-    <polygon points="450,120 900,60 900,80 450,140" fill="#050F21"/>
+  <!-- ========================================================================= -->
+  <!-- TIER 2 (MIDDLE): 9-AGENT CONTROLLED COGNITIVE ORCHESTRATION LAYER         -->
+  <!-- ========================================================================= -->
+  <g id="tier2-group" transform="translate(150, 290)">
+    <!-- Animated 3D Floating Levitation (Phase-shifted) -->
+    <animateTransform attributeName="transform" type="translate" values="150,290; 150,282; 150,290" dur="4.6s" repeatCount="indefinite"/>
 
-    <!-- Tier Label -->
-    <text x="450" y="45" text-anchor="middle" fill="#60A5FA" font-size="13" font-weight="bold" class="font-mono">
-      TIER 2: 9-AGENT CONTROLLED COGNITIVE ORCHESTRATION (FastAPI Async)
-    </text>
+    <!-- Base 3D Isometric Platform -->
+    <g filter="url(#platformShadow)">
+      <!-- Top Platform Face -->
+      <polygon points="450,0 900,60 450,120 0,60" fill="url(#t2Top)" stroke="#3b82f6" stroke-width="2.2"/>
+      <!-- Left Extruded Bevel Face -->
+      <polygon points="0,60 450,120 450,145 0,85" fill="url(#t2SideL)" stroke="#2563eb" stroke-width="1.2"/>
+      <!-- Right Extruded Bevel Face -->
+      <polygon points="450,120 900,60 900,85 450,145" fill="url(#t2SideR)" stroke="#1d4ed8" stroke-width="1.2"/>
+    </g>
 
-    <!-- 9 Agent Mini-Grid -->
-    <g transform="translate(80, 50)">
-      <rect x="0" y="0" width="85" height="30" rx="3" fill="#0D2552" stroke="#60A5FA" stroke-width="1"/>
-      <text x="42" y="19" text-anchor="middle" fill="#E2E8F0" font-size="9" font-weight="bold" class="font-mono">A1:Planner</text>
+    <!-- Platform Neon Perimeter Glow -->
+    <polyline points="0,60 450,120 900,60" fill="none" stroke="#60a5fa" stroke-width="1.8" opacity="0.85" filter="url(#glowBlue)"/>
+
+    <!-- Tier Title Pill -->
+    <g transform="translate(450, 18)">
+      <rect x="-260" y="-14" width="520" height="26" rx="13" fill="#0a1636" stroke="#3b82f6" stroke-width="1.4"/>
+      <circle cx="-242" cy="-1" r="4" fill="#38bdf8"/>
+      <text x="0" y="4" text-anchor="middle" fill="#dbeafe" font-size="11" font-weight="bold" class="font-mono">
+        TIER 2: 9-AGENT COGNITIVE BRAIN &amp; GRAPH-OF-THOUGHT (FastAPI)
+      </text>
     </g>
-    <g transform="translate(175, 50)">
-      <rect x="0" y="0" width="85" height="30" rx="3" fill="#0D2552" stroke="#60A5FA" stroke-width="1"/>
-      <text x="42" y="19" text-anchor="middle" fill="#E2E8F0" font-size="9" font-weight="bold" class="font-mono">A2:GeoVal</text>
+
+    <!-- 9 Specialist Agent Chips Grid across Platform Surface -->
+    <!-- Row 1: Intake & Routing Agents -->
+    <g transform="translate(85, 42)">
+      <rect x="0" y="0" width="82" height="34" rx="4" fill="url(#cardBgBlue)" stroke="#38bdf8" stroke-width="1.2"/>
+      <circle cx="10" cy="11" r="3" fill="#38bdf8"/>
+      <text x="44" y="15" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" class="font-mono">A1:Planner</text>
+      <text x="44" y="27" text-anchor="middle" fill="#93c5fd" font-size="7.5" class="font-mono">Llama 70B</text>
     </g>
-    <g transform="translate(270, 50)">
-      <rect x="0" y="0" width="85" height="30" rx="3" fill="#0D2552" stroke="#60A5FA" stroke-width="1"/>
-      <text x="42" y="19" text-anchor="middle" fill="#E2E8F0" font-size="9" font-weight="bold" class="font-mono">A3:Router</text>
+    <g transform="translate(175, 42)">
+      <rect x="0" y="0" width="82" height="34" rx="4" fill="url(#cardBgBlue)" stroke="#38bdf8" stroke-width="1.2"/>
+      <circle cx="10" cy="11" r="3" fill="#38bdf8"/>
+      <text x="44" y="15" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" class="font-mono">A2:GeoVal</text>
+      <text x="44" y="27" text-anchor="middle" fill="#93c5fd" font-size="7.5" class="font-mono">Qwen 72B</text>
     </g>
-    <g transform="translate(365, 50)">
-      <rect x="0" y="0" width="85" height="30" rx="3" fill="#0D2552" stroke="#A855F7" stroke-width="1"/>
-      <text x="42" y="19" text-anchor="middle" fill="#F3E8FF" font-size="9" font-weight="bold" class="font-mono">A4:VQA</text>
+    <g transform="translate(265, 42)">
+      <rect x="0" y="0" width="82" height="34" rx="4" fill="url(#cardBgBlue)" stroke="#38bdf8" stroke-width="1.2"/>
+      <circle cx="10" cy="11" r="3" fill="#38bdf8"/>
+      <text x="44" y="15" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" class="font-mono">A3:Router</text>
+      <text x="44" y="27" text-anchor="middle" fill="#93c5fd" font-size="7.5" class="font-mono">Mistral 24B</text>
     </g>
-    <g transform="translate(460, 50)">
-      <rect x="0" y="0" width="85" height="30" rx="3" fill="#0D2552" stroke="#A855F7" stroke-width="1"/>
-      <text x="42" y="19" text-anchor="middle" fill="#F3E8FF" font-size="9" font-weight="bold" class="font-mono">A5:Change</text>
+
+    <!-- Row 2: Vision & Change Engines -->
+    <g transform="translate(355, 42)">
+      <rect x="0" y="0" width="82" height="34" rx="4" fill="url(#cardBgBlue)" stroke="#a855f7" stroke-width="1.2" filter="url(#glowPurple)"/>
+      <circle cx="10" cy="11" r="3" fill="#a855f7"/>
+      <text x="44" y="15" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" class="font-mono">A4:RS-VQA</text>
+      <text x="44" y="27" text-anchor="middle" fill="#e9d5ff" font-size="7.5" class="font-mono">Gemini 2.5</text>
     </g>
-    <g transform="translate(555, 50)">
-      <rect x="0" y="0" width="85" height="30" rx="3" fill="#0D2552" stroke="#06B6D4" stroke-width="1"/>
-      <text x="42" y="19" text-anchor="middle" fill="#CFFAFE" font-size="9" font-weight="bold" class="font-mono">A6:Ground</text>
+    <g transform="translate(445, 42)">
+      <rect x="0" y="0" width="82" height="34" rx="4" fill="url(#cardBgBlue)" stroke="#a855f7" stroke-width="1.2" filter="url(#glowPurple)"/>
+      <circle cx="10" cy="11" r="3" fill="#a855f7"/>
+      <text x="44" y="15" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" class="font-mono">A5:Change</text>
+      <text x="44" y="27" text-anchor="middle" fill="#e9d5ff" font-size="7.5" class="font-mono">DeepSeek R1</text>
     </g>
-    <g transform="translate(650, 50)">
-      <rect x="0" y="0" width="85" height="30" rx="3" fill="#0D2552" stroke="#10B981" stroke-width="1"/>
-      <text x="42" y="19" text-anchor="middle" fill="#D1FAE5" font-size="9" font-weight="bold" class="font-mono">A7:Fusion</text>
+    <g transform="translate(535, 42)">
+      <rect x="0" y="0" width="82" height="34" rx="4" fill="url(#cardBgBlue)" stroke="#06b6d4" stroke-width="1.2"/>
+      <circle cx="10" cy="11" r="3" fill="#06b6d4"/>
+      <text x="44" y="15" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" class="font-mono">A6:Ground</text>
+      <text x="44" y="27" text-anchor="middle" fill="#a5f3fc" font-size="7.5" class="font-mono">Llama 70B</text>
     </g>
-    <g transform="translate(745, 50)">
-      <rect x="0" y="0" width="85" height="30" rx="3" fill="#0D2552" stroke="#F59E0B" stroke-width="1"/>
-      <text x="42" y="19" text-anchor="middle" fill="#FEF3C7" font-size="9" font-weight="bold" class="font-mono">A8:Conf</text>
+
+    <!-- Row 3: Consensus & Flight Recorder -->
+    <g transform="translate(625, 42)">
+      <rect x="0" y="0" width="82" height="34" rx="4" fill="url(#cardBgBlue)" stroke="#10b981" stroke-width="1.2" filter="url(#glowCyan)"/>
+      <circle cx="10" cy="11" r="3" fill="#10b981"/>
+      <text x="44" y="15" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" class="font-mono">A7:Fusion</text>
+      <text x="44" y="27" text-anchor="middle" fill="#a7f3d0" font-size="7.5" class="font-mono">GoT Debate</text>
+    </g>
+    <g transform="translate(715, 42)">
+      <rect x="0" y="0" width="82" height="34" rx="4" fill="url(#cardBgBlue)" stroke="#f59e0b" stroke-width="1.2"/>
+      <circle cx="10" cy="11" r="3" fill="#f59e0b"/>
+      <text x="44" y="15" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" class="font-mono">A8:Confid</text>
+      <text x="44" y="27" text-anchor="middle" fill="#fde68a" font-size="7.5" class="font-mono">0-100% Cal</text>
+    </g>
+    <g transform="translate(805, 42)">
+      <rect x="0" y="0" width="82" height="34" rx="4" fill="url(#cardBgBlue)" stroke="#ec4899" stroke-width="1.2"/>
+      <circle cx="10" cy="11" r="3" fill="#ec4899"/>
+      <text x="44" y="15" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold" class="font-mono">A9:Trace</text>
+      <text x="44" y="27" text-anchor="middle" fill="#fbcfe8" font-size="7.5" class="font-mono">Flight Log</text>
     </g>
   </g>
 
-  <!-- Connectors Tier 2 to Tier 3 -->
-  <g stroke="#818CF8" stroke-width="1.8" class="pulse-data">
-    <line x1="320" y1="415" x2="320" y2="475"/>
-    <line x1="550" y1="425" x2="550" y2="485"/>
-    <line x1="780" y1="415" x2="780" y2="475"/>
+  <!-- ========================================================================= -->
+  <!-- VERTICAL STREAMING DATA BUS (TIER 1 TO TIER 2)                           -->
+  <!-- ========================================================================= -->
+  <g>
+    <!-- 3 Glowing Command Conduits -->
+    <line x1="340" y1="225" x2="340" y2="305" stroke="#38bdf8" stroke-width="2.5" class="stream-fast"/>
+    <line x1="600" y1="240" x2="600" y2="315" stroke="#38bdf8" stroke-width="3" class="stream-fast"/>
+    <line x1="860" y1="225" x2="860" y2="305" stroke="#38bdf8" stroke-width="2.5" class="stream-fast"/>
+
+    <!-- Animated Downward Streaming Photons (Packets) -->
+    <circle cx="340" cy="225" r="4.5" fill="#38bdf8" filter="url(#glowCyan)">
+      <animate attributeName="cy" from="225" to="305" dur="1.1s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="1.1s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="600" cy="240" r="5" fill="#ffffff" filter="url(#glowCyan)">
+      <animate attributeName="cy" from="240" to="315" dur="1.0s" repeatCount="indefinite" begin="0.3s"/>
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.0s" repeatCount="indefinite" begin="0.3s"/>
+    </circle>
+    <circle cx="860" cy="225" r="4.5" fill="#38bdf8" filter="url(#glowCyan)">
+      <animate attributeName="cy" from="225" to="305" dur="1.1s" repeatCount="indefinite" begin="0.5s"/>
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="1.1s" repeatCount="indefinite" begin="0.5s"/>
+    </circle>
   </g>
 
-  <!-- ================= TIER 3 (BOTTOM): SATELLITE SENSORS & DATA ================= -->
-  <g transform="translate(100, 470)" filter="url(#shadow3D)" class="tier-3-anim">
-    <polygon points="450,0 900,60 450,120 0,60" fill="#18133E" stroke="#8B5CF6" stroke-width="2"/>
-    <polygon points="0,60 450,120 450,140 0,80" fill="#120E2E"/>
-    <polygon points="450,120 900,60 900,80 450,140" fill="#0C0920"/>
+  <!-- ========================================================================= -->
+  <!-- TIER 1 (TOP): 3D SPATIAL SURVEILLANCE PRESENTATION COCKPIT               -->
+  <!-- ========================================================================= -->
+  <g id="tier1-group" transform="translate(150, 95)">
+    <!-- Animated 3D Floating Levitation (Primary apex) -->
+    <animateTransform attributeName="transform" type="translate" values="150,95; 150,86; 150,95" dur="4.0s" repeatCount="indefinite"/>
 
-    <!-- Tier Label -->
-    <text x="450" y="45" text-anchor="middle" fill="#C084FC" font-size="13" font-weight="bold" class="font-mono">
-      TIER 3: MULTI-MODAL EARTH OBSERVATION &amp; GEOSPATIAL PLATFORMS
-    </text>
+    <!-- Base 3D Isometric Platform -->
+    <g filter="url(#platformShadow)">
+      <!-- Top Platform Face -->
+      <polygon points="450,0 900,60 450,120 0,60" fill="url(#t1Top)" stroke="#0284c7" stroke-width="2.5"/>
+      <!-- Left Extruded Bevel Face -->
+      <polygon points="0,60 450,120 450,145 0,85" fill="url(#t1SideL)" stroke="#0369a1" stroke-width="1.2"/>
+      <!-- Right Extruded Bevel Face -->
+      <polygon points="450,120 900,60 900,85 450,145" fill="url(#t1SideR)" stroke="#0284c7" stroke-width="1.2"/>
+    </g>
 
-    <!-- 4 Sensors on Platform -->
-    <g transform="translate(80, 50)">
-      <rect x="0" y="0" width="165" height="32" rx="4" fill="#241454" stroke="#A855F7" stroke-width="1.2"/>
-      <text x="82" y="20" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="bold" class="font-sans">
-        ISRO RISAT / Cartosat
+    <!-- Platform Neon Perimeter Glow -->
+    <polyline points="0,60 450,120 900,60" fill="none" stroke="#38bdf8" stroke-width="2.2" opacity="0.9" filter="url(#glowCyan)"/>
+
+    <!-- Tier Title Pill -->
+    <g transform="translate(450, 18)">
+      <rect x="-240" y="-14" width="480" height="26" rx="13" fill="#082038" stroke="#0284c7" stroke-width="1.5"/>
+      <circle cx="-222" cy="-1" r="4" fill="#38bdf8"/>
+      <text x="0" y="4" text-anchor="middle" fill="#e0f2fe" font-size="11" font-weight="bold" class="font-mono">
+        TIER 1: PRESENTATION &amp; 3D SPATIAL SURVEILLANCE COCKPIT
       </text>
     </g>
-    <g transform="translate(270, 50)">
-      <rect x="0" y="0" width="165" height="32" rx="4" fill="#241454" stroke="#A855F7" stroke-width="1.2"/>
-      <text x="82" y="20" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="bold" class="font-sans">
-        Copernicus Sentinel-1 SAR
-      </text>
+
+    <!-- 3 Core Cockpit Cards on Platform -->
+    <!-- Card 1: Three.js 3D Earth Globe -->
+    <g transform="translate(110, 46)">
+      <rect x="0" y="0" width="200" height="46" rx="6" fill="url(#cardBgCyan)" stroke="#38bdf8" stroke-width="1.4" filter="url(#glowCyan)"/>
+      <circle cx="18" cy="17" r="4" fill="#10b981" class="status-dot"/>
+      <text x="32" y="19" fill="#ffffff" font-size="11.5" font-weight="bold" class="font-sans">Three.js 3D Earth</text>
+      <text x="32" y="35" fill="#7dd3fc" font-size="9" class="font-mono">WebGL Shader • Orbits HUD</text>
     </g>
-    <g transform="translate(460, 50)">
-      <rect x="0" y="0" width="165" height="32" rx="4" fill="#241454" stroke="#06B6D4" stroke-width="1.2"/>
-      <text x="82" y="20" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="bold" class="font-sans">
-        ESRI World Imagery (0.3m)
-      </text>
+
+    <!-- Card 2: Dual 2D/3D Oblique View -->
+    <g transform="translate(350, 46)">
+      <rect x="0" y="0" width="200" height="46" rx="6" fill="url(#cardBgCyan)" stroke="#38bdf8" stroke-width="1.4"/>
+      <circle cx="18" cy="17" r="4" fill="#38bdf8"/>
+      <text x="32" y="19" fill="#ffffff" font-size="11.5" font-weight="bold" class="font-sans">Dual 2D / 3D Stage</text>
+      <text x="32" y="35" fill="#7dd3fc" font-size="9" class="font-mono">0°-75° Tilt • Building Prisms</text>
     </g>
-    <g transform="translate(650, 50)">
-      <rect x="0" y="0" width="165" height="32" rx="4" fill="#241454" stroke="#10B981" stroke-width="1.2"/>
-      <text x="82" y="20" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="bold" class="font-sans">
-        NASA GIBS NRT Feeds
-      </text>
+
+    <!-- Card 3: Bi-Temporal Split Slider -->
+    <g transform="translate(590, 46)">
+      <rect x="0" y="0" width="200" height="46" rx="6" fill="url(#cardBgCyan)" stroke="#38bdf8" stroke-width="1.4" filter="url(#glowCyan)"/>
+      <circle cx="18" cy="17" r="4" fill="#f59e0b"/>
+      <text x="32" y="19" fill="#ffffff" font-size="11.5" font-weight="bold" class="font-sans">Bi-Temporal Slider</text>
+      <text x="32" y="35" fill="#7dd3fc" font-size="9" class="font-mono">Live T1/T2 Wipe • Traffic Detour</text>
     </g>
   </g>
 </svg>

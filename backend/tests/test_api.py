@@ -221,5 +221,51 @@ async def test_authentication_suite():
         assert r_me.json()["user"]["name"] == "Dr. Subrahmanyan Chandrasekhar"
 
 
+@pytest.mark.asyncio
+async def test_deployment_manual_download():
+    """Verify that the Enterprise Production Deployment Manual PDF endpoint serves valid PDF content."""
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        res = await client.get("/api/download/deployment-manual")
+        assert res.status_code == 200
+        assert res.headers["content-type"] == "application/pdf"
+        assert len(res.content) > 50000
+        assert res.content.startswith(b"%PDF")
+
+
+@pytest.mark.asyncio
+async def test_polygon_measurement_boundary_and_validation():
+    """Verify that degenerate and invalid polygon inputs are cleanly rejected with HTTP 400."""
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        # Too few vertices (< 3)
+        res_few = await client.post("/api/investigate/measure/area", json={"coordinates": [[12.97, 77.59], [12.98, 77.60]]})
+        assert res_few.status_code == 400
+        assert "at least 3 vertices" in res_few.json()["detail"]
+
+        # Malformed vertex (single scalar instead of [lat, lon])
+        res_bad = await client.post("/api/investigate/measure/area", json={"coordinates": [[12.97], [12.98, 77.60], [12.97, 77.60]]})
+        assert res_bad.status_code == 400
+        assert "valid finite" in res_bad.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_location_search_robustness():
+    """Verify that whitespace queries, unusual inputs, and edge cases return clean responses."""
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        # Normal query
+        r1 = await client.get("/api/locations/search?q=Bengaluru")
+        assert r1.status_code == 200
+        assert len(r1.json()) >= 1
+
+        # Non-matching query returns empty list without error
+        r2 = await client.get("/api/locations/search?q=NonExistentFictionalLocation99999")
+        assert r2.status_code == 200
+        assert isinstance(r2.json(), list)
+
+
+
+
 
 

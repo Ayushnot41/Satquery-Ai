@@ -62,3 +62,4 @@ logs/
 # Data & Demo Caches
 data/
 backend/data/
+scratch/

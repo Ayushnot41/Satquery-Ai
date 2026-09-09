@@ -75,13 +75,13 @@ class GoogleAuthRequest(BaseModel):
 
 
 class SendOtpRequest(BaseModel):
-    phone: str = Field(..., min_length=10, max_length=16, example="+919876543210")
+    phone: str = Field(..., min_length=10, max_length=16, json_schema_extra={"example": "+919876543210"})
     purpose: Literal["login", "verification", "clearance"] = "verification"
 
 
 class VerifyOtpRequest(BaseModel):
-    phone: str = Field(..., example="+919876543210")
-    otp: str = Field(..., min_length=6, max_length=6, example="849201")
+    phone: str = Field(..., json_schema_extra={"example": "+919876543210"})
+    otp: str = Field(..., min_length=6, max_length=6, json_schema_extra={"example": "849201"})
 
 
 class AuthTokenResponse(BaseModel):
@@ -226,6 +226,12 @@ async def send_phone_otp(req: SendOtpRequest):
     # Generate a secure 6-digit numeric PIN
     generated_otp = f"{random.randint(100000, 999999)}"
     expires_at = time.time() + 300.0  # 5 minutes validity
+
+    # Purge expired OTPs to keep memory footprint lean
+    now = time.time()
+    expired = [k for k, v in ACTIVE_OTPS.items() if v.get("expires_at", 0) < now]
+    for exp_k in expired:
+        del ACTIVE_OTPS[exp_k]
 
     ACTIVE_OTPS[phone_clean] = {
         "otp": generated_otp,
