@@ -8,6 +8,8 @@ import { ImageryPanel } from "./ImageryPanel";
 import { EvidenceOverlay } from "./EvidenceOverlay";
 import { AnswerConfidencePanel } from "./AnswerConfidencePanel";
 import { ExecutionTrace } from "./ExecutionTrace";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 interface AnalysisResultsViewProps {
   result?: AnalysisResult | null;
@@ -173,6 +175,32 @@ export function AnalysisResultsView({ result: propResult, onBack }: AnalysisResu
   // Mock switcher for demo
   const [mockIdx, setMockIdx] = useState(0);
   const result = propResult ?? ALL_MOCK_RESULTS[mockIdx];
+  const workspaceRef = React.useRef<HTMLDivElement>(null);
+
+  const exportToPDF = async () => {
+    if (!workspaceRef.current) return;
+    try {
+      const canvas = await html2canvas(workspaceRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#0A0E14",
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`ISRO-SatQuery-Intelligence-Report-${Date.now()}.pdf`);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+    }
+  };
 
   if (result.status === "processing") {
     return <ProcessingState />;
@@ -196,14 +224,27 @@ export function AnalysisResultsView({ result: propResult, onBack }: AnalysisResu
       : undefined;
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 space-y-5 text-white select-none">
+    <div ref={workspaceRef} className="w-full max-w-7xl mx-auto p-6 space-y-5 text-white select-none">
 
-      {/* ─── Demo mode switcher ─────────────────────────────── */}
-      {!propResult && (
-        <div className="flex items-center justify-end">
+      {/* ─── Export & Demo switcher ─────────────────────────────── */}
+      <div className="flex items-center justify-end gap-3">
+        <button
+            onClick={exportToPDF}
+            className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-[10px] rounded border border-emerald-400/30 transition-all flex items-center gap-2 font-mono uppercase tracking-wider cursor-pointer"
+          >
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Export PDF Report
+          </button>
+        {!propResult && (
           <MockModeSwitcher activeIdx={mockIdx} onChange={setMockIdx} />
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ─── ZONE 1: Run Header ─────────────────────────────── */}
       <RunHeader result={result} onBack={onBack} />
