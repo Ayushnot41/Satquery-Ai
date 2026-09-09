@@ -35,6 +35,13 @@ INVESTIGATION_CACHE: dict[str, InvestigationResponse] = {}
 def get_vlm_backend() -> VLMBackend:
     if settings.vlm_backend == "gateway":
         return GatewayBackend()
+    elif settings.vlm_backend == "local":
+        try:
+            from ..models.vlm_loader import LocalVLMBackend
+            return LocalVLMBackend()
+        except Exception as e:
+            print(f"Failed to load LocalVLMBackend: {e}")
+            return DemoBackend()
     return DemoBackend()
 
 

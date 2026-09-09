@@ -36,7 +36,7 @@ class Settings(BaseSettings):
 
     # --- VLM Primary (Agent 4 / GatewayBackend) ---
     vlm_model_name: str = "google/gemini-2.5-flash"
-    vlm_backend: Literal["gateway", "vllm", "demo"] = "gateway"
+    vlm_backend: Literal["gateway", "vllm", "demo", "local"] = "gateway"
     vllm_api_url: str = "http://localhost:8080/v1"
 
     # --- Secondary Fallback: OmniRoute ---

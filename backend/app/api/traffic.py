@@ -48,67 +48,97 @@ async def get_traffic_flow(
     Returns real-time or defense-grade simulated traffic vectors around coordinates.
     Color codes congestion levels: Free (Green), Moderate (Amber), Heavy (Red), Severe (Dark Red).
     """
-    seed = int((lat * 1000 + lon * 1000) % 10000)
-
-    roads = [
-        ("National Highway 44 Bypass", 80.0),
-        ("Outer Ring Road Strategic Arterial", 60.0),
-        ("Central Relief Corridor", 50.0),
-        ("Emergency Logistics Link Road", 45.0),
-        ("River Bridge Transversal", 65.0)
-    ]
-
     segments: List[Dict[str, Any]] = []
     total_delay = 0.0
 
-    for i, (name, free_speed) in enumerate(roads):
-        angle = (i * (360 / len(roads))) * (math.pi / 180)
-        d_lat = (radius_km * 0.4 / 111.0) * math.cos(angle)
-        d_lon = (radius_km * 0.4 / (111.0 * math.cos(math.radians(lat)))) * math.sin(angle)
+    if api_key and len(api_key) > 5:
+        # Use Real Google Maps API
+        try:
+            import httpx
+            async with httpx.AsyncClient() as client:
+                res = await client.get(
+                    "https://maps.googleapis.com/maps/api/directions/json",
+                    params={
+                        "origin": f"{lat-0.02},{lon-0.02}",
+                        "destination": f"{lat+0.02},{lon+0.02}",
+                        "key": api_key,
+                        "departure_time": "now"
+                    }
+                )
+                data = res.json()
+                if data.get("status") == "OK":
+                    route = data["routes"][0]
+                    leg = route["legs"][0]
+                    duration_sec = leg.get("duration", {}).get("value", 0)
+                    traffic_sec = leg.get("duration_in_traffic", {}).get("value", duration_sec)
+                    delay_mins = max(0, (traffic_sec - duration_sec) / 60.0)
+                    
+                    segments.append({
+                        "segment_id": "GMAPS-REAL-01",
+                        "road_name": route.get("summary", "Google Maps Dynamic Route"),
+                        "congestion_level": "heavy" if delay_mins > 10 else ("moderate" if delay_mins > 3 else "free"),
+                        "speed_kmh": round(leg.get("distance", {}).get("value", 0) / max(1, traffic_sec) * 3.6, 1),
+                        "free_flow_speed_kmh": round(leg.get("distance", {}).get("value", 0) / max(1, duration_sec) * 3.6, 1),
+                        "delay_minutes": round(delay_mins, 1),
+                        "coordinates": [[lat-0.02, lon-0.02], [lat, lon], [lat+0.02, lon+0.02]],
+                        "status": "OPERATIONAL"
+                    })
+                    total_delay += delay_mins
+        except ImportError:
+            pass # fallback if httpx is missing
+        except Exception:
+            pass # fallback on network error
 
-        coords = [
-            [round(lat - d_lat * 0.5, 5), round(lon - d_lon * 0.5, 5)],
-            [round(lat + d_lat * 0.5, 5), round(lon + d_lon * 0.5, 5)]
+    if not segments:
+        # Fallback to Procedural Mock
+        seed = int((lat * 1000 + lon * 1000) % 10000)
+        roads = [
+            ("National Highway 44 Bypass", 80.0),
+            ("Outer Ring Road Strategic Arterial", 60.0),
+            ("Central Relief Corridor", 50.0),
+            ("Emergency Logistics Link Road", 45.0),
+            ("River Bridge Transversal", 65.0)
         ]
-
-        state_idx = (seed + i) % 4
-        if state_idx == 0:
-            congestion = "free"
-            speed = free_speed * 0.95
-            delay = 0.0
-        elif state_idx == 1:
-            congestion = "moderate"
-            speed = free_speed * 0.70
-            delay = 4.5
-        elif state_idx == 2:
-            congestion = "heavy"
-            speed = free_speed * 0.35
-            delay = 12.0
-        else:
-            congestion = "severe"
-            speed = free_speed * 0.15
-            delay = 24.0
-
-        total_delay += delay
-
-        segments.append({
-            "segment_id": f"TRF-SEG-{i+1:03d}",
-            "road_name": name,
-            "congestion_level": congestion,
-            "speed_kmh": round(speed, 1),
-            "free_flow_speed_kmh": free_speed,
-            "delay_minutes": delay,
-            "coordinates": coords,
-            "status": "OPERATIONAL" if congestion != "severe" else "CRITICAL_BOTTLENECK"
-        })
+        
+        for i, (name, free_speed) in enumerate(roads):
+            angle = (i * (360 / len(roads))) * (math.pi / 180)
+            d_lat = (radius_km * 0.4 / 111.0) * math.cos(angle)
+            d_lon = (radius_km * 0.4 / (111.0 * math.cos(math.radians(lat)))) * math.sin(angle)
+    
+            coords = [
+                [round(lat - d_lat * 0.5, 5), round(lon - d_lon * 0.5, 5)],
+                [round(lat + d_lat * 0.5, 5), round(lon + d_lon * 0.5, 5)]
+            ]
+    
+            state_idx = (seed + i) % 4
+            if state_idx == 0:
+                congestion, speed, delay = "free", free_speed * 0.95, 0.0
+            elif state_idx == 1:
+                congestion, speed, delay = "moderate", free_speed * 0.70, 4.5
+            elif state_idx == 2:
+                congestion, speed, delay = "heavy", free_speed * 0.35, 12.0
+            else:
+                congestion, speed, delay = "severe", free_speed * 0.15, 24.0
+    
+            total_delay += delay
+            segments.append({
+                "segment_id": f"TRF-SEG-{i+1:03d}",
+                "road_name": name,
+                "congestion_level": congestion,
+                "speed_kmh": round(speed, 1),
+                "free_flow_speed_kmh": free_speed,
+                "delay_minutes": delay,
+                "coordinates": coords,
+                "status": "OPERATIONAL" if congestion != "severe" else "CRITICAL_BOTTLENECK"
+            })
 
     return {
         "status": "active",
-        "provider": "Google Maps Platform (Direct / Proxy)" if api_key else "BHUVISION Defense Tactical Traffic Engine",
+        "provider": "Google Maps Platform (Live)" if (api_key and len(segments) == 1 and segments[0]["segment_id"] == "GMAPS-REAL-01") else "BHUVISION Defense Tactical Traffic Engine",
         "center": [lat, lon],
         "radius_km": radius_km,
         "active_segments": len(segments),
-        "mean_delay_minutes": round(total_delay / len(segments), 1),
+        "mean_delay_minutes": round(total_delay / len(segments), 1) if segments else 0,
         "segments": segments
     }
 
