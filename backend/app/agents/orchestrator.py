@@ -169,15 +169,24 @@ class InvestigationOrchestrator:
                     ))
 
             # Execute RS-VQA
+            meta_hints = []
+            for item in imagery:
+                if item.metadata and getattr(item.metadata, "filename", None):
+                    meta_hints.append(f"Filename: {item.metadata.filename}")
+                if item.metadata and getattr(item.metadata, "geo", None) and getattr(item.metadata.geo, "bounds", None):
+                    meta_hints.append(f"Bounds: {item.metadata.geo.bounds}")
+            meta_str = f" [Metadata: {'; '.join(meta_hints)}]" if meta_hints else ""
+
             if primary_img is not None:
                 context_str = plan.investigation_summary
                 if change_res and change_res.has_change:
                     context_str += f" Change detection summary: {change_res.change_summary}"
+                context_str += meta_str
                 vqa_res = await self.vqa_agent.answer(primary_img, request.question, trace, context=context_str)
                 response.vqa_result = vqa_res
             elif before_img is not None and after_img is not None:
                 # Compare side-by-side
-                vqa_res = await self.vqa_agent.answer(after_img, request.question, trace, context="Analyzing post-event image.")
+                vqa_res = await self.vqa_agent.answer(after_img, request.question, trace, context="Analyzing post-event image." + meta_str)
                 response.vqa_result = vqa_res
 
             # === STEP 5: Visual Grounding (Agent 6) ===

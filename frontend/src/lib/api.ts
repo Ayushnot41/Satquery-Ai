@@ -230,7 +230,7 @@ export function investigationResponseToAnalysisResult(
     mission_context: missionContext,
     question: question || resp.question,
     input_ids: imageUrls && imageUrls.length > 0 ? imageUrls : ["uploaded-satellite-raster"],
-    answer: resp.answer || resp.vqa_result?.answer || "Analysis completed.",
+    answer: resp.fused_evidence?.primary_answer || resp.vqa_result?.answer || resp.answer || "Analysis completed.",
     status: resp.status === "error" ? "error" : "complete",
     confidence: confidenceScore,
     metrics,

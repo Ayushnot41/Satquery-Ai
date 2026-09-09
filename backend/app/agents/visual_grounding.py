@@ -82,7 +82,9 @@ class VisualGroundingAgent(AgentBase):
 
             # Determine thematic tag from query context
             c_lower = context.lower()
-            if any(k in c_lower for k in ["crop", "parcel", "agricultur", "field"]):
+            if any(k in c_lower for k in ["place", "where", "location", "city", "wich", "which"]):
+                tag_prefix = "Urban Center / Landmark Zone"
+            elif any(k in c_lower for k in ["crop", "parcel", "agricultur", "field"]):
                 tag_prefix = "Parcel Boundary / Vegetation Zone"
             elif any(k in c_lower for k in ["water", "flood", "river"]):
                 tag_prefix = "Hydrological Feature"
