@@ -56,6 +56,44 @@ export function SatelliteViewer({
   const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Slider Dragging State
+  const isSliderDraggingRef = useRef(false);
+
+  const handleSliderMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    isSliderDraggingRef.current = true;
+  };
+
+  useEffect(() => {
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!isSliderDraggingRef.current || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      let newX = e.clientX - rect.left;
+      newX = Math.max(0, Math.min(rect.width, newX));
+      setSliderPos((newX / rect.width) * 100);
+    };
+
+    const handleGlobalMouseUp = () => {
+      isSliderDraggingRef.current = false;
+    };
+
+    document.addEventListener("mousemove", handleGlobalMouseMove);
+    document.addEventListener("mouseup", handleGlobalMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleGlobalMouseMove);
+      document.removeEventListener("mouseup", handleGlobalMouseUp);
+    };
+  }, []);
+
+  const getOverlayPixelOffset = (targetLat: number, targetLon: number) => {
+    const degreesPerPixelLon = 360 / (256 * Math.pow(2, currentZoom));
+    const degreesPerPixelLat = (180 * Math.cos((currentLat * Math.PI) / 180)) / (256 * Math.pow(2, currentZoom));
+
+    const dx = (targetLon - currentLon) / degreesPerPixelLon;
+    const dy = (currentLat - targetLat) / degreesPerPixelLat;
+    return { dx, dy };
+  };
+
   // Sync external props
   useEffect(() => {
     setCurrentLat(lat);
@@ -563,31 +601,45 @@ export function SatelliteViewer({
           </div>
 
           {/* AI Verified Change Overlays */}
-          {showOverlays && (
-            <div className="absolute left-[38%] top-[34%] w-[26%] h-[24%] border-2 border-dashed border-[#EF4444] bg-red-500/20 rounded pointer-events-none transition-all duration-300 shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse z-20">
-              <div className="absolute -top-6 left-0 bg-[#EF4444] text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                <span>AI Verified Change AOI (14.2%)</span>
+          {showOverlays && (() => {
+            const aiBoxTargetLat = 28.614;
+            const aiBoxTargetLon = 77.209;
+            const { dx, dy } = getOverlayPixelOffset(aiBoxTargetLat, aiBoxTargetLon);
+            return (
+              <div
+                className="absolute w-[26%] h-[24%] border-2 border-dashed border-[#EF4444] bg-red-500/20 rounded pointer-events-none transition-transform duration-100 shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse z-20"
+                style={{
+                  left: "38%",
+                  top: "34%",
+                  transform: `translate(${dx}px, ${dy}px)`
+                }}
+              >
+                <div className="absolute -top-6 left-0 bg-[#EF4444] text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow flex items-center gap-1.5 whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                  <span>AI Verified Change AOI (14.2%)</span>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Additional Custom Overlays */}
           {showOverlays &&
             overlays.map((ov, idx) => {
               const [xmin, ymin, xmax, ymax] = ov.coordinates[0] || [100, 100, 300, 300];
+              const { dx, dy } = getOverlayPixelOffset(28.614, 77.209);
               return (
                 <div
                   key={idx}
-                  className="absolute border-2 border-dashed border-[#EF4444] bg-red-500/20 rounded pointer-events-none transition-all duration-500 z-20"
+                  className="absolute border-2 border-dashed border-[#EF4444] bg-red-500/20 rounded pointer-events-none transition-transform duration-100 z-20"
                   style={{
                     left: `${(xmin / 512) * 100}%`,
                     top: `${(ymin / 512) * 100}%`,
                     width: `${((xmax - xmin) / 512) * 100}%`,
                     height: `${((ymax - ymin) / 512) * 100}%`,
+                    transform: `translate(${dx}px, ${dy}px)`
                   }}
                 >
-                  <div className="absolute -top-6 left-0 bg-[#EF4444] text-white text-[10px] font-mono font-bold px-1.5 py-0.5 rounded shadow">
+                  <div className="absolute -top-6 left-0 bg-[#EF4444] text-white text-[10px] font-mono font-bold px-1.5 py-0.5 rounded shadow whitespace-nowrap">
                     {ov.label} ({Math.round((ov.confidence || 0.85) * 100)}%)
                   </div>
                 </div>
@@ -647,25 +699,16 @@ export function SatelliteViewer({
               className="absolute inset-y-0 z-30 flex items-center justify-center -ml-3 pointer-events-none"
               style={{ left: `${sliderPos}%` }}
             >
-              <div className="w-7 h-11 bg-cyan-400 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.8)] flex items-center justify-center pointer-events-auto cursor-ew-resize border-2 border-white">
+              <div 
+                className="w-7 h-11 bg-cyan-400 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.8)] flex items-center justify-center pointer-events-auto cursor-ew-resize border-2 border-white"
+                onMouseDown={handleSliderMouseDown}
+              >
                 <svg className="w-4 h-4 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                   <path d="m9 18-6-6 6-6" />
                   <path d="m15 6 6 6-6 6" />
                 </svg>
               </div>
             </div>
-          )}
-
-          {/* Invisible range input for slider control */}
-          {isTemporal && (
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={sliderPos}
-              onChange={(e) => setSliderPos(Number(e.target.value))}
-              className="absolute inset-0 opacity-0 cursor-ew-resize z-25 w-full h-full pointer-events-auto"
-            />
           )}
         </div>
 

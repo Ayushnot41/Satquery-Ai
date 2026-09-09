@@ -28,8 +28,58 @@ router = APIRouter(prefix="/auth", tags=["Authentication & Security Clearance"])
 
 # In-memory user store for demo & operational simulation (persists during process lifetime)
 # In production, this binds to PostgreSQL / Redis / Supabase / Firebase Auth
-DEMO_USERS_DB: dict[str, dict] = {
-    "ayush@isro.gov.in": {
+import sqlite3
+import json
+
+DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "auth.db")
+
+def init_db():
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                email TEXT PRIMARY KEY,
+                data TEXT
+            )
+        ''')
+init_db()
+
+class SQLiteDict:
+    def __contains__(self, key):
+        with sqlite3.connect(DB_PATH) as conn:
+            cursor = conn.execute("SELECT 1 FROM users WHERE email=?", (key,))
+            return cursor.fetchone() is not None
+
+    def __getitem__(self, key):
+        with sqlite3.connect(DB_PATH) as conn:
+            cursor = conn.execute("SELECT data FROM users WHERE email=?", (key,))
+            row = cursor.fetchone()
+            if row:
+                return json.loads(row[0])
+            raise KeyError(key)
+
+    def __setitem__(self, key, value):
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO users (email, data) VALUES (?, ?)",
+                (key, json.dumps(value))
+            )
+
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    def values(self):
+        with sqlite3.connect(DB_PATH) as conn:
+            cursor = conn.execute("SELECT data FROM users")
+            return [json.loads(row[0]) for row in cursor.fetchall()]
+
+DEMO_USERS_DB = SQLiteDict()
+
+if "ayush@isro.gov.in" not in DEMO_USERS_DB:
+    DEMO_USERS_DB["ayush@isro.gov.in"] = {
         "id": "usr_isro_001",
         "name": "Ayush Sarkar",
         "email": "ayush@isro.gov.in",
@@ -44,7 +94,6 @@ DEMO_USERS_DB: dict[str, dict] = {
         "password_hash": hashlib.sha256("IsroBankai2026!".encode()).hexdigest(),
         "created_at": "2026-09-01T00:00:00Z",
     }
-}
 
 # OTP storage: phone -> { "otp": "123456", "expires_at": float, "attempts": int }
 ACTIVE_OTPS: dict[str, dict] = {}
