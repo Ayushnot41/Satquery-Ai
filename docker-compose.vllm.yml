@@ -1,0 +1,45 @@
+version: "3.8"
+
+# ==============================================================================
+# BHUVISION // High-Performance Standalone vLLM Serving Compose Manifest
+# SIH26167 | ISRO Mentorship | Team BANKAI
+# Multi-GPU, PagedAttention, Continuous Batching for Multimodal Remote Sensing
+# ==============================================================================
+
+services:
+  vllm-smolvlm:
+    image: vllm/vllm-openai:latest
+    container_name: bhuvision-vllm-smolvlm
+    runtime: nvidia
+    ports:
+      - "8080:8080"
+    environment:
+      - MODEL_NAME=HuggingFaceTB/SmolVLM-500M-Instruct
+      - TENSOR_PARALLEL_SIZE=1
+      - MAX_MODEL_LEN=4096
+      - GPU_MEMORY_UTILIZATION=0.90
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ./backend/checkpoints:/app/checkpoints
+    command: >
+      --model HuggingFaceTB/SmolVLM-500M-Instruct
+      --port 8080
+      --trust-remote-code
+      --max-model-len 4096
+      --tensor-parallel-size 1
+      --gpu-memory-utilization 0.90
+      --dtype bfloat16
+      --chat-template /app/checkpoints/vqa_lora_experiment_01
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

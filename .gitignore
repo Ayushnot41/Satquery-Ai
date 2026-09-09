@@ -63,3 +63,5 @@ logs/
 data/
 backend/data/
 scratch/
+backend/checkpoints/
+*.pt
