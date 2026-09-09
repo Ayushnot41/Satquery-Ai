@@ -7,13 +7,23 @@ import { MissionView } from "../components/screens/MissionView";
 import { InvestigationWorkspace } from "../components/screens/InvestigationWorkspace";
 import { AgentDebateView } from "../components/screens/AgentDebateView";
 import { EvaluationView } from "../components/screens/EvaluationView";
+import { AnalysisResultsView } from "../components/analysis/AnalysisResultsView";
+import { NewAnalysisView, NewAnalysisState } from "../components/analysis/NewAnalysisView";
+import {
+  MOCK_SINGLE_IMAGE,
+  MOCK_BI_TEMPORAL,
+  MOCK_OPTICAL_SAR,
+} from "../lib/mock-results";
 import { checkHealth } from "../lib/api";
+import { AnalysisResult } from "../types/investigation";
+import { AppTab } from "../components/layout/Header";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"home" | "mission_view" | "workspace" | "debate" | "evaluation">("home");
+  const [activeTab, setActiveTab] = useState<AppTab>("home");
   const [selectedScenario, setSelectedScenario] = useState<string | undefined>(undefined);
   const [initialQuery, setInitialQuery] = useState<string>("Where has construction increased between these two dates?");
   const [healthStatus, setHealthStatus] = useState<string>("online");
+  const [currentResult, setCurrentResult] = useState<AnalysisResult | null>(null);
 
   useEffect(() => {
     checkHealth().then((h) => {
@@ -40,6 +50,32 @@ export default function Home() {
     setActiveTab("workspace");
   };
 
+  const handleRunPipelineFromIntake = (state: NewAnalysisState) => {
+    let base = MOCK_SINGLE_IMAGE;
+    if (state.mode === "bi_temporal") {
+      base = MOCK_BI_TEMPORAL;
+    } else if (state.mode === "optical_sar") {
+      base = MOCK_OPTICAL_SAR;
+    }
+
+    const compiledResult: AnalysisResult = {
+      ...base,
+      question: state.question || base.question,
+      mission_context: state.disasterType
+        ? `Disaster Assessment - ${state.disasterType.toUpperCase()}`
+        : state.missionContext === "disaster_assessment"
+        ? "Disaster Assessment"
+        : "General Change Analysis",
+      input_ids: [
+        state.slot1?.name || base.input_ids[0],
+        ...(state.slot2?.name ? [state.slot2.name] : base.input_ids.slice(1)),
+      ],
+    };
+
+    setCurrentResult(compiledResult);
+    setActiveTab("analysis_results");
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#0A0F1C] text-gray-100 font-sans">
       <Header
@@ -56,6 +92,13 @@ export default function Home() {
           />
         )}
 
+        {activeTab === "new_analysis" && (
+          <NewAnalysisView
+            onRunPipeline={handleRunPipelineFromIntake}
+            onNavigateHome={() => setActiveTab("home")}
+          />
+        )}
+
         {activeTab === "mission_view" && (
           <MissionView onTriggerInvestigation={handleTriggerSpatialInvestigation} />
         )}
@@ -64,6 +107,17 @@ export default function Home() {
           <InvestigationWorkspace
             initialScenarioId={selectedScenario}
             initialQuery={initialQuery}
+            onViewResults={(result) => {
+              setCurrentResult(result);
+              setActiveTab("analysis_results");
+            }}
+          />
+        )}
+
+        {activeTab === "analysis_results" && (
+          <AnalysisResultsView
+            result={currentResult}
+            onBack={() => setActiveTab("new_analysis")}
           />
         )}
 
