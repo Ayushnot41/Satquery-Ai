@@ -20,7 +20,7 @@ from .api.investigation import router as investigation_router
 from .api.scenarios import router as scenarios_router
 from .api.locations import router as locations_router
 from .api.traffic import router as traffic_router
-from .api.futuristic import router as futuristic_router
+from .api.futuristic import router as futuristic_router, debate_router
 from .api.nasa_tile import router as nasa_tile_router
 from .api.auth import router as auth_router
 from .core.config import settings
@@ -106,6 +106,7 @@ app.include_router(scenarios_router, prefix="/api")
 app.include_router(locations_router, prefix="/api")
 app.include_router(traffic_router, prefix="/api")
 app.include_router(futuristic_router, prefix="/api")
+app.include_router(debate_router, prefix="/api")
 app.include_router(nasa_tile_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 

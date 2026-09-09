@@ -321,3 +321,17 @@ async def get_agent_debate_protocol(
             overruled_sensor="Optical Sensor (Cloud Cover Obscuration)"
         )
 
+
+# Direct /api/debate router alias for frontend compatibility
+debate_router = APIRouter(tags=["Agent Debate"])
+
+
+@debate_router.get("/debate", response_model=AgentDebateSession)
+async def get_agent_debate_protocol_direct(
+    scenario: str = Query("monsoon_flood", description="Scenario type: monsoon_flood, urban_shadow, or landslide"),
+    target_location: str = Query("Brahmaputra Valley, Assam")
+):
+    """Direct alias for /api/debate requested by the Agent Debate Studio UI."""
+    return await get_agent_debate_protocol(scenario=scenario, target_location=target_location)
+
+

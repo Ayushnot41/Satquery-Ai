@@ -83,7 +83,9 @@ async def start_investigation(request: InvestigationRequest) -> InvestigationRes
     for idx, img_id in enumerate(request.imagery_ids):
         if img_id in IMAGERY_REGISTRY:
             meta = IMAGERY_REGISTRY[img_id]
-            file_path = str(settings.upload_path / f"{meta.id}_{meta.filename}")
+            c1 = settings.upload_path / meta.filename
+            c2 = settings.upload_path / f"{meta.id}_{meta.filename}"
+            file_path = str(c1 if c1.exists() else c2)
             role = "before" if idx == 0 and len(request.imagery_ids) > 1 else ("after" if idx == 1 else "primary")
             imagery_inputs.append(ImageryInput(id=img_id, path=file_path, metadata=meta, role=role))
         else:
