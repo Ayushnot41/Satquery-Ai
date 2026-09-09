@@ -36,8 +36,13 @@ class Settings(BaseSettings):
 
     # --- VLM Primary (Agent 4 / GatewayBackend) ---
     vlm_model_name: str = "google/gemini-2.5-flash"
-    vlm_backend: Literal["gateway", "vllm", "demo"] = "gateway"
+    vlm_backend: Literal["gateway", "vllm", "local_lora", "demo"] = "gateway"
     vllm_api_url: str = "http://localhost:8080/v1"
+
+    # --- Astra / GPT-6 Astra Intelligence Gateway ---
+    astra_api_key: str | None = None
+    astra_base_url: str = "https://api.astra.datastax.com/v1"
+    astra_model: str = "gpt-6-astra-geospatial"
 
     # --- Secondary Fallback: OmniRoute ---
     omniroute_base_url: str = "http://localhost:20128/v1"

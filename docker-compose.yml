@@ -30,3 +30,29 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: bhuvision-vllm
+    ports:
+      - "8080:8080"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ./backend/checkpoints:/app/checkpoints
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN:-}
+    command: >
+      --model HuggingFaceTB/SmolVLM-500M-Instruct
+      --port 8080
+      --trust-remote-code
+      --max-model-len 2048
+      --gpu-memory-utilization 0.85
+      --enforce-eager
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
