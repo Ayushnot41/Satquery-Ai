@@ -153,7 +153,11 @@ function BiTemporalWipe({
         style={{ width: `${wipePos}%` }}
       >
         <div className="absolute inset-0" style={{ width: `${100 / (wipePos / 100)}%` }}>
-          <ImagePlaceholder gradient={preGradient} label="T1 — PRE-EVENT" microLabel="Sentinel-2 2026-07-12" />
+          {preUrl ? (
+            <img src={preUrl} alt="Pre Event" className="w-full h-full object-cover" />
+          ) : (
+            <ImagePlaceholder gradient={preGradient} label="T1 – PRE-EVENT" microLabel="Sentinel-2 2026-07-12" />
+          )}
         </div>
       </div>
 
@@ -191,12 +195,24 @@ function BiTemporalWipe({
 }
 
 // ─── SAR + Optical stacked panels ──────────────────────────────────────────
-function OpticalSarPanels({ showFusion }: { showFusion: boolean }) {
+function OpticalSarPanels({
+  showFusion,
+  opticalUrl,
+  sarUrl,
+}: {
+  showFusion: boolean;
+  opticalUrl?: string;
+  sarUrl?: string;
+}) {
   return (
     <div className="flex flex-col h-full gap-px">
       {/* Optical top half */}
       <div className="relative flex-1 overflow-hidden rounded-t-lg">
-        <ImagePlaceholder gradient="from-amber-900 via-orange-900 to-yellow-900" label="OPTICAL — CLOUD OBSCURED" microLabel="Sentinel-2 MSI — 100% cloud cover" />
+        {opticalUrl ? (
+          <img src={opticalUrl} alt="Optical Sensor" className="w-full h-full object-cover" />
+        ) : (
+          <ImagePlaceholder gradient="from-amber-900 via-orange-900 to-yellow-900" label="OPTICAL – CLOUD OBSCURED" microLabel="Sentinel-2 MSI – 100% cloud cover" />
+        )}
         {showFusion && (
           <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/10 to-transparent pointer-events-none" />
         )}
@@ -209,7 +225,11 @@ function OpticalSarPanels({ showFusion }: { showFusion: boolean }) {
 
       {/* SAR bottom half */}
       <div className="relative flex-1 overflow-hidden rounded-b-lg">
-        <ImagePlaceholder gradient="from-gray-900 via-zinc-800 to-stone-900" label="MICROWAVE BACKSCATTER" microLabel="Sentinel-1 C-Band IW-GRD VV+VH" />
+        {sarUrl ? (
+          <img src={sarUrl} alt="SAR Radar" className="w-full h-full object-cover" />
+        ) : (
+          <ImagePlaceholder gradient="from-gray-900 via-zinc-800 to-stone-900" label="MICROWAVE BACKSCATTER" microLabel="Sentinel-1 C-Band IW-GRD VV+VH" />
+        )}
         {showFusion && (
           <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 to-transparent pointer-events-none" />
         )}
@@ -244,7 +264,7 @@ function ShimmerPanel() {
 }
 
 // ─── Main Component ─────────────────────────────────────────────────────────
-export function ImageryPanel({ mode, isLoading = false }: ImageryPanelProps) {
+export function ImageryPanel({ mode, imageUrls, isLoading = false }: ImageryPanelProps) {
   const [zoom, setZoom] = useState(1);
   const [showFusion, setShowFusion] = useState(false);
 
@@ -301,18 +321,32 @@ export function ImageryPanel({ mode, isLoading = false }: ImageryPanelProps) {
           {isLoading ? (
             <ShimmerPanel />
           ) : mode === "single_image" ? (
-            <ImagePlaceholder
-              gradient="from-amber-900 via-orange-800 to-rose-900"
-              label="OPTICAL SCENE — NADIR VIEW"
-              microLabel="Cartosat-3 PAN · 0.28 m/px · EPSG:4326"
-            />
+            imageUrls && imageUrls.length > 0 && imageUrls[0] ? (
+              <img
+                src={imageUrls[0]}
+                alt="Optical Scene"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <ImagePlaceholder
+                gradient="from-amber-900 via-orange-800 to-rose-900"
+                label="OPTICAL SCENE – NADIR VIEW"
+                microLabel="Cartosat-3 PAN · 0.28 m/px · EPSG:4326"
+              />
+            )
           ) : mode === "bi_temporal" ? (
             <BiTemporalWipe
               preGradient={PLACEHOLDER_COLORS.optical_pre}
               postGradient={PLACEHOLDER_COLORS.optical_post}
+              preUrl={imageUrls && imageUrls.length > 0 ? imageUrls[0] : undefined}
+              postUrl={imageUrls && imageUrls.length > 1 ? imageUrls[1] : undefined}
             />
           ) : (
-            <OpticalSarPanels showFusion={showFusion} />
+            <OpticalSarPanels
+              showFusion={showFusion}
+              opticalUrl={imageUrls && imageUrls.length > 0 ? imageUrls[0] : undefined}
+              sarUrl={imageUrls && imageUrls.length > 1 ? imageUrls[1] : undefined}
+            />
           )}
         </div>
 
