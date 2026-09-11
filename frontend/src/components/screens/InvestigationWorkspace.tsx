@@ -10,6 +10,8 @@ import { ConfidenceCard } from "../workspace/ConfidenceCard";
 import { AuditTraceModal } from "../workspace/AuditTraceModal";
 import { LocationSearchBar, LocationItem } from "../shared/LocationSearchBar";
 import { AnalysisResult } from "../../types/investigation";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 interface InvestigationWorkspaceProps {
   initialScenarioId?: string;
@@ -26,6 +28,32 @@ export function InvestigationWorkspace({
   const [loading, setLoading] = useState<boolean>(false);
   const [investigation, setInvestigation] = useState<InvestigationResponse | null>(null);
   const [showTraceModal, setShowTraceModal] = useState<boolean>(false);
+  const workspaceRef = React.useRef<HTMLDivElement>(null);
+
+  const exportToPDF = async () => {
+    if (!workspaceRef.current) return;
+    try {
+      const canvas = await html2canvas(workspaceRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#0A0E14",
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`ISRO-SatQuery-Intelligence-Report-${Date.now()}.pdf`);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+    }
+  };
 
   // Selected geographic location state for live satellite viewport
   const [currentLocation, setCurrentLocation] = useState<{
@@ -100,7 +128,7 @@ export function InvestigationWorkspace({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 space-y-6 text-white select-none">
+    <div ref={workspaceRef} className="w-full max-w-7xl mx-auto p-6 space-y-6 text-white select-none">
       {/* ================= LOCATION SEARCH & TARGET ACQUISITION ================= */}
       <div className="bg-[#111827] border border-[#1F2937] p-4 rounded-xl shadow-xl space-y-3">
         <div className="flex items-center justify-between pb-2 border-b border-[#1F2937]/70 text-xs font-mono">
@@ -222,9 +250,24 @@ export function InvestigationWorkspace({
         onClose={() => setShowTraceModal(false)}
       />
 
-      {/* ─── View Full Results CTA ─────────────────────────────── */}
-      {investigation && investigation.status === "complete" && onViewResults && (
-        <div className="flex justify-end">
+      {/* ─── View Full Results CTA & PDF EXPORT ─────────────────────────────── */}
+      {investigation && investigation.status === "complete" && (
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={exportToPDF}
+            className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 border border-emerald-400/30 transition-all flex items-center gap-2 font-mono uppercase tracking-wider cursor-pointer"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Export PDF Report
+          </button>
+
+          {onViewResults && (
           <button
             onClick={() => {
               // Map InvestigationResponse to AnalysisResult for the results screen
@@ -268,6 +311,7 @@ export function InvestigationWorkspace({
             </svg>
             View Full Results Report
           </button>
+          )}
         </div>
       )}
     </div>

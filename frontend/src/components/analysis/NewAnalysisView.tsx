@@ -413,6 +413,34 @@ export function NewAnalysisView({ onRunPipeline, onNavigateHome }: NewAnalysisVi
     else setSlot2(undefined);
   };
 
+  // Global Paste Handler for Imagery
+  useEffect(() => {
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            if (!slot1) {
+              processFile(file, 1);
+            } else if (config.requiredSlots === 2 && !slot2) {
+              processFile(file, 2);
+            } else {
+              processFile(file, 1);
+            }
+          }
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("paste", handleGlobalPaste);
+    return () => window.removeEventListener("paste", handleGlobalPaste);
+  }, [slot1, slot2, config.requiredSlots]);
+
+
   // Question Keyboard Submit
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
