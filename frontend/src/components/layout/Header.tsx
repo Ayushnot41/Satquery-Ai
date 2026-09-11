@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export type AppTab = "home" | "mission_view" | "workspace" | "debate" | "evaluation" | "analysis_results" | "new_analysis";
+export type AppTab = "home" | "mission_view" | "workspace" | "debate" | "evaluation" | "analysis_results" | "new_analysis" | "history";
 
 interface HeaderProps {
   activeTab: AppTab;
@@ -75,6 +75,16 @@ export function Header({
             New Analysis
           </button>
           <button
+            onClick={() => setActiveTab("history")}
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+              activeTab === "history"
+                ? "bg-[#3B82F6] text-white shadow-sm"
+                : "text-gray-300 hover:text-white hover:bg-gray-800/60"
+            }`}
+          >
+            Analysis History
+          </button>
+          <button
             onClick={() => setActiveTab("mission_view")}
             className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
               activeTab === "mission_view"
@@ -112,7 +122,7 @@ export function Header({
                 : "text-gray-300 hover:text-white hover:bg-gray-800/60"
             }`}
           >
-            Scientific Evaluation
+            Benchmark & Eval
           </button>
           {activeTab === "analysis_results" && (
             <span className="px-3 py-1.5 rounded-md bg-indigo-900/70 text-indigo-300 border border-indigo-500/40 text-xs font-mono uppercase tracking-wider">
