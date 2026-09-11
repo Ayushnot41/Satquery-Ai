@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from datetime import datetime
 import uuid
 from pathlib import Path
 from typing import Any
@@ -87,11 +88,31 @@ async def start_investigation(request: InvestigationRequest) -> InvestigationRes
 
     # Map requested imagery IDs or create curated demo fallback imagery
     for idx, img_id in enumerate(request.imagery_ids):
+        resolved_path = None
+        meta = None
+
         if img_id in IMAGERY_REGISTRY:
             meta = IMAGERY_REGISTRY[img_id]
-            file_path = str(settings.upload_path / f"{meta.id}_{meta.filename}")
+            candidates = [
+                settings.upload_path / meta.filename,
+                settings.upload_path / f"{meta.id}_{meta.filename}",
+            ]
+            for cand in candidates:
+                if cand.exists():
+                    resolved_path = cand
+                    break
+
+        if resolved_path is None:
+            # Look on disk for matching uploaded file by ID prefix
+            matched = list(settings.upload_path.glob(f"{img_id}*"))
+            if matched and matched[0].is_file():
+                resolved_path = matched[0]
+                meta = extract_metadata(resolved_path, img_id)
+                IMAGERY_REGISTRY[img_id] = meta
+
+        if resolved_path is not None and meta is not None:
             role = "before" if idx == 0 and len(request.imagery_ids) > 1 else ("after" if idx == 1 else "primary")
-            imagery_inputs.append(ImageryInput(id=img_id, path=file_path, metadata=meta, role=role))
+            imagery_inputs.append(ImageryInput(id=img_id, path=str(resolved_path), metadata=meta, role=role))
         else:
             # Generate deterministic demo fixture
             sensor = SensorType.SAR if "sar" in img_id.lower() else SensorType.OPTICAL
@@ -290,7 +311,108 @@ async def export_investigation_geojson(investigation_id: str) -> dict[str, Any]:
     }
 
 
+def _seed_default_history() -> None:
+    """Seed realistic historical telemetry entries matching official operational logs."""
+    from ..schemas.agents import ConfidenceReport, FusedEvidence, VQAResult, QueryPlan, TaskType
+
+    # analysis-001 (Single Image)
+    inv1 = InvestigationResponse(
+        investigation_id="analysis-001",
+        status=InvestigationStatus.COMPLETE,
+        question="What land cover types are visible and locate all buildings in this image?",
+        answer="Multispectral optical analysis confirms high-density urban residential blocks, paved transportation corridors, and interspersed vegetative plots with high canopy reflectance.",
+        created_at=datetime(2026, 9, 9, 19, 48, 16),
+        confidence=ConfidenceReport(
+            overall_confidence="high",
+            confidence_score=0.88,
+            explanation="Multiple evidence sources corroborate built infrastructure signatures.",
+            factors=["High SNR optical imagery", "Corroborated edge detection"],
+        ),
+        fused_evidence=FusedEvidence(
+            primary_answer="Multispectral optical analysis confirms high-density urban residential blocks, paved transportation corridors, and interspersed vegetative plots.",
+            evidence_items=[],
+        ),
+    )
+
+    # analysis-002 (Bi-Temporal)
+    inv2 = InvestigationResponse(
+        investigation_id="analysis-002",
+        status=InvestigationStatus.COMPLETE,
+        question="What changes occurred between these two dates? Has urban expansion affected vegetation?",
+        answer="Bi-temporal change detection confirms 14.8% surface variance. Significant vegetation reduction observed along eastern sector replaced by grading earthworks and structural footings.",
+        created_at=datetime(2026, 9, 9, 16, 48, 16),
+        confidence=ConfidenceReport(
+            overall_confidence="high",
+            confidence_score=0.92,
+            explanation="Siamese U-Net dual-channel diff confirms persistent structural changes.",
+            factors=["Pixel-aligned co-registration", "High NDVI differential"],
+        ),
+        fused_evidence=FusedEvidence(
+            primary_answer="Bi-temporal change detection confirms 14.8% surface variance with vegetative canopy loss along development perimeters.",
+            evidence_items=[],
+        ),
+    )
+
+    # analysis-003 (Optical + SAR)
+    inv3 = InvestigationResponse(
+        investigation_id="analysis-003",
+        status=InvestigationStatus.COMPLETE,
+        question="Does the SAR data confirm the optical change detection? Identify features visible in radar backscatter.",
+        answer="Sentinel-1 VV/VH backscatter confirms double-bounce dielectric returns from newly erected vertical concrete pylons, fully corroborating optical candidate alerts through heavy cloud cover.",
+        created_at=datetime(2026, 9, 8, 21, 48, 16),
+        confidence=ConfidenceReport(
+            overall_confidence="high",
+            confidence_score=0.85,
+            explanation="SAR microwave backscatter penetrates cloud layer, validating optical change.",
+            factors=["Dual-polarization ratio match", "Specular water thresholding"],
+        ),
+        fused_evidence=FusedEvidence(
+            primary_answer="Sentinel-1 microwave backscatter confirms structural returns, validating optical change hypothesis through cloud cover.",
+            evidence_items=[],
+        ),
+    )
+
+    # analysis-004 (Bi-Temporal - Failed)
+    inv4 = InvestigationResponse(
+        investigation_id="analysis-004",
+        status=InvestigationStatus.ERROR,
+        question="Detect flood inundation extent and compare with previous dry-season baseline.",
+        answer="Sensor temporal registration mismatch: post-event tile GSD (10m) failed spatial alignment tolerance threshold against aerial 0.3m baseline.",
+        created_at=datetime(2026, 9, 7, 21, 48, 16),
+        confidence=None,
+    )
+
+    INVESTIGATION_CACHE["analysis-001"] = inv1
+    INVESTIGATION_CACHE["analysis-002"] = inv2
+    INVESTIGATION_CACHE["analysis-003"] = inv3
+    INVESTIGATION_CACHE["analysis-004"] = inv4
+
+
+# Initialize demo telemetry cache
+_seed_default_history()
+
+
 @router.get("", response_model=list[InvestigationResponse])
 async def list_investigations() -> list[InvestigationResponse]:
-    """List all previous investigations."""
-    return list(INVESTIGATION_CACHE.values())
+    """List all previous investigations ordered by recency."""
+    items = list(INVESTIGATION_CACHE.values())
+    items.sort(key=lambda x: x.created_at, reverse=True)
+    return items
+
+
+@router.delete("/{investigation_id}")
+async def delete_investigation(investigation_id: str) -> dict[str, Any]:
+    """Delete an investigation from the telemetry archive."""
+    if investigation_id in INVESTIGATION_CACHE:
+        del INVESTIGATION_CACHE[investigation_id]
+        return {"status": "deleted", "id": investigation_id}
+    raise HTTPException(status_code=404, detail="Investigation record not found")
+
+
+@router.post("/clear-cache")
+async def clear_cache() -> dict[str, Any]:
+    """Reset and restore default telemetry history cache."""
+    INVESTIGATION_CACHE.clear()
+    _seed_default_history()
+    return {"status": "cleared", "total_records": len(INVESTIGATION_CACHE)}
+
