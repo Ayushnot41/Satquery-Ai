@@ -27,37 +27,71 @@ async def get_curated_hotspots() -> list[LocationResult]:
 
 @router.get("/providers")
 async def get_satellite_providers():
-    """List operational satellite tile providers, live status, and configured credentials."""
+    """List all 3 operational map API providers with live credentials status."""
+    google_ok = bool(settings.google_maps_api_key)
+    maptiler_ok = bool(settings.maptiler_api_key)
+    nasa_ok = bool(settings.nasa_earthdata_token)
+
     return {
+        "api_keys_configured": {
+            "google_maps": google_ok,
+            "maptiler": maptiler_ok,
+            "nasa_earthdata": nasa_ok,
+        },
         "providers": [
+            {
+                "id": "google_maps",
+                "name": "Google Maps Platform (Satellite Hybrid)",
+                "description": "Photorealistic 2D/3D Satellite Tiles, Hybrid layer, and Places API.",
+                "status": "configured" if google_ok else "key_missing",
+                "auth_required": True,
+                "key_set": google_ok,
+                "resolution": "0.15m - 0.3m GSD",
+                "update_cadence": "Continuous mosaic",
+                "tile_url_template": f"https://maps.googleapis.com/maps/api/js?key={settings.google_maps_api_key}&v=beta&map_ids=..." if google_ok else None,
+                "capabilities": ["satellite", "hybrid", "roadmap", "3d_tilt", "streetview"],
+            },
+            {
+                "id": "maptiler",
+                "name": "MapTiler Cloud (Satellite + Terrain-RGB)",
+                "description": "High-resolution satellite imagery with Terrain-RGB 3D elevation, global coverage.",
+                "status": "configured" if maptiler_ok else "key_missing",
+                "auth_required": True,
+                "key_set": maptiler_ok,
+                "resolution": "0.5m GSD",
+                "update_cadence": "Continuous mosaic",
+                "tile_url_template": f"https://api.maptiler.com/tiles/satellite/{{z}}/{{x}}/{{y}}.jpg?key={settings.maptiler_api_key}" if maptiler_ok else None,
+                "terrain_tile_url": f"https://api.maptiler.com/tiles/terrain-rgb/{{z}}/{{x}}/{{y}}.png?key={settings.maptiler_api_key}" if maptiler_ok else None,
+                "capabilities": ["satellite", "terrain_rgb", "3d_terrain", "topojson_boundaries"],
+            },
+            {
+                "id": "nasa_gibs",
+                "name": "NASA GIBS / Earthdata (MODIS + VIIRS)",
+                "description": "Near-real-time authenticated daily satellite composites from MODIS Terra/Aqua and VIIRS SNPP.",
+                "status": "configured" if nasa_ok else "public_mode",
+                "auth_required": True,
+                "key_set": nasa_ok,
+                "resolution": "250m - 500m GSD",
+                "update_cadence": "Every 24 Hours",
+                "proxy_endpoint": "/api/nasa-tile",
+                "layers_endpoint": "/api/nasa-tile/layers",
+                "capabilities": [
+                    "true_color_modis", "false_color_bands721",
+                    "ndvi_8day", "night_lights_viirs", "aerosol_optical_depth",
+                    "land_surface_temp"
+                ],
+            },
             {
                 "id": "esri_world_imagery",
                 "name": "ESRI World Imagery (ArcGIS)",
                 "description": "Global high-resolution optical satellite & aerial imagery (0.3m to 15m resolution).",
                 "status": "online",
                 "auth_required": False,
+                "key_set": True,
                 "resolution": "0.3m - 15m GSD",
                 "update_cadence": "Continuous Mosaic",
                 "tile_url_template": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-            },
-            {
-                "id": "nasa_gibs",
-                "name": "NASA GIBS (Worldview / EOSDIS)",
-                "description": "Near-real-time true-color daily global satellite passes (MODIS Terra/Aqua & VIIRS).",
-                "status": "online",
-                "auth_required": False,
-                "resolution": "250m - 500m GSD",
-                "update_cadence": "Every 24 Hours (Daily)",
-                "tile_url_template": "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/{date}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg",
-            },
-            {
-                "id": "sentinel_2_msi",
-                "name": "Copernicus Sentinel-2 (MSI)",
-                "description": "Multispectral 13-band optical imagery (10m VNIR bands).",
-                "status": "configured" if settings.sentinel_hub_client_id else "emulated_ready",
-                "auth_required": True,
-                "resolution": "10m GSD",
-                "update_cadence": "5-Day Global Revisit",
+                "capabilities": ["satellite", "aerial"],
             },
             {
                 "id": "sentinel_1_sar",
@@ -65,24 +99,13 @@ async def get_satellite_providers():
                 "description": "All-weather synthetic aperture radar with calibrated Sigma0 dB backscatter.",
                 "status": "active_sar_engine",
                 "auth_required": False,
+                "key_set": True,
                 "resolution": "10m - 20m GSD",
                 "update_cadence": "6-12 Day Revisit",
-            },
-            {
-                "id": "google_maps",
-                "name": "Google Maps Platform (Satellite)",
-                "description": "Photorealistic 2D/3D Satellite Tiles and Places API.",
-                "status": "configured" if settings.google_maps_api_key else "key_optional",
-                "auth_required": True,
-            },
-            {
-                "id": "mapbox_satellite",
-                "name": "Mapbox Satellite",
-                "description": "Global seamless raster satellite tiles and Geocoding v5.",
-                "status": "configured" if settings.mapbox_access_token else "key_optional",
-                "auth_required": True,
+                "capabilities": ["sar_backscatter", "change_detection", "flood_mapping", "subsidence"],
             },
         ],
-        "active_primary": "esri_world_imagery",
+        "active_primary": "google_maps" if google_ok else "esri_world_imagery",
+        "active_terrain": "maptiler" if maptiler_ok else "esri_world_imagery",
         "active_nrt": "nasa_gibs",
     }

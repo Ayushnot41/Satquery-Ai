@@ -1,0 +1,323 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="meshBg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#090E1F"/>
+      <stop offset="60%" stop-color="#04060E"/>
+      <stop offset="100%" stop-color="#010207"/>
+    </radialGradient>
+
+    <!-- Radar Pulse Wave Linear Gradient -->
+    <linearGradient id="wavePulse" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#EC4899" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.2"/>
+    </linearGradient>
+
+    <!-- 3D Peak Double Bounce Glow -->
+    <radialGradient id="peakGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F43F5E"/>
+      <stop offset="50%" stop-color="#E11D48" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#881337" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Specular Pit Depression -->
+    <radialGradient id="waterPit" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0284C7" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#0369A1" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#082F49" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Laser Profiler Scan Gradient -->
+    <linearGradient id="laserBeam" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#38BDF8" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#0284C7" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="meshGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="laserGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.7"/>
+    </filter>
+
+    <style>
+      @keyframes laserScan {
+        0% { transform: translateX(-480px); opacity: 0.2; }
+        50% { opacity: 0.95; }
+        100% { transform: translateX(480px); opacity: 0.2; }
+      }
+      @keyframes rippleWave {
+        0% { rx: 15px; ry: 6px; opacity: 0.9; }
+        100% { rx: 135px; ry: 55px; opacity: 0; }
+      }
+      @keyframes towerPulse {
+        0%, 100% { transform: scale(1); opacity: 0.85; }
+        50% { transform: scale(1.35); opacity: 1; filter: url(#meshGlow); }
+      }
+      @keyframes rayStream {
+        to { stroke-dashoffset: -40; }
+      }
+      @keyframes splineFlow {
+        to { stroke-dashoffset: -80; }
+      }
+      @keyframes floatCard {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-3px); }
+      }
+
+      .laser-scanline {
+        animation: laserScan 6s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+        will-change: transform, opacity;
+      }
+      .water-ripple {
+        animation: rippleWave 3s ease-out infinite;
+      }
+      .water-ripple-2 {
+        animation: rippleWave 3s ease-out 1.5s infinite;
+      }
+      .tower-flare {
+        transform-origin: 0px -180px;
+        animation: towerPulse 2.2s ease-in-out infinite;
+      }
+      .ray-flow {
+        stroke-dasharray: 6, 6;
+        animation: rayStream 1.5s linear infinite;
+      }
+      .spline-anim {
+        stroke-dasharray: 16, 8;
+        animation: splineFlow 4s linear infinite;
+      }
+      .card-anim {
+        animation: floatCard 5s ease-in-out infinite;
+      }
+
+      .font-mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+      .font-space { font-family: 'Space Grotesk', -apple-system, sans-serif; }
+    </style>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1600" height="900" fill="url(#meshBg)"/>
+
+  <!-- Tactical Grid Lines -->
+  <g stroke="rgba(255,255,255,0.03)" stroke-width="1">
+    <line x1="0" y1="300" x2="1600" y2="300"/>
+    <line x1="0" y1="600" x2="1600" y2="600"/>
+    <line x1="400" y1="0" x2="400" y2="900"/>
+    <line x1="800" y1="0" x2="800" y2="900"/>
+    <line x1="1200" y1="0" x2="1200" y2="900"/>
+  </g>
+
+  <!-- Title Header Block -->
+  <g transform="translate(80, 50)" filter="url(#cardShadow)" class="card-anim">
+    <rect x="0" y="0" width="640" height="78" rx="10" fill="#060B18" fill-opacity="0.92" stroke="#1F2937" stroke-width="1.5"/>
+    <rect x="12" y="14" width="6" height="50" rx="3" fill="#8B5CF6"/>
+    <text x="32" y="36" fill="#FFFFFF" font-size="16" font-weight="bold" class="font-space">
+      3D TOPOLOGICAL RADAR BACKSCATTER SURFACE (Σ0 dB)
+    </text>
+    <text x="32" y="56" fill="#A78BFA" font-size="11" class="font-mono">
+      Sentinel-1 C-Band (5.405 GHz) Physical Cross-Section Profile • 60 FPS 3D Engine
+    </text>
+  </g>
+
+  <!-- ================= 3D ISOMETRIC TOPOLOGICAL WIREFRAME MESH ================= -->
+  <!-- Perspective Stage: Origin at (800, 500) -->
+  <g id="isometricMesh" transform="translate(800, 500)">
+    
+    <!-- Isometric Ground Reference Grid Plane (Isometric Diamond Lines) -->
+    <g stroke="rgba(139, 92, 246, 0.18)" stroke-width="1" fill="none">
+      <!-- Transversal axes -->
+      <path d="M -540 0 L 0 -240 L 540 0 L 0 240 Z"/>
+      <path d="M -405 0 L 0 -180 L 405 0 L 0 180 Z"/>
+      <path d="M -270 0 L 0 -120 L 270 0 L 0 120 Z"/>
+      <path d="M -135 0 L 0 -60 L 135 0 L 0 60 Z"/>
+
+      <!-- Radial Isometric Grid Rays -->
+      <line x1="-540" y1="0" x2="540" y2="0"/>
+      <line x1="0" y1="-240" x2="0" y2="240"/>
+      <line x1="-270" y1="-120" x2="270" y2="120"/>
+      <line x1="-270" y1="120" x2="270" y2="-120"/>
+    </g>
+
+    <!-- Zone 1: Specular Water Inundation Depression Pit (Backscatter < -18 dB) -->
+    <g transform="translate(-240, 40)">
+      <ellipse cx="0" cy="0" rx="140" ry="60" fill="url(#waterPit)"/>
+      <!-- Stepped Depression Contour Rings -->
+      <path d="M -110 0 C -110 28, 110 28, 110 0 C 110 -28, -110 -28, -110 0" 
+            fill="none" stroke="#0284C7" stroke-width="1.8" opacity="0.8"/>
+      <path d="M -80 15 C -80 35, 80 35, 80 15 C 80 -5, -80 -5, -80 15" 
+            fill="none" stroke="#0369A1" stroke-width="1.4" stroke-dasharray="3,3"/>
+      <path d="M -45 28 C -45 42, 45 42, 45 28 C 45 14, -45 14, -45 28" 
+            fill="none" stroke="#0C4A6E" stroke-width="1.2"/>
+
+      <!-- Animated Water Surface Ripples -->
+      <ellipse cx="0" cy="20" rx="20" ry="8" fill="none" stroke="#38BDF8" stroke-width="1.5" class="water-ripple"/>
+      <ellipse cx="0" cy="20" rx="20" ry="8" fill="none" stroke="#0284C7" stroke-width="1.2" class="water-ripple-2"/>
+
+      <!-- Specular Scattering Ray Vectors (Arrow pointing away into space) -->
+      <line x1="-20" y1="-70" x2="0" y2="25" stroke="#38BDF8" stroke-width="1.8" class="ray-flow"/>
+      <line x1="0" y1="25" x2="60" y2="-60" stroke="#0284C7" stroke-width="2"/>
+      <polygon points="60,-60 52,-52 50,-62" fill="#0284C7"/>
+      <text x="25" y="-68" fill="#38BDF8" font-size="10" font-weight="bold" class="font-mono">SPECULAR SCATTER (AWAY)</text>
+    </g>
+
+    <!-- Zone 2: Rough Vegetation Canopy (Volume Scatter: -12 dB) -->
+    <g transform="translate(0, -60)">
+      <!-- Wavy Undulating Terrain Ribs -->
+      <path d="M -160 0 Q -110 -25, -60 0 Q -10 -20, 40 0 Q 90 -25, 140 0 Q 190 -18, 220 0"
+            fill="none" stroke="#10B981" stroke-width="2" opacity="0.75"/>
+      <path d="M -140 25 Q -90 0, -40 25 Q 10 5, 60 25 Q 110 0, 160 25"
+            fill="none" stroke="#059669" stroke-width="1.6" opacity="0.6"/>
+      <path d="M -120 50 Q -70 30, -20 50 Q 30 35, 80 50 Q 130 30, 170 50"
+            fill="none" stroke="#047857" stroke-width="1.2" opacity="0.5"/>
+    </g>
+
+    <!-- Zone 3: Urban High-Rise Dihedral Double-Bounce Peak (+4.8 dB) -->
+    <g transform="translate(240, -40)">
+      <!-- Animated Glow halo at the top of structural spike -->
+      <circle cx="0" cy="-180" r="45" fill="url(#peakGlow)" class="tower-flare"/>
+
+      <!-- 3D Prism Spike 1 (Main Tower) -->
+      <polygon points="0,-180 -45,-30 0,-10 45,-30" fill="rgba(239, 68, 68, 0.25)" stroke="#F43F5E" stroke-width="2" filter="url(#meshGlow)"/>
+      <line x1="0" y1="-180" x2="0" y2="-10" stroke="#FECDD3" stroke-width="2.5"/>
+
+      <!-- 3D Prism Spike 2 (Secondary Tower) -->
+      <polygon points="65,-130 30,-20 65,0 100,-20" fill="rgba(244, 63, 94, 0.2)" stroke="#FB7185" stroke-width="1.5"/>
+      <line x1="65" y1="-130" x2="65" y2="0" stroke="#FDA4AF" stroke-width="1.8"/>
+
+      <!-- 3D Double-Bounce Wave Reflection Ray Vectors -->
+      <!-- Incident Microwave Wave from Space -->
+      <line x1="-120" y1="-260" x2="-35" y2="-30" stroke="#F43F5E" stroke-width="2" class="ray-flow"/>
+      <!-- Corner Double-Bounce Bounce 1 (Wall to Ground) -->
+      <line x1="-35" y1="-30" x2="0" y2="-10" stroke="#F43F5E" stroke-width="2"/>
+      <!-- Corner Double-Bounce Bounce 2 (Ground directly back to Satellite) -->
+      <line x1="0" y1="-10" x2="-80" y2="-250" stroke="#FB7185" stroke-width="2.5"/>
+      <polygon points="-80,-250 -72,-242 -71,-252" fill="#FB7185"/>
+      <text x="-70" y="-260" fill="#FDA4AF" font-size="10" font-weight="bold" class="font-mono">
+        DOUBLE-BOUNCE (+4.8 dB)
+      </text>
+    </g>
+
+    <!-- Connecting 3D Surface Spline Lines with Moving Wavefronts -->
+    <path d="M -480 30 C -340 110, -180 60, -80 -40 C 20 -110, 140 -160, 240 -180 C 300 -120, 420 -30, 480 10"
+          fill="none" stroke="url(#wavePulse)" stroke-width="3" filter="url(#meshGlow)" class="spline-anim"/>
+
+    <path d="M -420 55 C -300 130, -140 85, -40 -15 C 60 -85, 180 -120, 280 -140 C 340 -90, 440 -10, 500 30"
+          fill="none" stroke="url(#wavePulse)" stroke-width="1.8" opacity="0.7"/>
+
+    <!-- 3D Continuous Laser Profiler Scanline Sweeping Across Terrain -->
+    <g class="laser-scanline">
+      <line x1="0" y1="-220" x2="0" y2="200" stroke="#38BDF8" stroke-width="2.5" filter="url(#laserGlow)"/>
+      <polygon points="-12,-220 12,-220 0,-200" fill="#38BDF8"/>
+      <polygon points="-12,200 12,200 0,180" fill="#38BDF8"/>
+    </g>
+
+    <!-- Elevation Calibration Scale Axis -->
+    <g transform="translate(-480, -140)" stroke="#94A3B8" stroke-width="1.2">
+      <line x1="0" y1="0" x2="0" y2="280"/>
+      <!-- Ticks -->
+      <line x1="-8" y1="10" x2="8" y2="10"/>
+      <text x="-65" y="14" fill="#F43F5E" font-size="10" font-weight="bold" class="font-mono">+6 dB</text>
+
+      <line x1="-8" y1="70" x2="8" y2="70"/>
+      <text x="-65" y="74" fill="#FB7185" font-size="10" class="font-mono">0 dB</text>
+
+      <line x1="-8" y1="130" x2="8" y2="130"/>
+      <text x="-75" y="134" fill="#10B981" font-size="10" class="font-mono">-8 dB</text>
+
+      <line x1="-8" y1="190" x2="8" y2="190"/>
+      <text x="-80" y="194" fill="#06B6D4" font-size="10" class="font-mono">-16 dB</text>
+
+      <line x1="-8" y1="250" x2="8" y2="250"/>
+      <text x="-80" y="254" fill="#0284C7" font-size="10" font-weight="bold" class="font-mono">-24 dB</text>
+    </g>
+
+    <!-- Z-Axis Label -->
+    <text x="-565" y="-155" fill="#E2E8F0" font-size="11" font-weight="bold" class="font-mono">
+      RADAR CROSS SECTION (RCS)
+    </text>
+  </g>
+
+  <!-- ================= COMPARATIVE CALLOUT COLOR BLOCKS ================= -->
+
+  <!-- Block 1: Specular Water Return -->
+  <g transform="translate(80, 700)" filter="url(#cardShadow)" class="card-anim">
+    <rect x="0" y="0" width="440" height="150" rx="10" fill="#060E1A" stroke="#0284C7" stroke-width="1.5"/>
+    <rect x="14" y="14" width="8" height="24" rx="2" fill="#0284C7"/>
+    <text x="32" y="32" fill="#38BDF8" font-size="13" font-weight="bold" class="font-mono">
+      ZONE A: SPECULAR INUNDATION (&lt; -16 dB)
+    </text>
+    <text x="18" y="65" fill="#E2E8F0" font-size="11" class="font-mono">
+      Physical Return: Specular reflection away from antenna
+    </text>
+    <text x="18" y="85" fill="#94A3B8" font-size="10" class="font-mono">
+      Visual Appearance: Pitch Black / Dark Void in SAR
+    </text>
+    <text x="18" y="105" fill="#94A3B8" font-size="10" class="font-mono">
+      Key Application: 100% cloud-piercing flood mapping
+    </text>
+    <rect x="18" y="120" width="130" height="18" rx="4" fill="#0369A1" fill-opacity="0.4"/>
+    <text x="26" y="133" fill="#7DD3FC" font-size="9" font-weight="bold" class="font-mono">
+      OTSU CUTOFF: -16.4 dB
+    </text>
+  </g>
+
+  <!-- Block 2: Vegetation Canopy -->
+  <g transform="translate(580, 700)" filter="url(#cardShadow)" class="card-anim">
+    <rect x="0" y="0" width="440" height="150" rx="10" fill="#060E1A" stroke="#10B981" stroke-width="1.5"/>
+    <rect x="14" y="14" width="8" height="24" rx="2" fill="#10B981"/>
+    <text x="32" y="32" fill="#34D399" font-size="13" font-weight="bold" class="font-mono">
+      ZONE B: VOLUME SCATTER (-14 to -8 dB)
+    </text>
+    <text x="18" y="65" fill="#E2E8F0" font-size="11" class="font-mono">
+      Physical Return: Multiple diffuse bounces inside foliage
+    </text>
+    <text x="18" y="85" fill="#94A3B8" font-size="10" class="font-mono">
+      Visual Appearance: Uniform medium-gray stipple
+    </text>
+    <text x="18" y="105" fill="#94A3B8" font-size="10" class="font-mono">
+      Key Application: Forest biomass &amp; agricultural health
+    </text>
+    <rect x="18" y="120" width="130" height="18" rx="4" fill="#064E3B" fill-opacity="0.4"/>
+    <text x="26" y="133" fill="#6EE7B7" font-size="9" font-weight="bold" class="font-mono">
+      CROSS-POL VH: -12.2 dB
+    </text>
+  </g>
+
+  <!-- Block 3: Urban Double-Bounce -->
+  <g transform="translate(1080, 700)" filter="url(#cardShadow)" class="card-anim">
+    <rect x="0" y="0" width="440" height="150" rx="10" fill="#060E1A" stroke="#F43F5E" stroke-width="1.5"/>
+    <rect x="14" y="14" width="8" height="24" rx="2" fill="#F43F5E"/>
+    <text x="32" y="32" fill="#FB7185" font-size="13" font-weight="bold" class="font-mono">
+      ZONE C: DIHEDRAL CORNER (&gt; -6 dB)
+    </text>
+    <text x="18" y="65" fill="#E2E8F0" font-size="11" class="font-mono">
+      Physical Return: 90° right-angle dihedral double bounce
+    </text>
+    <text x="18" y="85" fill="#94A3B8" font-size="10" class="font-mono">
+      Visual Appearance: Blinding bright neon white/red points
+    </text>
+    <text x="18" y="105" fill="#94A3B8" font-size="10" class="font-mono">
+      Key Application: Building detection through shadow
+    </text>
+    <rect x="18" y="120" width="130" height="18" rx="4" fill="#881337" fill-opacity="0.4"/>
+    <text x="26" y="133" fill="#FDA4AF" font-size="9" font-weight="bold" class="font-mono">
+      PEAK METRIC: +4.8 dB
+    </text>
+  </g>
+</svg>

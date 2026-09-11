@@ -19,6 +19,8 @@ from ..geospatial.raster import extract_metadata
 from ..models.base import VLMBackend
 from ..models.demo_backend import DemoBackend
 from ..models.gateway_backend import GatewayBackend
+from ..models.local_lora_backend import LocalLoRABackend
+from ..models.vllm_backend import VLLMBackend
 from ..schemas.imagery import ImageryInput, SensorType
 from ..schemas.investigation import (
     InvestigationRequest,
@@ -35,6 +37,10 @@ INVESTIGATION_CACHE: dict[str, InvestigationResponse] = {}
 def get_vlm_backend() -> VLMBackend:
     if settings.vlm_backend == "gateway":
         return GatewayBackend()
+    if settings.vlm_backend == "local_lora":
+        return LocalLoRABackend()
+    if settings.vlm_backend == "vllm":
+        return VLLMBackend()
     return DemoBackend()
 
 
@@ -102,6 +108,11 @@ async def start_investigation(request: InvestigationRequest) -> InvestigationRes
         investigation_id=investigation_id,
     )
 
+    # Bound in-memory cache to prevent unbounded memory growth
+    if len(INVESTIGATION_CACHE) > 500:
+        for old_id in list(INVESTIGATION_CACHE.keys())[:50]:
+            INVESTIGATION_CACHE.pop(old_id, None)
+
     INVESTIGATION_CACHE[investigation_id] = response
     return response
 
@@ -164,6 +175,10 @@ async def measure_polygon_area(request: PolygonMeasurementRequest) -> dict[str, 
     pts = request.coordinates
     if len(pts) < 3:
         raise HTTPException(status_code=400, detail="Polygon must contain at least 3 vertices")
+
+    for p in pts:
+        if len(p) < 2 or not math.isfinite(p[0]) or not math.isfinite(p[1]):
+            raise HTTPException(status_code=400, detail="Each polygon vertex must contain valid finite [lat, lon] coordinates")
 
     # Geodesic Shoelace Formula on spherical projection
     R = 6378137.0  # Earth radius in meters

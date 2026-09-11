@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 420" width="100%" height="100%">
+  <defs>
+    <linearGradient id="specGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="35%" stop-color="#64748B"/>
+      <stop offset="70%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    @keyframes waveMotion {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-120px); }
+    }
+    @keyframes thresholdPulse {
+      0%, 100% { opacity: 1; stroke-width: 2.5; }
+      50% { opacity: 0.35; stroke-width: 4; }
+    }
+    @keyframes floatFormula {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .wave-flow { animation: waveMotion 3s linear infinite; }
+    .pulse-cutoff { animation: thresholdPulse 2s ease-in-out infinite; }
+    .float-card { animation: floatFormula 4s ease-in-out infinite; }
+    .font-sans { font-family: 'Space Grotesk', -apple-system, sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+
+  <rect width="1000" height="420" fill="#030712"/>
+
+  <!-- Header -->
+  <g transform="translate(50, 35)">
+    <text x="0" y="0" fill="#8B5CF6" font-size="12" font-weight="bold" class="font-mono">
+      PHYSICS ENGINE // ELECTROMAGNETIC MICROWAVE BACKSCATTER
+    </text>
+    <text x="0" y="26" fill="#FFFFFF" font-size="22" font-weight="bold" class="font-sans">
+      Sentinel-1 C-Band (5.405 GHz) Radiometric Calibration Spectrum
+    </text>
+  </g>
+
+  <!-- Formula Card -->
+  <g transform="translate(680, 20)" class="float-card">
+    <rect width="270" height="48" rx="6" fill="#0B132B" stroke="#3B82F6" stroke-width="1"/>
+    <text x="135" y="22" text-anchor="middle" fill="#94A3B8" font-size="9.5" class="font-mono">Radiometric Decibel Formula:</text>
+    <text x="135" y="38" text-anchor="middle" fill="#38BDF8" font-size="12" font-weight="bold" class="font-mono">
+      σ⁰ (dB) = 10 · log₁₀(DN² + ε)
+    </text>
+  </g>
+
+  <!-- Central Spectrum Gradient Bar -->
+  <g transform="translate(50, 110)">
+    <rect width="900" height="20" rx="10" fill="url(#specGrad)"/>
+
+    <!-- Ticks & Decibel Scale -->
+    <g class="font-mono" font-size="11" font-weight="bold">
+      <!-- -25 dB -->
+      <line x1="20" y1="20" x2="20" y2="35" stroke="#38BDF8" stroke-width="2"/>
+      <text x="20" y="52" text-anchor="middle" fill="#38BDF8">&lt; -25 dB</text>
+      <!-- -16 dB Threshold -->
+      <line x1="260" y1="10" x2="260" y2="40" stroke="#EF4444" stroke-width="2.5" stroke-dasharray="3,3" class="pulse-cutoff"/>
+      <text x="260" y="55" text-anchor="middle" fill="#EF4444">-16.0 dB</text>
+      <text x="260" y="70" text-anchor="middle" fill="#F87171" font-size="8.5">[WATER CUTOFF]</text>
+      <!-- -11 dB -->
+      <line x1="480" y1="20" x2="480" y2="35" stroke="#94A3B8" stroke-width="2"/>
+      <text x="480" y="52" text-anchor="middle" fill="#94A3B8">-11.0 dB</text>
+      <!-- -6 dB Urban Threshold -->
+      <line x1="700" y1="10" x2="700" y2="40" stroke="#F59E0B" stroke-width="2.5" stroke-dasharray="3,3" class="pulse-cutoff"/>
+      <text x="700" y="55" text-anchor="middle" fill="#F59E0B">-6.0 dB</text>
+      <text x="700" y="70" text-anchor="middle" fill="#FCD34D" font-size="8.5">[URBAN CUTOFF]</text>
+      <!-- +5 dB -->
+      <line x1="880" y1="20" x2="880" y2="35" stroke="#F59E0B" stroke-width="2"/>
+      <text x="880" y="52" text-anchor="middle" fill="#F59E0B">&gt; +5 dB</text>
+    </g>
+  </g>
+
+  <!-- 4 Colored Feature Blocks -->
+  <g transform="translate(50, 205)">
+    <!-- Block 1: Water Inundation -->
+    <g transform="translate(0, 0)">
+      <rect width="210" height="175" rx="8" fill="#041226" stroke="#0284C7" stroke-width="1.5"/>
+      <rect x="0" y="0" width="210" height="28" rx="8" fill="#0369A1"/>
+      <text x="105" y="19" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold" class="font-sans">
+        Specular Water (Flood)
+      </text>
+      <!-- Diagram: Microwave reflection off smooth surface -->
+      <path d="M 30,70 L 105,105 L 180,70" fill="none" stroke="#38BDF8" stroke-width="2"/>
+      <line x1="20" y1="105" x2="190" y2="105" stroke="#0284C7" stroke-width="3"/>
+      <text x="105" y="125" text-anchor="middle" fill="#94A3B8" font-size="9" class="font-mono">Radar bounces away</text>
+      <text x="105" y="145" text-anchor="middle" fill="#38BDF8" font-size="12" font-weight="bold" class="font-mono">
+        &lt; -16.0 dB
+      </text>
+      <text x="105" y="162" text-anchor="middle" fill="#64748B" font-size="9" class="font-sans">Pixel Appearance: Ultra Dark</text>
+    </g>
+
+    <!-- Block 2: Smooth Road Infrastructure -->
+    <g transform="translate(230, 0)">
+      <rect width="210" height="175" rx="8" fill="#0F172A" stroke="#475569" stroke-width="1.5"/>
+      <rect x="0" y="0" width="210" height="28" rx="8" fill="#334155"/>
+      <text x="105" y="19" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold" class="font-sans">
+        Dry Runway / Highways
+      </text>
+      <path d="M 40,75 L 105,105 L 170,75" fill="none" stroke="#94A3B8" stroke-width="1.8"/>
+      <line x1="20" y1="105" x2="190" y2="105" stroke="#64748B" stroke-width="3" stroke-dasharray="4,4"/>
+      <text x="105" y="125" text-anchor="middle" fill="#94A3B8" font-size="9" class="font-mono">Low surface roughness</text>
+      <text x="105" y="145" text-anchor="middle" fill="#CBD5E1" font-size="12" font-weight="bold" class="font-mono">
+        -16 to -11 dB
+      </text>
+      <text x="105" y="162" text-anchor="middle" fill="#64748B" font-size="9" class="font-sans">Pixel Appearance: Dim Gray</text>
+    </g>
+
+    <!-- Block 3: Forest & Vegetation Canopy -->
+    <g transform="translate(460, 0)">
+      <rect width="210" height="175" rx="8" fill="#031F17" stroke="#059669" stroke-width="1.5"/>
+      <rect x="0" y="0" width="210" height="28" rx="8" fill="#047857"/>
+      <text x="105" y="19" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold" class="font-sans">
+        Canopy Volume Scatter
+      </text>
+      <!-- Diffuse multi-direction arrows -->
+      <circle cx="105" cy="88" r="18" fill="#064E3B" stroke="#10B981" stroke-width="1"/>
+      <line x1="60" y1="65" x2="105" y2="88" stroke="#34D399" stroke-width="1.8"/>
+      <line x1="105" y1="88" x2="140" y2="65" stroke="#34D399" stroke-width="1.2"/>
+      <line x1="105" y1="88" x2="80" y2="110" stroke="#34D399" stroke-width="1.2"/>
+      <text x="105" y="125" text-anchor="middle" fill="#94A3B8" font-size="9" class="font-mono">Leaves depolarize beam</text>
+      <text x="105" y="145" text-anchor="middle" fill="#34D399" font-size="12" font-weight="bold" class="font-mono">
+        -11 to -6 dB
+      </text>
+      <text x="105" y="162" text-anchor="middle" fill="#64748B" font-size="9" class="font-sans">Pixel Appearance: Mid Gray</text>
+    </g>
+
+    <!-- Block 4: Urban Concrete Double-Bounce -->
+    <g transform="translate(690, 0)">
+      <rect width="210" height="175" rx="8" fill="#201007" stroke="#D97706" stroke-width="1.5"/>
+      <rect x="0" y="0" width="210" height="28" rx="8" fill="#B45309"/>
+      <text x="105" y="19" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold" class="font-sans">
+        Urban Double-Bounce
+      </text>
+      <!-- Corner reflector shape -->
+      <line x1="60" y1="105" x2="135" y2="105" stroke="#D97706" stroke-width="2.5"/>
+      <line x1="135" y1="105" x2="135" y2="55" stroke="#D97706" stroke-width="2.5"/>
+      <path d="M 60,65 L 135,100 L 135,60 L 60,95" fill="none" stroke="#FBBF24" stroke-width="2"/>
+      <text x="105" y="125" text-anchor="middle" fill="#94A3B8" font-size="9" class="font-mono">Ground-Wall 90° bounce</text>
+      <text x="105" y="145" text-anchor="middle" fill="#FBBF24" font-size="12" font-weight="bold" class="font-mono">
+        &gt; -6.0 dB
+      </text>
+      <text x="105" y="162" text-anchor="middle" fill="#64748B" font-size="9" class="font-sans">Pixel Appearance: Bright White</text>
+    </g>
+  </g>
+</svg>

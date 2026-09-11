@@ -33,6 +33,16 @@ async def upload_image(file: UploadFile = File(...)) -> ImageryUploadResponse:
     upload_dir = settings.upload_path
     target_path = ensure_safe_path(f"{image_id}_{safe_name}", str(upload_dir))
 
+    # Guard against disk-exhaustion upload attacks
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
+    file.file.seek(0)
+    if file_size > settings.max_upload_bytes:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Uploaded file size ({file_size / (1024*1024):.1f} MB) exceeds maximum allowed size of {settings.max_upload_size_mb} MB"
+        )
+
     with open(target_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 

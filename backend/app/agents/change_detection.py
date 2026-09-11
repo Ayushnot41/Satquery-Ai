@@ -9,6 +9,7 @@ import time
 import numpy as np
 from PIL import Image
 
+from ..models.siamese_unet import is_siamese_available, run_siamese_inference
 from ..schemas.agents import ChangeRegion, ChangeResult
 from ..schemas.trace import ExecutionTrace
 from .base import AgentBase
@@ -50,23 +51,42 @@ class ChangeDetectionAgent(AgentBase):
             # Step 1: Align images to same dimensions
             before, after = self._align_images(image_before, image_after)
 
-            # Step 2: Convert to grayscale if needed
-            gray_before = self._to_grayscale(before)
-            gray_after = self._to_grayscale(after)
+            method = "pixel_differencing_with_morphological_cleanup"
+            confidence = 0.90
+            model_info = {}
 
-            # Step 3: Compute pixel difference
-            diff = np.abs(gray_after.astype(np.float32) - gray_before.astype(np.float32))
+            # Step 2: Deep Learning Siamese U-Net Inference if checkpoint exists
+            if is_siamese_available():
+                try:
+                    siamese_res = run_siamese_inference(before, after)
+                    change_mask = (siamese_res["change_mask"] > 0).astype(np.uint8)
+                    method = "neural_siamese_unet_fused"
+                    confidence = siamese_res.get("confidence", 0.92)
+                    model_info = {
+                        "model": siamese_res.get("model_name"),
+                        "checkpoint": siamese_res.get("checkpoint_loaded"),
+                        "mode": siamese_res.get("inference_mode"),
+                    }
+                except Exception as dl_err:
+                    # Graceful fallback to classical differencing
+                    change_mask = None
+            else:
+                change_mask = None
 
-            # Step 4: Threshold to get binary change mask
-            change_mask = (diff > thresh).astype(np.uint8)
+            # Classical differencing fallback
+            if change_mask is None:
+                gray_before = self._to_grayscale(before)
+                gray_after = self._to_grayscale(after)
+                diff = np.abs(gray_after.astype(np.float32) - gray_before.astype(np.float32))
+                change_mask = (diff > thresh).astype(np.uint8)
 
-            # Step 5: Morphological operations to clean noise
+            # Step 3: Morphological operations to clean noise & refine contours
             change_mask = self._morphological_cleanup(change_mask)
 
-            # Step 6: Connected component analysis
+            # Step 4: Connected component analysis & bounding box extraction
             regions = self._extract_regions(change_mask)
 
-            # Step 7: Compute statistics
+            # Step 5: Compute statistics
             total_pixels = change_mask.shape[0] * change_mask.shape[1]
             changed_pixels = int(np.sum(change_mask))
             change_pct = (changed_pixels / total_pixels * 100) if total_pixels > 0 else 0.0
@@ -75,22 +95,26 @@ class ChangeDetectionAgent(AgentBase):
                 has_change=len(regions) > 0,
                 change_summary=self._generate_summary(regions, change_pct),
                 change_regions=regions,
-                method_used="pixel_differencing_with_morphological_cleanup",
+                method_used=method,
                 total_changed_pixels=changed_pixels,
                 total_pixels=total_pixels,
                 change_percentage=round(change_pct, 2),
             )
 
-            self._trace_complete(trace, start, (
-                f"Change detection complete: {len(regions)} region(s), "
-                f"{change_pct:.1f}% changed"
-            ), {
-                "method": "pixel_differencing",
+            meta = {
+                "method": method,
                 "threshold": thresh,
                 "regions_found": len(regions),
                 "change_percentage": round(change_pct, 2),
                 "total_changed_pixels": changed_pixels,
-            })
+                "confidence": confidence,
+            }
+            meta.update(model_info)
+
+            self._trace_complete(trace, start, (
+                f"Change detection complete via {method}: {len(regions)} region(s), "
+                f"{change_pct:.1f}% changed"
+            ), meta)
 
             return result
 

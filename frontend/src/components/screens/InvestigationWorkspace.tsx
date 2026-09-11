@@ -185,6 +185,7 @@ export function InvestigationWorkspace({
             locationName={currentLocation.name}
             overlays={investigation?.visual_overlays || []}
             isTemporal={true}
+            investigationId={investigation?.investigation_id || "inv-live-01"}
             onCoordinatesChange={(nLat, nLon, nZoom) => {
               setCurrentLocation((prev) => ({
                 ...prev,

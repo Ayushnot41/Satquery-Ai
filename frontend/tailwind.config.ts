@@ -23,6 +23,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
+        space: ["'Space Grotesk'", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
       },
     },

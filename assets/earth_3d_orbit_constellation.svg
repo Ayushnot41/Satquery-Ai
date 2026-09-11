@@ -1,0 +1,437 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <radialGradient id="spaceBg" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#080F24"/>
+      <stop offset="50%" stop-color="#040714"/>
+      <stop offset="100%" stop-color="#020308"/>
+    </radialGradient>
+
+    <!-- Earth Atmosphere Glow -->
+    <radialGradient id="atmosGlow" cx="45%" cy="45%" r="60%">
+      <stop offset="70%" stop-color="#0369A1" stop-opacity="0"/>
+      <stop offset="90%" stop-color="#0284C7" stop-opacity="0.3"/>
+      <stop offset="97%" stop-color="#38BDF8" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#BAE6FD" stop-opacity="0.95"/>
+    </radialGradient>
+
+    <!-- Earth Day/Night Terminator -->
+    <radialGradient id="earthSphere" cx="42%" cy="40%" r="58%">
+      <stop offset="0%" stop-color="#1E3A8A"/>
+      <stop offset="35%" stop-color="#0C4A6E"/>
+      <stop offset="65%" stop-color="#06264A"/>
+      <stop offset="85%" stop-color="#031528"/>
+      <stop offset="100%" stop-color="#010712"/>
+    </radialGradient>
+
+    <!-- Sun Glint -->
+    <radialGradient id="sunSpecular" cx="38%" cy="32%" r="28%">
+      <stop offset="0%" stop-color="#BAE6FD" stop-opacity="0.5"/>
+      <stop offset="40%" stop-color="#38BDF8" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#0284C7" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Microwave Beam Gradient (SAR) -->
+    <linearGradient id="sarBeam" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.85"/>
+      <stop offset="40%" stop-color="#A78BFA" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#C4B5FD" stop-opacity="0.08"/>
+    </linearGradient>
+
+    <!-- Optical Cone Gradient -->
+    <linearGradient id="optBeam" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.85"/>
+      <stop offset="40%" stop-color="#22D3EE" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#67E8F9" stop-opacity="0.08"/>
+    </linearGradient>
+
+    <!-- Radar Sweep Fan Gradient -->
+    <linearGradient id="sweepFan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.35"/>
+      <stop offset="70%" stop-color="#0284C7" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#0369A1" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Glow Filters -->
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="glowPurple" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="shadowBox" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+
+    <!-- 3D Hardware Accelerated Keyframes -->
+    <style>
+      @keyframes orbitRotateA {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      @keyframes orbitRotateB {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(-360deg); }
+      }
+      @keyframes radarSweep {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      @keyframes atmosPulse {
+        0%, 100% { opacity: 0.82; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.018); }
+      }
+      @keyframes dashStream {
+        to { stroke-dashoffset: -120; }
+      }
+      @keyframes beamChirp {
+        0%, 100% { opacity: 0.85; transform: scaleY(1); }
+        50% { opacity: 0.45; transform: scaleY(0.97); }
+      }
+      @keyframes footprintPulse {
+        0%, 100% { transform: scale(1); opacity: 0.8; }
+        50% { transform: scale(1.25); opacity: 0.2; }
+      }
+      @keyframes groundBeacon {
+        0% { r: 3px; opacity: 1; }
+        100% { r: 22px; opacity: 0; }
+      }
+      @keyframes hudFloat {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-4px); }
+      }
+      @keyframes liveBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+      }
+
+      .orbit-plane-sar {
+        transform-origin: 800px 450px;
+        animation: orbitRotateA 32s linear infinite;
+        will-change: transform;
+      }
+      .orbit-plane-opt {
+        transform-origin: 800px 450px;
+        animation: orbitRotateB 26s linear infinite;
+        will-change: transform;
+      }
+      .sweep-conduit {
+        transform-origin: 800px 450px;
+        animation: radarSweep 9s linear infinite;
+        will-change: transform;
+      }
+      .atmos-glow-ring {
+        transform-origin: 800px 450px;
+        animation: atmosPulse 5s ease-in-out infinite;
+      }
+      .dash-orbit {
+        animation: dashStream 4s linear infinite;
+      }
+      .sar-beam-anim {
+        transform-origin: 540px 240px;
+        animation: beamChirp 2.4s ease-in-out infinite;
+      }
+      .opt-beam-anim {
+        transform-origin: 1080px 270px;
+        animation: beamChirp 3s ease-in-out infinite;
+      }
+      .hud-card {
+        animation: hudFloat 6s ease-in-out infinite;
+      }
+      .blink-active {
+        animation: liveBlink 1.6s ease-in-out infinite;
+      }
+
+      .font-mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+      .font-space { font-family: 'Space Grotesk', -apple-system, sans-serif; }
+    </style>
+  </defs>
+
+  <!-- Deep Space Canvas -->
+  <rect width="1600" height="900" fill="url(#spaceBg)"/>
+
+  <!-- Starfield Matrix -->
+  <g opacity="0.65">
+    <circle cx="120" cy="80" r="1.2" fill="#FFFFFF"/>
+    <circle cx="280" cy="190" r="1.5" fill="#38BDF8"/>
+    <circle cx="450" cy="110" r="1" fill="#FFFFFF"/>
+    <circle cx="820" cy="65" r="1.8" fill="#FFFFFF"/>
+    <circle cx="980" cy="140" r="1.2" fill="#BAE6FD"/>
+    <circle cx="1140" cy="90" r="1.6" fill="#A78BFA"/>
+    <circle cx="1380" cy="160" r="1.2" fill="#FFFFFF"/>
+    <circle cx="1520" cy="75" r="1.4" fill="#FFFFFF"/>
+    <circle cx="90" cy="420" r="1.5" fill="#FFFFFF"/>
+    <circle cx="210" cy="560" r="1" fill="#38BDF8"/>
+    <circle cx="1450" cy="480" r="1.8" fill="#FFFFFF"/>
+    <circle cx="1320" cy="670" r="1.2" fill="#BAE6FD"/>
+    <circle cx="1540" cy="720" r="1.5" fill="#A78BFA"/>
+    <circle cx="140" cy="780" r="1.2" fill="#FFFFFF"/>
+    <circle cx="340" cy="820" r="1.6" fill="#FFFFFF"/>
+    <circle cx="1240" cy="810" r="1.4" fill="#38BDF8"/>
+  </g>
+
+  <!-- Tactical Grid Guidelines -->
+  <g stroke="rgba(255,255,255,0.03)" stroke-width="1">
+    <line x1="0" y1="225" x2="1600" y2="225"/>
+    <line x1="0" y1="450" x2="1600" y2="450"/>
+    <line x1="0" y1="675" x2="1600" y2="675"/>
+    <line x1="400" y1="0" x2="400" y2="900"/>
+    <line x1="800" y1="0" x2="800" y2="900"/>
+    <line x1="1200" y1="0" x2="1200" y2="900"/>
+  </g>
+
+  <!-- 3D Atmospheric Glow Outer Ring (Pulsing) -->
+  <circle cx="800" cy="450" r="280" fill="url(#atmosGlow)" class="atmos-glow-ring"/>
+
+  <!-- 3D Earth Globe Sphere -->
+  <circle cx="800" cy="450" r="265" fill="url(#earthSphere)"/>
+  <circle cx="800" cy="450" r="265" fill="url(#sunSpecular)"/>
+
+  <!-- Continental Landmass Silhouettes (India & Eurasia Focus) -->
+  <g fill="#10B981" fill-opacity="0.22" stroke="#34D399" stroke-opacity="0.45" stroke-width="1.2">
+    <!-- Indian Subcontinent & Deccan Plate -->
+    <path d="M 760 380 Q 790 350 830 365 Q 860 380 840 430 Q 825 475 805 520 Q 790 535 780 500 Q 755 450 740 415 Z"/>
+    <!-- Sri Lanka -->
+    <ellipse cx="808" cy="540" rx="6" ry="10" transform="rotate(15 808 540)"/>
+    <!-- Himalayan Arc -->
+    <path d="M 730 375 Q 780 345 850 350 Q 890 355 920 370" fill="none" stroke="#6EE7B7" stroke-width="2.5" stroke-dasharray="3,3"/>
+    <!-- Southeast Asia & Indochina -->
+    <path d="M 870 380 Q 910 400 930 450 Q 915 480 890 490 Q 870 450 860 410 Z"/>
+    <!-- Arabian Peninsula -->
+    <path d="M 680 390 Q 720 380 735 410 Q 730 445 700 455 Q 675 435 670 410 Z"/>
+  </g>
+
+  <!-- Monsoon Cloud Deck (Illustrating 80% Optical Cloud Blindness) -->
+  <g fill="#FFFFFF" fill-opacity="0.14" filter="url(#glowCyan)">
+    <path d="M 730 360 Q 780 330 840 340 Q 890 360 880 410 Q 840 430 790 415 Q 740 400 730 360 Z"/>
+    <path d="M 760 420 Q 810 395 860 410 Q 870 450 830 460 Q 780 465 760 420 Z"/>
+  </g>
+
+  <!-- 3D Rotating Radar Reconnaissance Sweep Line -->
+  <g class="sweep-conduit">
+    <path d="M 800 450 L 1065 450 A 265 265 0 0 0 1020 300 Z" fill="url(#sweepFan)"/>
+    <line x1="800" y1="450" x2="1065" y2="450" stroke="#38BDF8" stroke-width="1.8" filter="url(#glowCyan)"/>
+  </g>
+
+  <!-- ================= KEPLERIAN SATELLITE ORBIT RINGS ================= -->
+
+  <!-- Orbit 1 Track: RISAT-1B C-Band SAR (Inclined Polar Orbit - Violet) -->
+  <ellipse cx="800" cy="450" rx="390" ry="170" transform="rotate(-35 800 450)"
+           fill="none" stroke="#8B5CF6" stroke-width="1.8" stroke-dasharray="8,6" opacity="0.75" class="dash-orbit"/>
+
+  <!-- Orbit 2 Track: Cartosat-3 High-Res Optical (Sun-Synchronous Polar - Cyan) -->
+  <ellipse cx="800" cy="450" rx="420" ry="140" transform="rotate(25 800 450)"
+           fill="none" stroke="#06B6D4" stroke-width="1.8" stroke-dasharray="6,4" opacity="0.85" class="dash-orbit"/>
+
+  <!-- Orbit 3 Track: Sentinel-1 C-SAR (Deep Space Surveillance - Indigo) -->
+  <ellipse cx="800" cy="450" rx="460" ry="210" transform="rotate(-65 800 450)"
+           fill="none" stroke="#3B82F6" stroke-width="1.4" stroke-dasharray="4,8" opacity="0.6"/>
+
+  <!-- Orbit 4 Track: Disaster Fast-Revisit Constellation Track -->
+  <ellipse cx="800" cy="450" rx="350" ry="260" transform="rotate(10 800 450)"
+           fill="none" stroke="#10B981" stroke-width="1.2" stroke-dasharray="3,5" opacity="0.55"/>
+
+  <!-- ================= DYNAMIC 3D SATELLITE CRAFTS & BEAMS ================= -->
+
+  <!-- Satellite 1: RISAT-1B (C-Band Microwave SAR Piercing Clouds) -->
+  <g transform="translate(540, 240)">
+    <!-- 5.405 GHz Microwave Radar Cone Beaming Down Through Clouds -->
+    <g class="sar-beam-anim">
+      <polygon points="0,0 230,190 290,210" fill="url(#sarBeam)"/>
+      <polygon points="0,0 230,190 290,210" stroke="#C4B5FD" stroke-width="0.8" fill="none" opacity="0.5"/>
+      <!-- Microwave Chirp Pulse Wavefronts -->
+      <line x1="60" y1="50" x2="80" y2="60" stroke="#C4B5FD" stroke-width="1.5" stroke-dasharray="2,2"/>
+      <line x1="120" y1="100" x2="150" y2="115" stroke="#C4B5FD" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <line x1="180" y1="150" x2="220" y2="170" stroke="#C4B5FD" stroke-width="2" stroke-dasharray="4,2"/>
+    </g>
+
+    <!-- Radar Ground Footprint on Indian Terrain -->
+    <g transform="translate(260, 200)">
+      <ellipse cx="0" cy="0" rx="35" ry="16" transform="rotate(-15)"
+               fill="#8B5CF6" fill-opacity="0.3" stroke="#A78BFA" stroke-width="2" filter="url(#glowPurple)"/>
+      <ellipse cx="0" cy="0" rx="55" ry="25" transform="rotate(-15)"
+               fill="none" stroke="#A78BFA" stroke-width="1" opacity="0.4">
+        <animate attributeName="rx" values="35;60;35" dur="2.4s" repeatCount="indefinite"/>
+        <animate attributeName="ry" values="16;28;16" dur="2.4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.8;0.1;0.8" dur="2.4s" repeatCount="indefinite"/>
+      </ellipse>
+    </g>
+
+    <!-- Satellite Body -->
+    <rect x="-14" y="-10" width="28" height="20" rx="3" fill="#1E1B4B" stroke="#8B5CF6" stroke-width="1.8"/>
+    <!-- Solar Panels -->
+    <rect x="-42" y="-7" width="24" height="14" rx="2" fill="#3B82F6" stroke="#93C5FD" stroke-width="1"/>
+    <rect x="18" y="-7" width="24" height="14" rx="2" fill="#3B82F6" stroke="#93C5FD" stroke-width="1"/>
+    <!-- SAR Antenna Dish -->
+    <line x1="0" y1="10" x2="6" y2="20" stroke="#A78BFA" stroke-width="2"/>
+    <ellipse cx="8" cy="22" rx="10" ry="4" fill="#C4B5FD" stroke="#8B5CF6" stroke-width="1"/>
+    
+    <!-- Target Ping Rings -->
+    <circle cx="0" cy="0" r="18" fill="none" stroke="#8B5CF6" stroke-width="1.2" opacity="0.7">
+      <animate attributeName="r" values="8;30;8" dur="2.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.9;0.05;0.9" dur="2.4s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Identification Tag -->
+    <g transform="translate(35, -25)">
+      <rect x="0" y="0" width="165" height="42" rx="6" fill="#090D1E" stroke="#8B5CF6" stroke-width="1.4" filter="url(#shadowBox)"/>
+      <circle cx="12" cy="14" r="4" fill="#A78BFA" class="blink-active"/>
+      <text x="22" y="17" fill="#FFFFFF" font-size="11" font-weight="bold" class="font-mono">RISAT-1B // SAR</text>
+      <text x="22" y="32" fill="#C4B5FD" font-size="9" class="font-mono">5.405 GHz • C-Band • 536km</text>
+    </g>
+  </g>
+
+  <!-- Satellite 2: Cartosat-3 (Sub-Meter 0.28m Optical Telescope) -->
+  <g transform="translate(1080, 270)">
+    <!-- Optical Aperture Cone -->
+    <g class="opt-beam-anim">
+      <polygon points="0,0 -240,160 -290,140" fill="url(#optBeam)"/>
+      <polygon points="0,0 -240,160 -290,140" stroke="#67E8F9" stroke-width="0.8" fill="none" opacity="0.4"/>
+    </g>
+
+    <!-- Optical Ground Target Bounding Box -->
+    <polygon points="-270,145 -235,165 -255,175 -290,155"
+             fill="#06B6D4" fill-opacity="0.3" stroke="#22D3EE" stroke-width="2" filter="url(#glowCyan)"/>
+
+    <!-- Craft Body -->
+    <rect x="-12" y="-12" width="24" height="24" rx="4" fill="#082F49" stroke="#06B6D4" stroke-width="1.8"/>
+    <!-- Optical Sunshade Barrel -->
+    <polygon points="-6,12 6,12 8,24 -8,24" fill="#0284C7" stroke="#38BDF8" stroke-width="1"/>
+    <!-- Solar Arrays -->
+    <rect x="-38" y="-6" width="22" height="12" rx="2" fill="#0284C7" stroke="#7DD3FC" stroke-width="1"/>
+    <rect x="16" y="-6" width="22" height="12" rx="2" fill="#0284C7" stroke="#7DD3FC" stroke-width="1"/>
+
+    <!-- Optical Pulse Wave -->
+    <circle cx="0" cy="0" r="14" fill="none" stroke="#22D3EE" stroke-width="1.2">
+      <animate attributeName="r" values="8;28;8" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.9;0.1;0.9" dur="3s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Identification Tag -->
+    <g transform="translate(30, -22)">
+      <rect x="0" y="0" width="165" height="42" rx="6" fill="#081A2E" stroke="#06B6D4" stroke-width="1.4" filter="url(#shadowBox)"/>
+      <circle cx="12" cy="14" r="4" fill="#22D3EE" class="blink-active"/>
+      <text x="22" y="17" fill="#FFFFFF" font-size="11" font-weight="bold" class="font-mono">CARTOSAT-3 // OPTICAL</text>
+      <text x="22" y="32" fill="#67E8F9" font-size="9" class="font-mono">0.28m GSD • Panchromatic</text>
+    </g>
+  </g>
+
+  <!-- ================= ISRO STRATEGIC GROUND STATIONS WITH CONCENTRIC BEACONS ================= -->
+  <g id="groundStations">
+    <!-- ISTRAC Bengaluru (Mission Control HQ) -->
+    <circle cx="788" cy="492" r="5" fill="#EF4444" stroke="#FFFFFF" stroke-width="1.5" filter="url(#glowCyan)"/>
+    <circle cx="788" cy="492" r="8" fill="none" stroke="#EF4444" stroke-width="1.2">
+      <animate attributeName="r" values="5;26" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="700" y="525" fill="#FCA5A5" font-size="10" font-weight="bold" class="font-mono">ISTRAC BENGALURU</text>
+    <line x1="788" y1="492" x2="745" y2="515" stroke="#EF4444" stroke-width="1"/>
+
+    <!-- SHAR Sriharikota Launch Pad -->
+    <circle cx="802" cy="482" r="4" fill="#F59E0B" stroke="#FFFFFF" stroke-width="1.5"/>
+    <circle cx="802" cy="482" r="6" fill="none" stroke="#F59E0B" stroke-width="1">
+      <animate attributeName="r" values="4;20" dur="2.4s" begin="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0" dur="2.4s" begin="0.6s" repeatCount="indefinite"/>
+    </circle>
+    <text x="825" y="475" fill="#FCD34D" font-size="9" font-weight="bold" class="font-mono">SDSC SHAR (LAUNCH)</text>
+    <line x1="802" y1="482" x2="822" y2="475" stroke="#F59E0B" stroke-width="0.8"/>
+
+    <!-- SAC Ahmedabad (Sensors & Payloads) -->
+    <circle cx="748" cy="432" r="4" fill="#10B981" stroke="#FFFFFF" stroke-width="1.5"/>
+    <circle cx="748" cy="432" r="6" fill="none" stroke="#10B981" stroke-width="1">
+      <animate attributeName="r" values="4;20" dur="2.4s" begin="1.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0" dur="2.4s" begin="1.2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="635" y="435" fill="#6EE7B7" font-size="9" font-weight="bold" class="font-mono">SAC AHMEDABAD</text>
+    <line x1="748" y1="432" x2="720" y2="435" stroke="#10B981" stroke-width="0.8"/>
+
+    <!-- NRSC Shadnagar (Earth Observation Downlink) -->
+    <circle cx="778" cy="468" r="4" fill="#06B6D4" stroke="#FFFFFF" stroke-width="1.5"/>
+    <circle cx="778" cy="468" r="6" fill="none" stroke="#06B6D4" stroke-width="1">
+      <animate attributeName="r" values="4;22" dur="2.2s" begin="0.3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0" dur="2.2s" begin="0.3s" repeatCount="indefinite"/>
+    </circle>
+    <text x="825" y="505" fill="#67E8F9" font-size="9" font-weight="bold" class="font-mono">NRSC SHADNAGAR (X-BAND)</text>
+    <line x1="778" y1="468" x2="820" y2="502" stroke="#06B6D4" stroke-width="0.8"/>
+  </g>
+
+  <!-- ================= TACTICAL HUD OVERLAYS & TELEMETRY ================= -->
+
+  <!-- Top Tactical Telemetry Header Block -->
+  <g transform="translate(60, 45)" filter="url(#shadowBox)" class="hud-card">
+    <rect x="0" y="0" width="460" height="74" rx="10" fill="#060B18" fill-opacity="0.92" stroke="#1F2937" stroke-width="1.5"/>
+    <rect x="12" y="12" width="6" height="50" rx="3" fill="#3B82F6"/>
+    <text x="30" y="32" fill="#FFFFFF" font-size="15" font-weight="bold" class="font-space">BHUVISION // 3D SATELLITE HUD</text>
+    <text x="30" y="52" fill="#94A3B8" font-size="11" class="font-mono">Multimodal Constellation Tracker • SIH26167</text>
+    <g transform="translate(365, 20)">
+      <circle cx="0" cy="0" r="4" fill="#10B981" class="blink-active"/>
+      <circle cx="0" cy="0" r="8" fill="none" stroke="#10B981" stroke-width="1" opacity="0.6"/>
+      <text x="12" y="4" fill="#34D399" font-size="10" font-weight="bold" class="font-mono">ONLINE</text>
+    </g>
+  </g>
+
+  <!-- Bottom Left: Multi-Sensor Operational Status Block -->
+  <g transform="translate(60, 720)" filter="url(#shadowBox)" class="hud-card">
+    <rect x="0" y="0" width="380" height="135" rx="10" fill="#060B18" fill-opacity="0.92" stroke="#1F2937" stroke-width="1.5"/>
+    <text x="20" y="28" fill="#38BDF8" font-size="11" font-weight="bold" class="font-mono">SENSOR CONSTELLATION TELEMETRY</text>
+    
+    <g transform="translate(20, 45)">
+      <!-- Line 1: RISAT-1B -->
+      <rect x="0" y="0" width="10" height="10" rx="2" fill="#8B5CF6"/>
+      <text x="20" y="9" fill="#E2E8F0" font-size="10" class="font-mono">RISAT-1B (SAR C-Band)</text>
+      <text x="250" y="9" fill="#A78BFA" font-size="10" font-weight="bold" class="font-mono">ACTIVE (5.4 GHz)</text>
+
+      <!-- Line 2: Cartosat-3 -->
+      <rect x="0" y="22" width="10" height="10" rx="2" fill="#06B6D4"/>
+      <text x="20" y="31" fill="#E2E8F0" font-size="10" class="font-mono">Cartosat-3 (Panchromatic)</text>
+      <text x="250" y="31" fill="#22D3EE" font-size="10" font-weight="bold" class="font-mono">0.28m NADIR</text>
+
+      <!-- Line 3: Sentinel-1 -->
+      <rect x="0" y="44" width="10" height="10" rx="2" fill="#3B82F6"/>
+      <text x="20" y="53" fill="#E2E8F0" font-size="10" class="font-mono">Sentinel-1A (C-SAR)</text>
+      <text x="250" y="53" fill="#60A5FA" font-size="10" font-weight="bold" class="font-mono">INTERFEROMETRIC</text>
+
+      <!-- Line 4: EOS-04 -->
+      <rect x="0" y="66" width="10" height="10" rx="2" fill="#10B981"/>
+      <text x="20" y="75" fill="#E2E8F0" font-size="10" class="font-mono">EOS-04 (Radar Imaging)</text>
+      <text x="250" y="75" fill="#34D399" font-size="10" font-weight="bold" class="font-mono">POLAR LEO</text>
+    </g>
+  </g>
+
+  <!-- Bottom Right: Defense Coordinate Reference Block -->
+  <g transform="translate(1160, 720)" filter="url(#shadowBox)" class="hud-card">
+    <rect x="0" y="0" width="380" height="135" rx="10" fill="#060B18" fill-opacity="0.92" stroke="#1F2937" stroke-width="1.5"/>
+    <text x="20" y="28" fill="#F59E0B" font-size="11" font-weight="bold" class="font-mono">ORBITAL KINEMATICS // WGS-84</text>
+
+    <g transform="translate(20, 48)">
+      <text x="0" y="10" fill="#94A3B8" font-size="10" class="font-mono">Sub-Satellite Point (SSP):</text>
+      <text x="180" y="10" fill="#FFFFFF" font-size="10" font-weight="bold" class="font-mono">28.6139° N, 77.2090° E</text>
+
+      <text x="0" y="32" fill="#94A3B8" font-size="10" class="font-mono">Ground Track Velocity:</text>
+      <text x="180" y="32" fill="#38BDF8" font-size="10" font-weight="bold" class="font-mono">7.56 km/s (Mach 22.2)</text>
+
+      <text x="0" y="54" fill="#94A3B8" font-size="10" class="font-mono">Swath Width / Stripmap:</text>
+      <text x="180" y="54" fill="#A78BFA" font-size="10" font-weight="bold" class="font-mono">250 km (IW Mode)</text>
+
+      <text x="0" y="76" fill="#94A3B8" font-size="10" class="font-mono">CRS Reference Datum:</text>
+      <text x="180" y="76" fill="#34D399" font-size="10" font-weight="bold" class="font-mono">EPSG:4326 (Ellipsoid)</text>
+    </g>
+  </g>
+
+  <!-- Tactical Reticle Crosshairs at Screen Center -->
+  <g stroke="#06B6D4" stroke-opacity="0.3" stroke-width="1">
+    <line x1="770" y1="450" x2="830" y2="450"/>
+    <line x1="800" y1="420" x2="800" y2="480"/>
+    <circle cx="800" cy="450" r="40" fill="none"/>
+  </g>
+</svg>

@@ -1,0 +1,18 @@
+{
+  "short_name": "BHUVISION",
+  "name": "BHUVISION — Spatial Earth Intelligence (SIH26167)",
+  "description": "Autonomous Multi-Agent Spatial Intelligence Platform for Multimodal Remote Sensing (ISRO / BANKAI)",
+  "icons": [
+    {
+      "src": "/assets/bhuvision_3d_banner.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512 any"
+    }
+  ],
+  "start_url": "/app",
+  "background_color": "#030712",
+  "theme_color": "#0B1120",
+  "display": "standalone",
+  "orientation": "any",
+  "categories": ["productivity", "utilities", "government"]
+}

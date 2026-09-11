@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="100%" height="100%">
+  <defs>
+    <radialGradient id="councilGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.35"/>
+      <stop offset="80%" stop-color="#0F172A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <style>
+    @keyframes ringRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes pulseCore { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+    @keyframes chatterFlow { to { stroke-dashoffset: -36; } }
+    .rotator { transform-origin: 480px 270px; transform-box: view-box; animation: ringRotate 60s linear infinite; will-change: transform; }
+    .core-pulse { transform-origin: 480px 270px; transform-box: view-box; animation: pulseCore 3s ease-in-out infinite; will-change: transform; }
+    .chatter-anim { stroke-dasharray: 4, 4; animation: chatterFlow 2s linear infinite; }
+    .font-sans { font-family: 'Space Grotesk', -apple-system, sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+
+  <rect width="960" height="540" fill="#030712"/>
+
+  <!-- Core Glow -->
+  <circle cx="480" cy="270" r="230" fill="url(#councilGlow)"/>
+
+  <!-- Consensus Orbital Rings -->
+  <circle cx="480" cy="270" r="185" fill="none" stroke="#1E293B" stroke-width="1.5" stroke-dasharray="4,6"/>
+  <circle cx="480" cy="270" r="140" fill="none" stroke="#0F2557" stroke-width="1.2"/>
+
+  <!-- Deliberation Lines Between Agents -->
+  <g stroke="#38BDF8" stroke-width="0.8" opacity="0.35">
+    <line x1="480" y1="85" x2="330" y2="135"/>
+    <line x1="330" y1="135" x2="250" y2="270"/>
+    <line x1="250" y1="270" x2="330" y2="405"/>
+    <line x1="330" y1="405" x2="480" y2="455"/>
+    <line x1="480" y1="455" x2="630" y2="405"/>
+    <line x1="630" y1="405" x2="710" y2="270"/>
+    <line x1="710" y1="270" x2="630" y2="135"/>
+    <line x1="630" y1="135" x2="480" y2="85"/>
+    <!-- Cross-chatter -->
+    <line x1="480" y1="85" x2="480" y2="455" stroke="#A855F7" stroke-width="1.2" class="chatter-anim"/>
+    <line x1="250" y1="270" x2="710" y2="270" stroke="#06B6D4" stroke-width="1.2" class="chatter-anim"/>
+  </g>
+
+  <!-- Central Evidence Fusion Core -->
+  <g class="core-pulse">
+    <circle cx="480" cy="270" r="75" fill="#0A1931" stroke="#06B6D4" stroke-width="2.5"/>
+    <circle cx="480" cy="270" r="60" fill="#071326" stroke="#3B82F6" stroke-width="1.2"/>
+    <text x="480" y="260" text-anchor="middle" fill="#FFFFFF" font-size="12" font-weight="bold" class="font-sans">
+      GRAPH-OF-THOUGHT
+    </text>
+    <text x="480" y="278" text-anchor="middle" fill="#38BDF8" font-size="9" font-weight="bold" class="font-mono">
+      CONSENSUS ENGINE
+    </text>
+    <text x="480" y="294" text-anchor="middle" fill="#10B981" font-size="8.5" class="font-mono">
+      VERIFIED: 94.2%
+    </text>
+  </g>
+
+  <!-- 9 Agent Surrounding Nodes -->
+  <!-- A1: Query Planner -->
+  <g transform="translate(480, 85)">
+    <rect x="-65" y="-22" width="130" height="44" rx="6" fill="#0B1528" stroke="#38BDF8" stroke-width="1.5"/>
+    <text x="0" y="-3" text-anchor="middle" fill="#38BDF8" font-size="10" font-weight="bold" class="font-mono">AGENT 1</text>
+    <text x="0" y="12" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="bold" class="font-sans">Query Planner</text>
+  </g>
+
+  <!-- A2: Geo Validator -->
+  <g transform="translate(630, 135)">
+    <rect x="-65" y="-22" width="130" height="44" rx="6" fill="#0B1528" stroke="#38BDF8" stroke-width="1.5"/>
+    <text x="0" y="-3" text-anchor="middle" fill="#38BDF8" font-size="10" font-weight="bold" class="font-mono">AGENT 2</text>
+    <text x="0" y="12" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="bold" class="font-sans">Geo Validator</text>
+  </g>
+
+  <!-- A3: Sensor Router -->
+  <g transform="translate(710, 270)">
+    <rect x="-65" y="-22" width="130" height="44" rx="6" fill="#130D2B" stroke="#A855F7" stroke-width="1.5"/>
+    <text x="0" y="-3" text-anchor="middle" fill="#C084FC" font-size="10" font-weight="bold" class="font-mono">AGENT 3</text>
+    <text x="0" y="12" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="bold" class="font-sans">Sensor Router</text>
+  </g>
+
+  <!-- A4: RS-VQA Agent -->
+  <g transform="translate(630, 405)">
+    <rect x="-65" y="-22" width="130" height="44" rx="6" fill="#0B1528" stroke="#38BDF8" stroke-width="1.5"/>
+    <text x="0" y="-3" text-anchor="middle" fill="#38BDF8" font-size="10" font-weight="bold" class="font-mono">AGENT 4</text>
+    <text x="0" y="12" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="bold" class="font-sans">RS-VQA Agent</text>
+  </g>
+
+  <!-- A5: Change Engine -->
+  <g transform="translate(480, 455)">
+    <rect x="-65" y="-22" width="130" height="44" rx="6" fill="#130D2B" stroke="#A855F7" stroke-width="1.5"/>
+    <text x="0" y="-3" text-anchor="middle" fill="#C084FC" font-size="10" font-weight="bold" class="font-mono">AGENT 5</text>
+    <text x="0" y="12" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="bold" class="font-sans">Change Engine</text>
+  </g>
+
+  <!-- A6: Visual Grounding -->
+  <g transform="translate(330, 405)">
+    <rect x="-65" y="-22" width="130" height="44" rx="6" fill="#051924" stroke="#06B6D4" stroke-width="1.5"/>
+    <text x="0" y="-3" text-anchor="middle" fill="#22D3EE" font-size="10" font-weight="bold" class="font-mono">AGENT 6</text>
+    <text x="0" y="12" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="bold" class="font-sans">Visual Grounding</text>
+  </g>
+
+  <!-- A7: Evidence Fusion -->
+  <g transform="translate(250, 270)">
+    <rect x="-65" y="-22" width="130" height="44" rx="6" fill="#041F17" stroke="#10B981" stroke-width="1.5"/>
+    <text x="0" y="-3" text-anchor="middle" fill="#34D399" font-size="10" font-weight="bold" class="font-mono">AGENT 7</text>
+    <text x="0" y="12" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="bold" class="font-sans">Evidence Fusion</text>
+  </g>
+
+  <!-- A8: Confidence Engine -->
+  <g transform="translate(330, 135)">
+    <rect x="-65" y="-22" width="130" height="44" rx="6" fill="#241407" stroke="#F59E0B" stroke-width="1.5"/>
+    <text x="0" y="-3" text-anchor="middle" fill="#FBBF24" font-size="10" font-weight="bold" class="font-mono">AGENT 8</text>
+    <text x="0" y="12" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="bold" class="font-sans">Confidence Engine</text>
+  </g>
+
+  <!-- A9: Audit & Trace -->
+  <g transform="translate(480, 20)">
+    <rect x="-70" y="0" width="140" height="26" rx="4" fill="#030712" stroke="#475569" stroke-width="1"/>
+    <text x="0" y="17" text-anchor="middle" fill="#94A3B8" font-size="9" font-weight="bold" class="font-mono">
+      AGENT 9: AUDIT &amp; TRACE (12ms)
+    </text>
+  </g>
+</svg>

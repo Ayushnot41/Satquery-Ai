@@ -5,11 +5,12 @@ import { Header } from "../components/layout/Header";
 import { MissionHome } from "../components/screens/MissionHome";
 import { MissionView } from "../components/screens/MissionView";
 import { InvestigationWorkspace } from "../components/screens/InvestigationWorkspace";
+import { AgentDebateView } from "../components/screens/AgentDebateView";
 import { EvaluationView } from "../components/screens/EvaluationView";
 import { checkHealth } from "../lib/api";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"home" | "mission_view" | "workspace" | "evaluation">("home");
+  const [activeTab, setActiveTab] = useState<"home" | "mission_view" | "workspace" | "debate" | "evaluation">("home");
   const [selectedScenario, setSelectedScenario] = useState<string | undefined>(undefined);
   const [initialQuery, setInitialQuery] = useState<string>("Where has construction increased between these two dates?");
   const [healthStatus, setHealthStatus] = useState<string>("online");
@@ -63,6 +64,16 @@ export default function Home() {
           <InvestigationWorkspace
             initialScenarioId={selectedScenario}
             initialQuery={initialQuery}
+          />
+        )}
+
+        {activeTab === "debate" && (
+          <AgentDebateView
+            onTriggerInvestigation={(scId, query) => {
+              setSelectedScenario(scId);
+              setInitialQuery(query);
+              setActiveTab("workspace");
+            }}
           />
         )}
 

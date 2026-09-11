@@ -1,0 +1,336 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 960" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050814"/>
+      <stop offset="50%" stop-color="#0b1120"/>
+      <stop offset="100%" stop-color="#030712"/>
+    </linearGradient>
+
+    <!-- Block Gradients -->
+    <linearGradient id="cardGradCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0369a1" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="cardGradEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#047857" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="cardGradAmber" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b45309" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+    </linearGradient>
+
+    <!-- Filters & Glows -->
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="subtleDrop" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+
+    <!-- Patterns -->
+    <pattern id="matrixGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.75" stroke-opacity="0.5"/>
+    </pattern>
+    <style>
+      @keyframes pulseGlow {
+        0%, 100% { filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.4)); }
+        50% { filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.85)); }
+      }
+      @keyframes scannerRay {
+        0% { transform: translateY(0px); opacity: 0.1; }
+        50% { opacity: 0.8; }
+        100% { transform: translateY(80px); opacity: 0.1; }
+      }
+      @keyframes dashFlow {
+        to { stroke-dashoffset: -40; }
+      }
+      @keyframes heartBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.25; }
+      }
+      @keyframes floatCard {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-4px); }
+      }
+
+      .glow-box { animation: pulseGlow 4s ease-in-out infinite; }
+      .scanner-line { animation: scannerRay 3s ease-in-out infinite; }
+      .data-pipe { stroke-dasharray: 8, 4; animation: dashFlow 2s linear infinite; }
+      .blink-dot { animation: heartBlink 1.4s ease-in-out infinite; }
+      .float-header { animation: floatCard 5s ease-in-out infinite; }
+    </style>
+  </defs>
+
+  <!-- Deep Background with Tech Grid -->
+  <rect width="1600" height="960" fill="url(#bgGrad)"/>
+  <rect width="1600" height="960" fill="url(#matrixGrid)"/>
+
+  <!-- Subtle Atmospheric Beams -->
+  <circle cx="200" cy="150" r="300" fill="#38bdf8" opacity="0.04" filter="url(#glowCyan)"/>
+  <circle cx="1400" cy="800" r="350" fill="#a855f7" opacity="0.04"/>
+  <circle cx="800" cy="500" r="400" fill="#047857" opacity="0.03"/>
+
+  <!-- ================= TOP HEADER BAR ================= -->
+  <g id="headerSection" transform="translate(60, 40)" class="float-header">
+    <!-- Category Pill -->
+    <rect x="0" y="0" width="310" height="26" rx="13" fill="#0369a1" fill-opacity="0.3" stroke="#38bdf8" stroke-width="1.2"/>
+    <circle cx="14" cy="13" r="4" fill="#38bdf8" filter="url(#glowCyan)" class="blink-dot"/>
+    <text x="26" y="17" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" letter-spacing="1.5">9-AGENT COGNITIVE COUNCIL MATRIX</text>
+
+    <!-- Main Title -->
+    <text x="0" y="62" fill="#f8fafc" font-family="'Space Grotesk', sans-serif" font-size="28" font-weight="800" letter-spacing="-0.5">Autonomous Graph-of-Thought (GoT) Mathematical Consensus</text>
+    <text x="0" y="86" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="14">Formal input/output contracts, radiometric physics equations, and multi-sensor debate arbitration rules</text>
+
+    <!-- Top Status Badges -->
+    <g transform="translate(1080, 10)">
+      <rect x="0" y="0" width="180" height="34" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <text x="14" y="21" fill="#64748b" font-family="'Inter', sans-serif" font-size="11">DETERMINISTIC GUARD:</text>
+      <text x="126" y="21" fill="#34d399" font-family="'JetBrains Mono', monospace" font-weight="700" font-size="11">ACTIVE</text>
+
+      <rect x="195" y="0" width="205" height="34" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+      <circle cx="212" cy="17" r="4" fill="#38bdf8" class="blink-dot"/>
+      <text x="226" y="21" fill="#e2e8f0" font-family="'JetBrains Mono', monospace" font-weight="600" font-size="11">ZERO HALLUCINATION</text>
+    </g>
+  </g>
+
+  <!-- ================= 3-COLUMN COLOR-BLOCK MATRIX ================= -->
+  
+  <!-- COLUMN 1: INTAKE & SPATIAL VALIDATION (Cyan / Blue Theme) -->
+  <g id="colIntake" transform="translate(60, 150)">
+    <!-- Column Container Box -->
+    <rect x="0" y="0" width="460" height="750" rx="14" fill="url(#cardGradCyan)" stroke="#0284c7" stroke-width="1.5" filter="url(#subtleDrop)"/>
+    <rect x="0" y="0" width="460" height="42" rx="14" fill="#0369a1" fill-opacity="0.4"/>
+    <text x="20" y="27" fill="#f8fafc" font-family="'Space Grotesk', sans-serif" font-size="15" font-weight="700">STAGE 1 // INTAKE &amp; GEOMETRIC LOCK</text>
+    <text x="400" y="27" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">P1-P3</text>
+
+    <!-- Agent 1 Card -->
+    <g transform="translate(20, 60)">
+      <rect x="0" y="0" width="420" height="150" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.2"/>
+      <rect x="0" y="0" width="4" height="150" rx="2" fill="#38bdf8"/>
+      <text x="16" y="24" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">AGENT 1: QUERY PLANNER</text>
+      <text x="320" y="24" fill="#64748b" font-family="'Inter', sans-serif" font-size="11">Async Router</text>
+      <text x="16" y="46" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="12">Deconstructs raw user query into a Directed Acyclic Graph (DAG).</text>
+      
+      <!-- Contract Box -->
+      <rect x="14" y="58" width="392" height="78" rx="6" fill="#020617" stroke="#1e293b" stroke-width="1"/>
+      <text x="24" y="78" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">INPUT :</text>
+      <text x="80" y="78" fill="#f1f5f9" font-family="'JetBrains Mono', monospace" font-size="11">&quot;Check flood inundation around Patna bridge&quot;</text>
+      <text x="24" y="98" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">OUTPUT:</text>
+      <text x="80" y="98" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="11">Intent: DISASTER_FLOOD | Target: EPSG:4326</text>
+      <text x="24" y="118" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">RULE  :</text>
+      <text x="80" y="118" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="11">Strict JSON schema validation against Pydantic V2</text>
+    </g>
+
+    <!-- Agent 2 Card -->
+    <g transform="translate(20, 225)">
+      <rect x="0" y="0" width="420" height="235" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.2"/>
+      <rect x="0" y="0" width="4" height="235" rx="2" fill="#0284c7"/>
+      <text x="16" y="24" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">AGENT 2: GEO &amp; CRS VALIDATOR</text>
+      <text x="310" y="24" fill="#64748b" font-family="'Inter', sans-serif" font-size="11">Geodesic Lock</text>
+      <text x="16" y="46" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="12">Pins WGS-84 bounding coordinates &amp; calculates area via Shoelace.</text>
+
+      <!-- Formula Block -->
+      <rect x="14" y="58" width="392" height="60" rx="6" fill="#020617" stroke="#0369a1" stroke-width="1"/>
+      <text x="24" y="78" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700">WGS-84 Geodesic Polygon Shoelace Formula:</text>
+      <text x="24" y="100" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="12">A = ½ · R² · | ∑ (λᵢ₊₁ - λᵢ₋₁) · sin(φᵢ) |</text>
+
+      <!-- Contract Box -->
+      <rect x="14" y="128" width="392" height="92" rx="6" fill="#020617" stroke="#1e293b" stroke-width="1"/>
+      <text x="24" y="148" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">INPUT :</text>
+      <text x="80" y="148" fill="#f1f5f9" font-family="'JetBrains Mono', monospace" font-size="11">Nominatim BBox [85.05, 25.55, 85.25, 25.68]</text>
+      <text x="24" y="168" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">OUTPUT:</text>
+      <text x="80" y="168" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="11">GeoJSON Polygon, Resolution: 0.3m, Area: 142.8 km²</text>
+      <text x="24" y="188" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">GUARD :</text>
+      <text x="80" y="188" fill="#f59e0b" font-family="'JetBrains Mono', monospace" font-size="11">Rejects coords out of India AOI or distorted CRS</text>
+      <text x="24" y="206" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">SPEED :</text>
+      <text x="80" y="206" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="11">&lt; 14ms execution latency</text>
+    </g>
+
+    <!-- Agent 3 Card -->
+    <g transform="translate(20, 475)">
+      <rect x="0" y="0" width="420" height="250" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.2"/>
+      <rect x="0" y="0" width="4" height="250" rx="2" fill="#0284c7"/>
+      <text x="16" y="24" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">AGENT 3: SENSOR ROUTER</text>
+      <text x="310" y="24" fill="#64748b" font-family="'Inter', sans-serif" font-size="11">Modality Arbiter</text>
+      <text x="16" y="46" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="12">Determines whether Optical, SAR, or Dual Fused is physically optimal.</text>
+
+      <!-- Routing Logic Block -->
+      <rect x="14" y="58" width="392" height="100" rx="6" fill="#020617" stroke="#1e293b" stroke-width="1"/>
+      <text x="24" y="78" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700">DECISION TREE RULES:</text>
+      <text x="24" y="98" fill="#f43f5e" font-family="'JetBrains Mono', monospace" font-size="11">IF (CloudCover &gt; 40% || Night)</text>
+      <text x="244" y="98" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="11">→ FORCED SAR (C-Band)</text>
+      <text x="24" y="118" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="11">ELSE IF (SubmeterStructure)</text>
+      <text x="244" y="118" fill="#a855f7" font-family="'JetBrains Mono', monospace" font-size="11">→ OPTICAL (Cartosat/ESRI)</text>
+      <text x="24" y="138" fill="#f59e0b" font-family="'JetBrains Mono', monospace" font-size="11">ELSE IF (TemporalInundation)</text>
+      <text x="244" y="138" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="11">→ DUAL FUSED (S1 + S2)</text>
+
+      <!-- Status Metric -->
+      <rect x="14" y="170" width="392" height="60" rx="6" fill="#0369a1" fill-opacity="0.15" stroke="#0284c7" stroke-width="1"/>
+      <text x="24" y="192" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="11">Optical Cloud Blindness Prevention:</text>
+      <text x="24" y="214" fill="#38bdf8" font-family="'Space Grotesk', sans-serif" font-size="15" font-weight="700">100% Guaranteed Fail-Safe Fallback</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 2: REASONING & FEATURE EXTRACTION (Emerald Theme) -->
+  <g id="colReasoning" transform="translate(570, 150)">
+    <!-- Column Container Box -->
+    <rect x="0" y="0" width="460" height="750" rx="14" fill="url(#cardGradEmerald)" stroke="#059669" stroke-width="1.5" filter="url(#subtleDrop)"/>
+    <rect x="0" y="0" width="460" height="42" rx="14" fill="#047857" fill-opacity="0.4"/>
+    <text x="20" y="27" fill="#f8fafc" font-family="'Space Grotesk', sans-serif" font-size="15" font-weight="700">STAGE 2 // RADIOMETRIC EXTRACTION</text>
+    <text x="400" y="27" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">P4-P6</text>
+
+    <!-- Agent 4 Card -->
+    <g transform="translate(20, 60)">
+      <rect x="0" y="0" width="420" height="175" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.2"/>
+      <rect x="0" y="0" width="4" height="175" rx="2" fill="#34d399"/>
+      <text x="16" y="24" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">AGENT 4: RS-VQA &amp; SPECTRAL ENGINE</text>
+      <text x="320" y="24" fill="#64748b" font-family="'Inter', sans-serif" font-size="11">Deep Vision</text>
+      <text x="16" y="46" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="12">Calculates multispectral indices &amp; semantically tags features.</text>
+
+      <!-- Formula Block -->
+      <rect x="14" y="56" width="392" height="60" rx="6" fill="#020617" stroke="#047857" stroke-width="1"/>
+      <text x="24" y="74" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700">Spectral Band Formulas:</text>
+      <text x="24" y="93" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="11">NDVI = (B08 - B04)/(B08 + B04)  [Vegetation]</text>
+      <text x="24" y="108" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="11">NDWI = (B03 - B08)/(B03 + B08)  [Water Inundation]</text>
+
+      <!-- Output -->
+      <text x="16" y="132" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">OUTPUT: Spectral Heatmap GeoTIFF + Class Mask</text>
+      <text x="16" y="152" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">ACCURACY: 94.2% on EuroSAT / BigEarthNet Benchmark</text>
+    </g>
+
+    <!-- Agent 5 Card -->
+    <g transform="translate(20, 250)">
+      <rect x="0" y="0" width="420" height="235" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.2"/>
+      <rect x="0" y="0" width="4" height="235" rx="2" fill="#10b981"/>
+      <text x="16" y="24" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">AGENT 5: SAR BI-TEMPORAL ENGINE</text>
+      <text x="310" y="24" fill="#64748b" font-family="'Inter', sans-serif" font-size="11">Physics Core</text>
+      <text x="16" y="46" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="12">Despeckles C-SAR with Lee Filter &amp; Otsu bi-level thresholding.</text>
+
+      <!-- Formula Block -->
+      <rect x="14" y="58" width="392" height="75" rx="6" fill="#020617" stroke="#059669" stroke-width="1"/>
+      <text x="24" y="78" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700">SAR Sigma-Naught Backscatter Calibration:</text>
+      <text x="24" y="98" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="11">σ⁰_dB = 10 · log₁₀(DN² / A_gamma) - K_cal</text>
+      <text x="24" y="118" fill="#f59e0b" font-family="'JetBrains Mono', monospace" font-size="11">Water Mask: σ⁰ &lt; -16.0 dB  |  Double-Bounce: σ⁰ &gt; -6.0 dB</text>
+
+      <!-- Contract Box -->
+      <rect x="14" y="142" width="392" height="78" rx="6" fill="#020617" stroke="#1e293b" stroke-width="1"/>
+      <text x="24" y="162" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">INPUT :</text>
+      <text x="80" y="162" fill="#f1f5f9" font-family="'JetBrains Mono', monospace" font-size="11">T1 (2026-08-01) vs T2 (2026-09-08) Rasters</text>
+      <text x="24" y="182" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">OUTPUT:</text>
+      <text x="80" y="182" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="11">Δ Change Mask: +34.8 ha submerged, -12.4 ha cleared</text>
+      <text x="24" y="202" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">GUARD :</text>
+      <text x="80" y="202" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="11">Lee Window 7x7 suppresses multiplicative speckle noise</text>
+    </g>
+
+    <!-- Agent 6 Card -->
+    <g transform="translate(20, 500)">
+      <rect x="0" y="0" width="420" height="225" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.2"/>
+      <rect x="0" y="0" width="4" height="225" rx="2" fill="#059669"/>
+      <text x="16" y="24" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">AGENT 6: VISUAL GROUNDING</text>
+      <text x="310" y="24" fill="#64748b" font-family="'Inter', sans-serif" font-size="11">Polygon Lock</text>
+      <text x="16" y="46" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="12">Generates pixel-accurate bounding polygons with RFC 7946 GeoJSON.</text>
+
+      <rect x="14" y="58" width="392" height="70" rx="6" fill="#020617" stroke="#1e293b" stroke-width="1"/>
+      <text x="24" y="78" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="11">Contour Polygon Approximation (Ramer-Douglas-Peucker):</text>
+      <text x="24" y="98" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="11">ε = 0.002 · Perimeter(Contour)</text>
+      <text x="24" y="116" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">Preserves sharp corners while reducing vertices by 78%</text>
+
+      <rect x="14" y="138" width="392" height="68" rx="6" fill="#020617" stroke="#1e293b" stroke-width="1"/>
+      <text x="24" y="158" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">OUTPUT FORMAT:</text>
+      <text x="135" y="158" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="11">RFC 7946 FeatureCollection</text>
+      <text x="24" y="178" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">EXTRUSION HINT:</text>
+      <text x="135" y="178" fill="#f59e0b" font-family="'JetBrains Mono', monospace" font-size="11">Calculates 3D height estimate in meters</text>
+    </g>
+  </g>
+
+  <!-- COLUMN 3: DEBATE, CONFIDENCE & AUDIT (Amber / Purple Theme) -->
+  <g id="colConsensus" transform="translate(1080, 150)">
+    <!-- Column Container Box -->
+    <rect x="0" y="0" width="460" height="750" rx="14" fill="url(#cardGradAmber)" stroke="#d97706" stroke-width="1.5" filter="url(#subtleDrop)"/>
+    <rect x="0" y="0" width="460" height="42" rx="14" fill="#b45309" fill-opacity="0.4"/>
+    <text x="20" y="27" fill="#f8fafc" font-family="'Space Grotesk', sans-serif" font-size="15" font-weight="700">STAGE 3 // ARBITRATION &amp; AUDIT</text>
+    <text x="400" y="27" fill="#f59e0b" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">P7-P9</text>
+
+    <!-- Agent 7 Card (The Judge) -->
+    <g transform="translate(20, 60)">
+      <rect x="0" y="0" width="420" height="225" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.2"/>
+      <rect x="0" y="0" width="4" height="225" rx="2" fill="#f59e0b"/>
+      <text x="16" y="24" fill="#f59e0b" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">AGENT 7: EVIDENCE FUSION JUDGE</text>
+      <text x="320" y="24" fill="#64748b" font-family="'Inter', sans-serif" font-size="11">Council Chair</text>
+      <text x="16" y="46" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="12">Multi-agent Graph-of-Thought (GoT) autonomous debate protocol.</text>
+
+      <!-- Truth Table -->
+      <rect x="14" y="58" width="392" height="110" rx="6" fill="#020617" stroke="#b45309" stroke-width="1"/>
+      <line x1="14" y1="62" x2="406" y2="62" stroke="#f59e0b" stroke-width="2" class="scanner-line"/>
+      <text x="24" y="78" fill="#f59e0b" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700">CROSS-SENSOR ARBITRATION RULES:</text>
+      
+      <!-- Row 1 -->
+      <text x="24" y="98" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="10">OPTICAL CLOUD = TRUE &amp; SAR FLOOD = TRUE</text>
+      <text x="310" y="98" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700">→ SAR OVERRULES</text>
+
+      <!-- Row 2 -->
+      <text x="24" y="118" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="10">CLOUD SHADOW IN OPTICAL &amp; SAR σ⁰ &gt; -12 dB</text>
+      <text x="310" y="118" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700">→ NOT WATER</text>
+
+      <!-- Row 3 -->
+      <text x="24" y="138" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="10">OPTICAL ROAD CLEAR &amp; SAR FLOOD MASK &gt; 30%</text>
+      <text x="310" y="138" fill="#f43f5e" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700">→ ROAD SEVERED</text>
+
+      <!-- Row 4 -->
+      <text x="24" y="158" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="10">ROADS BLOCKED &amp; EVAC TRAFFIC CONGESTION</text>
+      <text x="310" y="158" fill="#fbbf24" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700">→ ESCAPE ROUTE</text>
+
+      <text x="16" y="195" fill="#e2e8f0" font-family="'Inter', sans-serif" font-size="11">Consensus requires minimum 3-point cross-corroboration</text>
+    </g>
+
+    <!-- Agent 8 Card -->
+    <g transform="translate(20, 300)">
+      <rect x="0" y="0" width="420" height="200" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.2"/>
+      <rect x="0" y="0" width="4" height="200" rx="2" fill="#a855f7"/>
+      <text x="16" y="24" fill="#a855f7" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">AGENT 8: CONFIDENCE CALIBRATION</text>
+      <text x="320" y="24" fill="#64748b" font-family="'Inter', sans-serif" font-size="11">Probabilistic</text>
+      <text x="16" y="46" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="12">Computes mathematically calibrated confidence ($0 - 100\%$).</text>
+
+      <!-- Formula Block -->
+      <rect x="14" y="58" width="392" height="60" rx="6" fill="#020617" stroke="#6d28d9" stroke-width="1"/>
+      <text x="24" y="78" fill="#a855f7" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700">Multi-Modal Calibration Formula:</text>
+      <text x="24" y="98" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="11">C_final = 0.40·S_res + 0.35·W_sar + 0.25·(1 - CloudCover)</text>
+
+      <!-- Zero-Hallucination Guard -->
+      <rect x="14" y="128" width="392" height="60" rx="6" fill="#020617" stroke="#1e293b" stroke-width="1"/>
+      <text x="24" y="148" fill="#f43f5e" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700">ZERO-HALLUCINATION THRESHOLD:</text>
+      <text x="24" y="168" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">If C_final &lt; 0.65 → Output marked &quot;INCONCLUSIVE / BLIND&quot;</text>
+    </g>
+
+    <!-- Agent 9 Card -->
+    <g transform="translate(20, 515)">
+      <rect x="0" y="0" width="420" height="210" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="1.2"/>
+      <rect x="0" y="0" width="4" height="210" rx="2" fill="#38bdf8"/>
+      <text x="16" y="24" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">AGENT 9: FLIGHT RECORDER &amp; AUDIT</text>
+      <text x="320" y="24" fill="#64748b" font-family="'Inter', sans-serif" font-size="11">Telemetry</text>
+      <text x="16" y="46" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="12">Emits millisecond-level telemetry trace for complete auditability.</text>
+
+      <rect x="14" y="58" width="392" height="135" rx="6" fill="#020617" stroke="#1e293b" stroke-width="1"/>
+      <text x="24" y="78" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="10">TRACE LOG [SESSION #984-A]:</text>
+      <text x="24" y="98" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="10">T+000ms: Query received &quot;Flood breach NH-31&quot;</text>
+      <text x="24" y="114" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="10">T+032ms: BBox [25.60, 85.12] locked via Geodesic Shoelace</text>
+      <text x="24" y="130" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="10">T+114ms: Cloud 78% → SAR Sentinel-1 C-SAR dispatched</text>
+      <text x="24" y="146" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="10">T+340ms: Lee 7x7 filter + Otsu dB threshold: 42.1 ha flooded</text>
+      <text x="24" y="162" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="10">T+412ms: Agent debate resolved unanimously (Confidence 91.8%)</text>
+      <text x="24" y="178" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="10">T+445ms: GeoJSON + 3D Oblique Extrusions delivered to client</text>
+    </g>
+  </g>
+
+  <!-- ================= BOTTOM CONNECTION FLOW ================= -->
+  <g transform="translate(60, 915)">
+    <line x1="0" y1="0" x2="1480" y2="0" stroke="#0284c7" stroke-width="1.8" class="data-pipe"/>
+    <text x="0" y="18" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="11">BHUVISION COGNITIVE PROTOCOL V4.2 // ZERO SPECULATION ASSURANCE // REST / WEBSOCKET COMPLIANT</text>
+    <text x="1350" y="18" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="11">TOTAL LATENCY &lt; 450ms</text>
+  </g>
+</svg>

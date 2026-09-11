@@ -11,133 +11,83 @@
 > **No API Keys Required to Run!**  
 > BHUVISION is engineered with a **Zero-Key Architecture**. If you don't enter any API keys, the system automatically uses:
 > - **ESRI World Imagery (0.3m GSD):** High-resolution global satellite imagery.
-> - **NASA GIBS NRT:** Daily optical true-color scans of Earth.
+> - **NASA GIBS Public NRT:** Daily optical true-color scans of Earth.
 > - **OpenStreetMap Nominatim:** Global geocoding search across cities and coordinates.
 > - **Synthetic Aperture Radar (SAR) Engine:** Physics-based polarimetric processing.
 >
-> However, adding the keys below unlocks **Google Photorealistic 3D Tiles, Real-Time Traffic Congestion vectors, and Copernicus live raw radar bands**.
+> Configuring the **Three Map API Keys** below unlocks **Google Maps 3D Hybrid, MapTiler Terrain-RGB 3D Elevation, and Authenticated NASA Multi-Spectral Satellite Layers**.
 
 ---
 
-## 1. Google Maps Platform (Satellite, 3D Tiles & Live Traffic)
+## 1. Google Maps Platform (Satellite Hybrid, 3D Tilt & Live Traffic)
 
 ### What it Unlocks in BHUVISION:
-- **Live Traffic Layer:** Real-time road speeds, congestion heatmaps, and evacuation chokepoint bypass routing.
-- **Photorealistic 3D Tiles:** Google's 3D building and terrain meshes.
+- **Live Hybrid Satellite View:** Google sub-meter satellite composite with street labels and boundaries.
+- **45° Oblique 3D Tilt:** Photorealistic perspective exploration.
+- **Live Traffic Engine:** Arterial road speeds, congestion heatmaps, and evacuation chokepoint bypass routing.
 - **Places Geocoding:** Auto-completing search for any landmark, street address, or village.
 
-### Step-by-Step Guide to Get Your Free Key:
-1. **Visit Google Cloud Console:**
-   - Go to [https://console.cloud.google.com/](https://console.cloud.google.com/) and sign in with your Google account.
-2. **Create a New Project:**
-   - Click the project dropdown at the top of the page $\rightarrow$ Click **"New Project"**.
-   - Project Name: `BHUVISION-Earth-Intelligence` $\rightarrow$ Click **"Create"**.
-3. **Enable Required APIs:**
-   - Go to **"APIs & Services"** $\rightarrow$ **"Library"**.
-   - Search and enable each of these 4 free-tier APIs:
-     - ✅ **Maps JavaScript API** (for interactive vector and satellite map rendering)
-     - ✅ **Places API (New)** (for searching any global location or address)
-     - ✅ **Routes API** or **Directions API** (for disaster evacuation routing)
-     - ✅ **Elevation API** (for 3D mountain slope profiling)
-4. **Generate Your API Key:**
-   - Go to **"APIs & Services"** $\rightarrow$ **"Credentials"**.
-   - Click **"+ CREATE CREDENTIALS"** $\rightarrow$ Select **"API key"**.
-   - Copy the generated API key (it looks like `AIzaSyD...`).
-5. **(Recommended) Restrict the Key:**
-   - Under "API restrictions", select the 4 APIs enabled above to protect your quota.
-   - Google provides **\$200 free monthly credit**, which covers over 28,000 map loads per month for free!
+### Step-by-Step Guide:
+1. Visit [Google Cloud Console](https://console.cloud.google.com/) and sign in.
+2. Create project `BHUVISION-Earth-Intelligence`.
+3. Enable **Maps JavaScript API**, **Places API**, and **Routes API**.
+4. Create an API key under **Credentials** (starts with `AIzaSy...`).
+5. Google provides **$200 free monthly credit**, covering thousands of live map loads.
 
 ---
 
-## 2. Mapbox GL Access Token (3D Terrain & Vector Overlays)
+## 2. MapTiler Cloud (Satellite Tiles & Terrain-RGB 3D Elevation)
 
 ### What it Unlocks in BHUVISION:
-- **Mapbox Terrain-DEM v1:** Real millimeter-scale 3D elevation mesh for terrain tilt.
-- **High-contrast tactical vector styling:** Dark-matter map themes with custom military grid layers.
-
-### Step-by-Step Guide to Get Your Free Token:
-1. **Sign Up:**
-   - Go to [https://account.mapbox.com/auth/signup/](https://account.mapbox.com/auth/signup/).
-   - Create a free account (no credit card required).
-2. **Copy Default Public Token:**
-   - Navigate to your dashboard at [https://account.mapbox.com/](https://account.mapbox.com/).
-   - Under **"Access Tokens"**, you will see your **Default public token** (starts with `pk.eyJ...`).
-   - Click **Copy token**.
-   - Free tier includes **50,000 free map loads per month**.
-
----
-
-## 3. Copernicus Data Space Ecosystem (Sentinel-1 & Sentinel-2)
-
-### What it Unlocks in BHUVISION:
-- **Live Raw Sentinel-1 SAR COGs:** Unfiltered C-Band microwave radar interferometry pairs for flood analysis.
-- **Live Raw Sentinel-2 Multi-Spectral Bands:** Raw NIR (Band 8) and Red (Band 4) for NDVI vegetation indices.
-
-### Step-by-Step Guide to Get Your Free Access:
-1. **Register on Copernicus Data Space:**
-   - Go to [https://dataspace.copernicus.eu/](https://dataspace.copernicus.eu/).
-   - Click **"Register"** at the top right and create a free account.
-2. **Access Sentinel Hub API / CDSE OData API:**
-   - Visit [https://shapps.dataspace.copernicus.eu/dashboard/](https://shapps.dataspace.copernicus.eu/dashboard/).
-   - Go to **"User Settings"** $\rightarrow$ **"OAuth Clients"**.
-   - Click **"Create Client"** $\rightarrow$ Give it name `BHUVISION`.
-   - Copy your **Client ID** and **Client Secret**.
-
----
-
-## 4. NASA Earthdata Login (GIBS Daily Optical & Wildfire VIIRS)
-
-### What it Unlocks in BHUVISION:
-- **Near-Real-Time Daily TrueColor:** Direct satellite feeds from NASA MODIS (Terra/Aqua) and VIIRS (Suomi NPP).
-- **Active Wildfire Thermal Anomalies:** Direct infrared thermal spot detection.
+- **0.5m GSD Satellite Tiles:** Global high-resolution satellite basemap.
+- **Terrain-RGB 3D Mesh:** True millimeter-scale elevation modeling for steep terrain, flood basins, and mountain passes.
+- **TopoJSON Administrative Boundaries:** Clean vector boundaries overlaid on satellite rasters.
+- **100% Free Tier:** 100,000 tile requests/month with **no credit card required**!
 
 ### Step-by-Step Guide:
-1. **Register for Free:**
-   - Go to [https://urs.earthdata.nasa.gov/users/new](https://urs.earthdata.nasa.gov/users/new).
-   - Enter username and password (free public access provided by NASA).
-2. **Authorize GIBS Application:**
-   - Under your profile, go to **"Applications"** $\rightarrow$ **"Authorized Apps"**.
-   - Authorize `NASA GIBS WMTS`.
+1. Go to [https://cloud.maptiler.com/](https://cloud.maptiler.com/) and sign up for a free account.
+2. Navigate to **"Keys"** at [https://cloud.maptiler.com/account/keys/](https://cloud.maptiler.com/account/keys/).
+3. Copy your API Key or Key UUID.
+4. Set `MAPTILER_API_KEY=your_key` in `backend/.env`.
 
 ---
 
-## 5. How to Configure Keys in BHUVISION
+## 3. NASA Earthdata Login (Authenticated GIBS Multi-Spectral WMTS)
 
-You have two convenient ways to enter your keys:
+### What it Unlocks in BHUVISION:
+- **MODIS Terra TrueColor (Daily 250m):** Near-real-time global optical scans.
+- **MODIS FalseColor (Bands 7-2-1):** Highlights flood water vs. bare soil and healthy vegetation.
+- **VIIRS Night Lights (Day-Night Band):** Nighttime luminescence, blackout detection, and settlement density.
+- **MODIS NDVI 8-Day Composite:** Vegetation health and agricultural drought tracking.
+- **Aerosol Optical Depth (AOD):** Wildfire smoke, dust storms, and atmospheric optical depth.
+- **Authenticated Proxy:** Backend injects `Authorization: Bearer <JWT_TOKEN>` to `/api/nasa-tile`.
 
-### Method A: Live In-App Settings Modal (Zero Restart Required)
-1. Open BHUVISION at [http://localhost:8000/app](http://localhost:8000/app).
-2. Click the **"API Key Settings"** button in the header.
-3. Paste your **Google Maps API Key**, **Mapbox Access Token**, or **Sentinel Hub Key**.
-4. Click **"Save & Apply Keys"**.
-5. The status badge will instantly update to: `API Keys: Google Maps Active` without needing any server restart!
-
-### Method B: Backend Configuration File (`backend/.env`)
-Open `backend/.env` (or create it from `.env.example`) and add your keys:
-```env
-# Google Maps Platform
-GOOGLE_MAPS_API_KEY=AIzaSyD...
-
-# Mapbox GL Access Token
-MAPBOX_ACCESS_TOKEN=pk.eyJ...
-
-# Copernicus Sentinel Hub
-COPERNICUS_CLIENT_ID=...
-COPERNICUS_CLIENT_SECRET=...
-
-# AI Gateways (FreeLLMAPI & OmniRoute)
-OPENAI_BASE_URL=http://localhost:20128/v1
-OPENAI_API_KEY=any_local_key
-```
+### Step-by-Step Guide:
+1. Register for free at [https://urs.earthdata.nasa.gov/users/new](https://urs.earthdata.nasa.gov/users/new).
+2. Generate an Earthdata Login JWT Bearer token.
+3. Set `NASA_EARTHDATA_TOKEN=eyJ...` in `backend/.env`.
 
 ---
 
-## 💡 Summary of API Limits & Costs
+## 4. OpenRouter Multi-Agent Gateway (9 Dedicated Models)
 
-| Service | Free Monthly Quota | Credit Card Required? | What Happens When Limit Exceeded |
-| :--- | :--- | :---: | :--- |
-| **ESRI World Imagery** | Unlimited / Public | ❌ No | Never fails (Fallback) |
-| **NASA GIBS NRT** | Unlimited / Public | ❌ No | Never fails (Fallback) |
-| **Google Maps** | \$200 / month (~28,000 loads) | Yes (for signup verification) | Falls back to ESRI gracefully |
-| **Mapbox GL** | 50,000 loads / month | ❌ No | Falls back to Leaflet ESRI |
-| **Copernicus CDSE** | 10,000 requests / month | ❌ No | Uses cached BigEarthNet pairs |
+### What it Unlocks in BHUVISION:
+- Connects all 9 agents to dedicated models (Gemini 2.5 Flash, DeepSeek-R1, Llama 3.3 70B, Qwen 2.5 72B, Mistral Small).
+- Fallback chain: `OpenRouter` $\rightarrow$ `OmniRoute (:20128)` $\rightarrow$ `FreeLLMAPI (:3001)`.
+
+### Step-by-Step Guide:
+1. Sign up at [https://openrouter.ai/](https://openrouter.ai/).
+2. Create an API key under **Keys** (`sk-or-v1-...`).
+3. Set `OPENROUTER_API_KEY=sk-or-v1-...` in `backend/.env`.
+
+---
+
+## 5. Summary of API Limits & Features
+
+| Service | Key Config Variable | Free Monthly Quota | Credit Card Required? | Role |
+| :--- | :--- | :--- | :---: | :--- |
+| **Google Maps Platform** | `GOOGLE_MAPS_API_KEY` | \$200 credit (~28,000 loads) | Yes | Hybrid 2D/3D + Traffic |
+| **MapTiler Cloud** | `MAPTILER_API_KEY` | 100,000 requests / month | ❌ No | 3D Terrain-RGB + Satellite |
+| **NASA Earthdata / GIBS** | `NASA_EARTHDATA_TOKEN` | Unlimited Free Public Access | ❌ No | Daily Passes + 5 Spectral Layers |
+| **OpenRouter** | `OPENROUTER_API_KEY` | Pay-as-you-go + Free models | ❌ No | 9-Agent Dedicated LLM Council |
+| **ESRI World Imagery** | Built-in | Unlimited Public Access | ❌ No | Out-of-the-box Basemap Fallback |

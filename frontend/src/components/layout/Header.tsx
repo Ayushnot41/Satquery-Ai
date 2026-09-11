@@ -3,8 +3,8 @@
 import React from "react";
 
 interface HeaderProps {
-  activeTab: "home" | "mission_view" | "workspace" | "evaluation";
-  setActiveTab: (tab: "home" | "mission_view" | "workspace" | "evaluation") => void;
+  activeTab: "home" | "mission_view" | "workspace" | "debate" | "evaluation";
+  setActiveTab: (tab: "home" | "mission_view" | "workspace" | "debate" | "evaluation") => void;
   systemHealth?: string;
   gateway?: string;
 }
@@ -16,7 +16,7 @@ export function Header({
   gateway = "FreeLLMAPI / OmniRoute",
 }: HeaderProps) {
   return (
-    <header className="w-full bg-[#0A0F1C] border-b border-[#1F2937] text-white px-6 py-3 select-none">
+    <header className="w-full bg-[#0A0F1C] border-b border-[#1F2937] text-white px-6 py-3 select-none sticky top-0 z-50 backdrop-blur-md">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Left: Brand & Identity */}
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => setActiveTab("home")}>
@@ -50,10 +50,10 @@ export function Header({
         </div>
 
         {/* Center: Mode Navigation */}
-        <nav className="flex items-center gap-1 bg-[#111827] p-1 rounded-lg border border-[#1F2937]">
+        <nav className="flex items-center gap-1 bg-[#111827] p-1 rounded-lg border border-[#1F2937] font-mono text-xs">
           <button
             onClick={() => setActiveTab("home")}
-            className={`px-3.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
               activeTab === "home"
                 ? "bg-[#3B82F6] text-white shadow-sm"
                 : "text-gray-300 hover:text-white hover:bg-gray-800/60"
@@ -63,27 +63,37 @@ export function Header({
           </button>
           <button
             onClick={() => setActiveTab("mission_view")}
-            className={`px-3.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
               activeTab === "mission_view"
                 ? "bg-[#3B82F6] text-white shadow-sm"
                 : "text-gray-300 hover:text-white hover:bg-gray-800/60"
             }`}
           >
-            God&apos;s Eye View (Spatial 3D)
+            God&apos;s Eye (3D HUD)
           </button>
           <button
             onClick={() => setActiveTab("workspace")}
-            className={`px-3.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
               activeTab === "workspace"
                 ? "bg-[#3B82F6] text-white shadow-sm"
                 : "text-gray-300 hover:text-white hover:bg-gray-800/60"
             }`}
           >
-            Investigation Workspace
+            Surveillance Cockpit
+          </button>
+          <button
+            onClick={() => setActiveTab("debate")}
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+              activeTab === "debate"
+                ? "bg-purple-600 text-white shadow-sm"
+                : "text-purple-300 hover:text-white hover:bg-purple-950/40"
+            }`}
+          >
+            Agent Debate Studio
           </button>
           <button
             onClick={() => setActiveTab("evaluation")}
-            className={`px-3.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
               activeTab === "evaluation"
                 ? "bg-[#3B82F6] text-white shadow-sm"
                 : "text-gray-300 hover:text-white hover:bg-gray-800/60"
