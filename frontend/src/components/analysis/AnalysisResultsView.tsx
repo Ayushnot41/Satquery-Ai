@@ -8,6 +8,7 @@ import { ImageryPanel } from "./ImageryPanel";
 import { EvidenceOverlay } from "./EvidenceOverlay";
 import { AnswerConfidencePanel } from "./AnswerConfidencePanel";
 import { ExecutionTrace } from "./ExecutionTrace";
+import { PdfReportTemplate } from "./PdfReportTemplate";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -183,7 +184,6 @@ export function AnalysisResultsView({ result: propResult, onBack }: AnalysisResu
       const canvas = await html2canvas(workspaceRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: "#0A0E14",
       });
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
@@ -224,9 +224,11 @@ export function AnalysisResultsView({ result: propResult, onBack }: AnalysisResu
       : undefined;
 
   return (
-    <div ref={workspaceRef} className="w-full max-w-7xl mx-auto p-6 space-y-5 text-white select-none">
-
-      {/* ─── Export & Demo switcher ─────────────────────────────── */}
+    <>
+      <PdfReportTemplate ref={workspaceRef} result={result} sarMetrics={sarMetrics as Record<string, string | number>} />
+      
+      <div className="w-full max-w-7xl mx-auto p-6 space-y-5 text-white select-none relative z-10">
+        {/* ─── Export & Demo switcher ─────────────────────────────── */}
       <div className="flex items-center justify-end gap-3">
         <button
             onClick={exportToPDF}
@@ -298,5 +300,6 @@ export function AnalysisResultsView({ result: propResult, onBack }: AnalysisResu
         </div>
       </div>
     </div>
+    </>
   );
 }
