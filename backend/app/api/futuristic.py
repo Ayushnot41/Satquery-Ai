@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import math
 import random
+import numpy as np
 
 router = APIRouter(prefix="/futuristic", tags=["Futuristic Earth Intelligence"])
 
@@ -374,4 +375,3 @@ async def get_agent_debate_protocol(
             final_confidence=0.934,
             overruled_sensor="Optical Sensor (Cloud Cover Obscuration)"
         )
-
