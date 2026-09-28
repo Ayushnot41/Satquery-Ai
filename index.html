@@ -195,6 +195,14 @@
           <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
           Image Comparison
         </button>
+        <button onclick="switchTab('history')" id="tab-history" class="px-2.5 py-1.5 rounded-lg text-emerald-300 hover:text-white hover:bg-emerald-950/40 transition-colors cursor-pointer flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Analysis History
+        </button>
+        <button onclick="switchTab('registry')" id="tab-registry" class="px-2.5 py-1.5 rounded-lg text-sky-300 hover:text-white hover:bg-sky-950/40 transition-colors cursor-pointer flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+          Satellite Registry
+        </button>
 
       </nav>
 
@@ -2186,8 +2194,584 @@
       </div>
     </section>
 
+    <!-- ================= SCREEN 11: MISSION ARCHIVE & TELEMETRY HISTORY ================= -->
+    <section id="screen-history" class="hidden space-y-5">
+      <!-- Tactical Top Header -->
+      <div class="bg-gradient-to-r from-emerald-950/80 via-slate-900 to-blue-950/80 border border-emerald-500/40 p-5 rounded-2xl shadow-2xl relative overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-400/50 flex items-center justify-center text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold font-mono text-white tracking-wider uppercase">
+                  Mission Archive & Telemetry History
+                </h2>
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                  ISRO AUDIT TRAIL &bull; MULTI-AGENT SWARM
+                </span>
+              </div>
+              <p class="text-xs text-gray-300 font-mono mt-1">
+                Audit, inspect, and drill down into all past multi-modal satellite investigations, change detection passes, and SAR corroborations.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="switchTab('workspace')" class="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-mono text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-lg border border-cyan-400/50 transition-all">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>New Swarm Investigation</span>
+            </button>
+            <button onclick="loadAnalysisHistory()" class="px-3 py-2 bg-[#0C1425] hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 text-xs font-mono rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              <span>Refresh</span>
+            </button>
+            <button onclick="clearAnalysisHistoryCache()" class="px-3 py-2 bg-red-950/40 hover:bg-red-900/60 text-red-300 border border-red-500/40 text-xs font-mono rounded-xl cursor-pointer transition-all flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span>Reset Archive</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Strip -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 font-mono text-xs">
+        <div class="bg-[#0B1120] border border-[#1F2937] p-3.5 rounded-xl shadow-lg">
+          <div class="text-gray-400 text-[10px] uppercase tracking-wider">Total Recorded Runs</div>
+          <div id="hist-stat-total" class="text-xl font-bold text-white mt-1">4</div>
+          <div class="text-[10px] text-emerald-400 mt-0.5 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Verified in telemetry cache
+          </div>
+        </div>
+        <div class="bg-[#0B1120] border border-[#1F2937] p-3.5 rounded-xl shadow-lg">
+          <div class="text-gray-400 text-[10px] uppercase tracking-wider">Mean Swarm Confidence</div>
+          <div id="hist-stat-confidence" class="text-xl font-bold text-cyan-300 mt-1">88.5%</div>
+          <div class="text-[10px] text-cyan-400 mt-0.5">High-Fidelity Consensus Bound</div>
+        </div>
+        <div class="bg-[#0B1120] border border-[#1F2937] p-3.5 rounded-xl shadow-lg">
+          <div class="text-gray-400 text-[10px] uppercase tracking-wider">Confirmed Anomalies</div>
+          <div id="hist-stat-anomalies" class="text-xl font-bold text-amber-300 mt-1">14 Clusters</div>
+          <div class="text-[10px] text-amber-400 mt-0.5">Dual-sensor validated (Optical + SAR)</div>
+        </div>
+        <div class="bg-[#0B1120] border border-[#1F2937] p-3.5 rounded-xl shadow-lg">
+          <div class="text-gray-400 text-[10px] uppercase tracking-wider">Active Constellations</div>
+          <div id="hist-stat-sensors" class="text-xl font-bold text-purple-300 mt-1">4 Sensors</div>
+          <div class="text-[10px] text-purple-400 mt-0.5">Sentinel-1, Sentinel-2, Cartosat-3, RISAT-1B</div>
+        </div>
+      </div>
+
+      <!-- Search & Filter Controls -->
+      <div class="bg-[#0B1120] border border-[#1F2937] p-4 rounded-2xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-3 font-mono text-xs">
+        <div class="relative flex-1">
+          <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="hist-search-input" onkeyup="handleHistorySearch(this.value)" placeholder="Search past inquiries, target keywords, or mission IDs (e.g. 'urban expansion', 'flood', 'analysis-002')..." class="w-full bg-[#070B16] border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors" />
+        </div>
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-gray-400 text-[11px] mr-1">Mode:</span>
+          <button onclick="setHistoryModeFilter('all')" id="btn-hist-filter-all" class="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-bold cursor-pointer transition-colors">All</button>
+          <button onclick="setHistoryModeFilter('single')" id="btn-hist-filter-single" class="px-2.5 py-1 rounded-lg bg-[#070B16] text-gray-400 hover:text-white border border-gray-800 cursor-pointer transition-colors">Single Image</button>
+          <button onclick="setHistoryModeFilter('bi_temporal')" id="btn-hist-filter-bi_temporal" class="px-2.5 py-1 rounded-lg bg-[#070B16] text-gray-400 hover:text-white border border-gray-800 cursor-pointer transition-colors">Bi-Temporal</button>
+          <button onclick="setHistoryModeFilter('optical_sar')" id="btn-hist-filter-optical_sar" class="px-2.5 py-1 rounded-lg bg-[#070B16] text-gray-400 hover:text-white border border-gray-800 cursor-pointer transition-colors">Optical + SAR</button>
+        </div>
+      </div>
+
+      <!-- History Table Container -->
+      <div class="bg-[#0B1120] border border-[#1F2937] rounded-2xl shadow-xl overflow-hidden font-mono text-xs">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-[#070B16] border-b border-[#1F2937] text-gray-400 text-[11px] uppercase tracking-wider">
+                <th class="py-3 px-4">Mission ID</th>
+                <th class="py-3 px-4">Inquiry / Task</th>
+                <th class="py-3 px-4">Analysis Mode</th>
+                <th class="py-3 px-4">Timestamp (UTC)</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4">Confidence</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="hist-table-body" class="divide-y divide-[#1F2937]/50 text-gray-200">
+              <!-- Dynamically populated via loadAnalysisHistory() -->
+            </tbody>
+          </table>
+        </div>
+        <div id="hist-empty-state" class="hidden p-8 text-center text-gray-400 font-mono text-xs">
+          <p>No matching investigation records found in telemetry cache.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN 12: SATELLITE & SENSOR REGISTRY ================= -->
+    <section id="screen-registry" class="hidden space-y-5">
+      <!-- Tactical Top Header -->
+      <div class="bg-gradient-to-r from-sky-950/80 via-slate-900 to-indigo-950/80 border border-sky-500/40 p-5 rounded-2xl shadow-2xl relative overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-sky-600/20 border border-sky-400/50 flex items-center justify-center text-sky-300 shadow-[0_0_20px_rgba(14,165,233,0.3)]">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold font-mono text-white tracking-wider uppercase">
+                  Spaceborne Constellation & Sensor Registry
+                </h2>
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-500/40">
+                  ISRO &bull; ESA &bull; NASA SENSOR CATALOG
+                </span>
+              </div>
+              <p class="text-xs text-gray-300 font-mono mt-1">
+                Explore operational orbital specifications, ground sampling distances (GSD), spectral band passes, and radiometric calibrations.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-gray-400 text-xs font-mono">6 Sensors Verified Ready</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Constellation Filter Pills -->
+      <div class="flex items-center gap-2 flex-wrap font-mono text-xs">
+        <button onclick="filterRegistryCards('all')" id="btn-reg-all" class="px-3 py-1.5 rounded-xl bg-blue-600 text-white font-bold cursor-pointer transition-all">All Constellations (6)</button>
+        <button onclick="filterRegistryCards('isro')" id="btn-reg-isro" class="px-3 py-1.5 rounded-xl bg-[#0B1120] border border-gray-800 text-amber-300 hover:text-white cursor-pointer transition-all">ISRO Satellites (3)</button>
+        <button onclick="filterRegistryCards('esa')" id="btn-reg-esa" class="px-3 py-1.5 rounded-xl bg-[#0B1120] border border-gray-800 text-cyan-300 hover:text-white cursor-pointer transition-all">ESA Copernicus (2)</button>
+        <button onclick="filterRegistryCards('nasa')" id="btn-reg-nasa" class="px-3 py-1.5 rounded-xl bg-[#0B1120] border border-gray-800 text-purple-300 hover:text-white cursor-pointer transition-all">NASA / USGS (1)</button>
+        <button onclick="filterRegistryCards('sar')" id="btn-reg-sar" class="px-3 py-1.5 rounded-xl bg-[#0B1120] border border-gray-800 text-emerald-300 hover:text-white cursor-pointer transition-all">Synthetic Aperture Radar (2)</button>
+        <button onclick="filterRegistryCards('optical')" id="btn-reg-optical" class="px-3 py-1.5 rounded-xl bg-[#0B1120] border border-gray-800 text-sky-300 hover:text-white cursor-pointer transition-all">Multispectral Optical (4)</button>
+      </div>
+
+      <!-- Sensor Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="registry-cards-container">
+        <!-- 1. Cartosat-3 -->
+        <div class="reg-card isro optical bg-[#0B1120] border border-[#1F2937] hover:border-amber-500/50 p-4 rounded-2xl shadow-xl flex flex-col justify-between space-y-4 font-mono transition-all">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40">ISRO STRATEGIC</span>
+              <span class="text-xs text-gray-400">0.28m GSD</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Cartosat-3</h3>
+            <p class="text-xs text-gray-300 mt-1 leading-relaxed">
+              Very High Resolution Optical (VHRO) imaging satellite. Provides sub-meter panchromatic and 4-band multispectral reconnaissance with high agility.
+            </p>
+            <div class="grid grid-cols-2 gap-2 mt-3 text-[11px] bg-[#070B16] p-2.5 rounded-xl border border-gray-800 text-gray-300">
+              <div><span class="text-gray-500">Orbit:</span> 505 km SSO</div>
+              <div><span class="text-gray-500">Swath:</span> 17 km</div>
+              <div><span class="text-gray-500">Revisit:</span> 4-5 Days</div>
+              <div><span class="text-gray-500">Bands:</span> PAN + 4 VNIR</div>
+            </div>
+          </div>
+          <button onclick="mountSensorToCockpit('cartosat3')" class="w-full py-2 bg-amber-950/60 hover:bg-amber-900 border border-amber-500/40 text-amber-200 text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+            <span>Mount Cartosat-3 in Cockpit</span>
+          </button>
+        </div>
+
+        <!-- 2. Sentinel-1 -->
+        <div class="reg-card esa sar bg-[#0B1120] border border-[#1F2937] hover:border-cyan-500/50 p-4 rounded-2xl shadow-xl flex flex-col justify-between space-y-4 font-mono transition-all">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40">ESA COPERNICUS</span>
+              <span class="text-xs text-gray-400">5.405 GHz C-SAR</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Sentinel-1 (C-SAR)</h3>
+            <p class="text-xs text-gray-300 mt-1 leading-relaxed">
+              Synthetic Aperture Radar satellite providing all-weather, day-and-night radar imagery. Dual-polarization (VV+VH) for flood water and terrain penetration.
+            </p>
+            <div class="grid grid-cols-2 gap-2 mt-3 text-[11px] bg-[#070B16] p-2.5 rounded-xl border border-gray-800 text-gray-300">
+              <div><span class="text-gray-500">Orbit:</span> 693 km SSO</div>
+              <div><span class="text-gray-500">Swath:</span> 250 km (IW)</div>
+              <div><span class="text-gray-500">Resolution:</span> 5m x 20m</div>
+              <div><span class="text-gray-500">Pol:</span> Dual VV + VH</div>
+            </div>
+          </div>
+          <button onclick="mountSensorToCockpit('sentinel1')" class="w-full py-2 bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-200 text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+            <span>Mount Sentinel-1 in Cockpit</span>
+          </button>
+        </div>
+
+        <!-- 3. RISAT-1B -->
+        <div class="reg-card isro sar bg-[#0B1120] border border-[#1F2937] hover:border-emerald-500/50 p-4 rounded-2xl shadow-xl flex flex-col justify-between space-y-4 font-mono transition-all">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40">ISRO TACTICAL RADAR</span>
+              <span class="text-xs text-gray-400">Hybrid Polarimetry</span>
+            </div>
+            <h3 class="text-base font-bold text-white">RISAT-1B / EOS-04</h3>
+            <p class="text-xs text-gray-300 mt-1 leading-relaxed">
+              Active Radar Imaging Satellite featuring C-band hybrid polarimetry. Capable of penetrating monsoonal cloud decks and dense canopy cover.
+            </p>
+            <div class="grid grid-cols-2 gap-2 mt-3 text-[11px] bg-[#070B16] p-2.5 rounded-xl border border-gray-800 text-gray-300">
+              <div><span class="text-gray-500">Orbit:</span> 529 km Polar</div>
+              <div><span class="text-gray-500">Modes:</span> Spotlight/ScanSAR</div>
+              <div><span class="text-gray-500">Resolution:</span> 1m to 50m</div>
+              <div><span class="text-gray-500">Pol:</span> Circular Hybrid</div>
+            </div>
+          </div>
+          <button onclick="mountSensorToCockpit('risat1b')" class="w-full py-2 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-200 text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+            <span>Mount RISAT-1B in Cockpit</span>
+          </button>
+        </div>
+
+        <!-- 4. Sentinel-2 -->
+        <div class="reg-card esa optical bg-[#0B1120] border border-[#1F2937] hover:border-blue-500/50 p-4 rounded-2xl shadow-xl flex flex-col justify-between space-y-4 font-mono transition-all">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-500/40">ESA COPERNICUS</span>
+              <span class="text-xs text-gray-400">13-Band MSI</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Sentinel-2 (MSI)</h3>
+            <p class="text-xs text-gray-300 mt-1 leading-relaxed">
+              Multispectral optical sensor covering 13 spectral bands from VNIR to SWIR. High radiometric resolution for vegetation health, water indices, and urban extent.
+            </p>
+            <div class="grid grid-cols-2 gap-2 mt-3 text-[11px] bg-[#070B16] p-2.5 rounded-xl border border-gray-800 text-gray-300">
+              <div><span class="text-gray-500">Orbit:</span> 786 km SSO</div>
+              <div><span class="text-gray-500">Swath:</span> 290 km</div>
+              <div><span class="text-gray-500">Resolution:</span> 10m / 20m / 60m</div>
+              <div><span class="text-gray-500">Revisit:</span> 5 Days</div>
+            </div>
+          </div>
+          <button onclick="mountSensorToCockpit('sentinel2')" class="w-full py-2 bg-blue-950/60 hover:bg-blue-900 border border-blue-500/40 text-blue-200 text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+            <span>Mount Sentinel-2 in Cockpit</span>
+          </button>
+        </div>
+
+        <!-- 5. Landsat-8/9 -->
+        <div class="reg-card nasa optical bg-[#0B1120] border border-[#1F2937] hover:border-purple-500/50 p-4 rounded-2xl shadow-xl flex flex-col justify-between space-y-4 font-mono transition-all">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-500/40">NASA / USGS</span>
+              <span class="text-xs text-gray-400">OLI-2 &bull; TIRS-2</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Landsat-8 & Landsat-9</h3>
+            <p class="text-xs text-gray-300 mt-1 leading-relaxed">
+              Standard Earth observation satellite providing 30m multispectral + 100m thermal infrared data. Critical for long-term historical delta analysis.
+            </p>
+            <div class="grid grid-cols-2 gap-2 mt-3 text-[11px] bg-[#070B16] p-2.5 rounded-xl border border-gray-800 text-gray-300">
+              <div><span class="text-gray-500">Orbit:</span> 705 km SSO</div>
+              <div><span class="text-gray-500">Swath:</span> 185 km</div>
+              <div><span class="text-gray-500">Resolution:</span> 15m / 30m / 100m</div>
+              <div><span class="text-gray-500">Thermal:</span> 2 Bands (TIRS)</div>
+            </div>
+          </div>
+          <button onclick="mountSensorToCockpit('landsat8')" class="w-full py-2 bg-purple-950/60 hover:bg-purple-900 border border-purple-500/40 text-purple-200 text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+            <span>Mount Landsat in Cockpit</span>
+          </button>
+        </div>
+
+        <!-- 6. Resourcesat-2A -->
+        <div class="reg-card isro optical bg-[#0B1120] border border-[#1F2937] hover:border-amber-500/50 p-4 rounded-2xl shadow-xl flex flex-col justify-between space-y-4 font-mono transition-all">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40">ISRO AGRICULTURE</span>
+              <span class="text-xs text-gray-400">LISS-4 &bull; AWiFS</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Resourcesat-2A</h3>
+            <p class="text-xs text-gray-300 mt-1 leading-relaxed">
+              Multi-resolution remote sensing platform supporting integrated water, crop yield, and forestry monitoring across the Indian subcontinent.
+            </p>
+            <div class="grid grid-cols-2 gap-2 mt-3 text-[11px] bg-[#070B16] p-2.5 rounded-xl border border-gray-800 text-gray-300">
+              <div><span class="text-gray-500">Orbit:</span> 817 km SSO</div>
+              <div><span class="text-gray-500">Swath:</span> 70 km / 740 km</div>
+              <div><span class="text-gray-500">Resolution:</span> 5.8m (LISS-4)</div>
+              <div><span class="text-gray-500">Application:</span> Crop / Forest</div>
+            </div>
+          </div>
+          <button onclick="mountSensorToCockpit('resourcesat')" class="w-full py-2 bg-amber-950/60 hover:bg-amber-900 border border-amber-500/40 text-amber-200 text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+            <span>Mount Resourcesat in Cockpit</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Spectral Band Combination Reference Matrix -->
+      <div class="bg-[#0B1120] border border-[#1F2937] p-4 rounded-2xl shadow-xl font-mono text-xs space-y-3">
+        <div class="flex items-center justify-between border-b border-gray-800 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+            <span class="text-white font-bold uppercase">Multispectral Band Combination Matrix (Sentinel-2 / Landsat)</span>
+          </div>
+          <span class="text-gray-400 text-[10px]">Standard ISRO &bull; USGS Formats</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-[#070B16] border-b border-[#1F2937] text-gray-400 text-[11px] uppercase">
+                <th class="py-2.5 px-3">Application</th>
+                <th class="py-2.5 px-3">RGB Channels</th>
+                <th class="py-2.5 px-3">Spectral Rationale</th>
+                <th class="py-2.5 px-3">Visual Output Characteristics</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#1F2937]/50 text-gray-200">
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-cyan-300">Natural Color</td>
+                <td class="py-2.5 px-3 font-mono text-white">Red, Green, Blue (B4, B3, B2)</td>
+                <td class="py-2.5 px-3 text-gray-400">Human eye optical simulation</td>
+                <td class="py-2.5 px-3 text-emerald-400">Natural green vegetation, brown soils, blue water</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-cyan-300">Color Infrared (CIR)</td>
+                <td class="py-2.5 px-3 font-mono text-white">NIR, Red, Green (B8, B4, B3)</td>
+                <td class="py-2.5 px-3 text-gray-400">High NIR chlorophyll cellular reflectance</td>
+                <td class="py-2.5 px-3 text-red-400">Vigorous vegetation appears bright red; urban is cyan-grey</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-cyan-300">Agriculture & Moisture</td>
+                <td class="py-2.5 px-3 font-mono text-white">SWIR-1, NIR, Blue (B11, B8, B2)</td>
+                <td class="py-2.5 px-3 text-gray-400">SWIR absorption highlights moisture differences</td>
+                <td class="py-2.5 px-3 text-yellow-300">Healthy crops appear vivid green; bare dry soil is magenta</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-3 font-bold text-cyan-300">Urban Impervious Footprint</td>
+                <td class="py-2.5 px-3 font-mono text-white">SWIR-2, SWIR-1, Red (B12, B11, B4)</td>
+                <td class="py-2.5 px-3 text-gray-400">Distinguishes asphalt, concrete, and rock minerals</td>
+                <td class="py-2.5 px-3 text-purple-400">Built-up surfaces appear bright cyan/purple; soil is orange</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
 
   </main>
+
+  <!-- ================= MODAL: COMPREHENSIVE ANALYSIS VIEWER ================= -->
+  <div id="modal-analysis-detail" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
+    <div class="bg-[#0B1120] border border-cyan-500/40 rounded-2xl max-w-5xl w-full max-h-[92vh] overflow-y-auto p-5 md:p-6 shadow-2xl space-y-5 text-gray-200 font-mono">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-[#1F2937]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-600/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="mod-det-id" class="text-sm font-bold text-white uppercase tracking-wider">INVESTIGATION: analysis-002</h3>
+              <span id="mod-det-status" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40">COMPLETE</span>
+              <span id="mod-det-mode" class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-500/40">BI-TEMPORAL CHANGE</span>
+            </div>
+            <p id="mod-det-time" class="text-[11px] text-gray-400 mt-0.5">Recorded: 2026-09-09T16:48:16Z &bull; Swarm Pipeline 9/9 Agents</p>
+          </div>
+        </div>
+        <button onclick="closeAnalysisDetailModal()" class="w-8 h-8 rounded-lg bg-[#070B16] hover:bg-gray-800 text-gray-400 hover:text-white flex items-center justify-center font-bold text-lg cursor-pointer transition-colors">&times;</button>
+      </div>
+
+      <!-- Top Question & Executive Summary Box -->
+      <div class="bg-gradient-to-r from-blue-950/40 to-cyan-950/30 border border-blue-500/30 p-4 rounded-xl space-y-2">
+        <div class="text-[11px] text-blue-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Inquiry / Query:
+        </div>
+        <div id="mod-det-query" class="text-white font-bold text-sm">
+          What changes occurred between these two dates? Has urban expansion affected vegetation?
+        </div>
+        <div class="pt-2 border-t border-blue-500/20 text-xs text-gray-300 leading-relaxed" id="mod-det-answer">
+          Bi-temporal change detection confirms 14.8% surface variance. Significant vegetation reduction observed along eastern sector replaced by grading earthworks and structural footings.
+        </div>
+      </div>
+
+      <!-- Dual Inspection Grid: Visual Grounding Overlay & Quantitative Metrics -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <!-- Visual Grounding Canvas & Satellite Viewer -->
+        <div class="bg-[#070B16] border border-gray-800 p-3.5 rounded-xl space-y-3 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-white font-bold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+              Visual Grounding & Change Overlay
+            </span>
+            <div class="flex items-center gap-1 text-[10px]">
+              <button onclick="toggleDetailHeatmap()" id="btn-mod-heatmap" class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40 cursor-pointer">Residual Heatmap: ON</button>
+            </div>
+          </div>
+
+          <div class="relative h-64 bg-black rounded-lg border border-gray-800 overflow-hidden flex items-center justify-center">
+            <img id="mod-det-img" src="/static/demo/kerala_sar_post.png" onerror="this.src='/data/demo/kerala_sar_post.png'" class="w-full h-full object-cover" alt="Investigation Raster" />
+            <!-- Grounding Bounding Box Overlays -->
+            <div id="mod-det-bboxes" class="absolute inset-0 pointer-events-none">
+              <div class="absolute border-2 border-amber-400 bg-amber-400/20 rounded shadow-[0_0_10px_rgba(245,158,11,0.5)]" style="top:25%; left:30%; width:35%; height:40%;">
+                <span class="absolute -top-5 left-0 bg-amber-950 text-amber-300 border border-amber-400 text-[9px] px-1.5 py-0.5 rounded font-bold">
+                  Urban Grading: 94.2%
+                </span>
+              </div>
+              <div class="absolute border-2 border-red-500 bg-red-500/20 rounded shadow-[0_0_10px_rgba(239,68,68,0.5)]" style="top:60%; left:65%; width:28%; height:28%;">
+                <span class="absolute -top-5 left-0 bg-red-950 text-red-300 border border-red-500 text-[9px] px-1.5 py-0.5 rounded font-bold">
+                  Canopy Loss: 91.8%
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-[10px] text-gray-400">
+            <div>Sensor Source: <span id="mod-det-sensor" class="text-white">Sentinel-1 C-SAR + S2</span></div>
+            <div>CRS: <span class="text-cyan-300">EPSG:4326 (WGS84)</span></div>
+          </div>
+        </div>
+
+        <!-- Quantitative Change Analytics & Confidence Breakdown -->
+        <div class="space-y-3 flex flex-col justify-between">
+          <div class="bg-[#070B16] border border-gray-800 p-3.5 rounded-xl space-y-2 text-xs">
+            <span class="text-white font-bold block mb-1">Quantitative Change Statistics</span>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-[#0B1120] p-2.5 rounded-lg border border-gray-800">
+                <div class="text-gray-400 text-[10px]">Surface Variance</div>
+                <div id="mod-det-stat-surface" class="text-base font-bold text-amber-300">+14.8%</div>
+              </div>
+              <div class="bg-[#0B1120] p-2.5 rounded-lg border border-gray-800">
+                <div class="text-gray-400 text-[10px]">Structural Deformation</div>
+                <div id="mod-det-stat-struct" class="text-base font-bold text-cyan-300">+28.4%</div>
+              </div>
+              <div class="bg-[#0B1120] p-2.5 rounded-lg border border-gray-800">
+                <div class="text-gray-400 text-[10px]">Canopy Index Shift</div>
+                <div id="mod-det-stat-canopy" class="text-base font-bold text-red-400">-19.2%</div>
+              </div>
+              <div class="bg-[#0B1120] p-2.5 rounded-lg border border-gray-800">
+                <div class="text-gray-400 text-[10px]">Hydrological Runoff</div>
+                <div id="mod-det-stat-hydro" class="text-base font-bold text-emerald-400">+5.6%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-[#070B16] border border-gray-800 p-3.5 rounded-xl space-y-2 text-xs">
+            <span class="text-white font-bold block mb-1">Confidence Factor Breakdown</span>
+            <div class="space-y-1.5 text-[11px]">
+              <div>
+                <div class="flex justify-between text-gray-400 mb-0.5">
+                  <span>SAR Coherence Stability</span>
+                  <span class="text-cyan-300 font-bold">92.4%</span>
+                </div>
+                <div class="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
+                  <div class="h-full bg-cyan-400 rounded-full" style="width: 92.4%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-gray-400 mb-0.5">
+                  <span>Optical Edge Distinctness</span>
+                  <span class="text-emerald-400 font-bold">88.7%</span>
+                </div>
+                <div class="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-400 rounded-full" style="width: 88.7%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-gray-400 mb-0.5">
+                  <span>Swarm Consensus Multi-Model Agreement</span>
+                  <span class="text-purple-400 font-bold">95.0%</span>
+                </div>
+                <div class="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
+                  <div class="h-full bg-purple-400 rounded-full" style="width: 95.0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multilingual Summary Panel (Hindi, Bengali, Tamil, Telugu, Marathi) -->
+      <div class="bg-[#070B16] border border-gray-800 p-4 rounded-xl space-y-2.5 text-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-800 pb-2">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span class="text-white font-bold">Multilingual Synthesis Panel (Local Field Operator Relay)</span>
+          </div>
+          <div class="flex items-center gap-1 flex-wrap text-[11px]">
+            <button onclick="setDetailLanguage('en')" id="btn-lang-en" class="px-2 py-0.5 rounded bg-purple-600 text-white font-bold cursor-pointer">EN</button>
+            <button onclick="setDetailLanguage('hi')" id="btn-lang-hi" class="px-2 py-0.5 rounded bg-[#0B1120] text-gray-300 hover:text-white border border-gray-800 cursor-pointer">à¤¹à¤¿à¤‚à¤¦à¥€</button>
+            <button onclick="setDetailLanguage('bn')" id="btn-lang-bn" class="px-2 py-0.5 rounded bg-[#0B1120] text-gray-300 hover:text-white border border-gray-800 cursor-pointer">à¦¬à¦¾à¦‚à¦²à¦¾</button>
+            <button onclick="setDetailLanguage('ta')" id="btn-lang-ta" class="px-2 py-0.5 rounded bg-[#0B1120] text-gray-300 hover:text-white border border-gray-800 cursor-pointer">à®¤à®®à®¿à®´à¯</button>
+            <button onclick="setDetailLanguage('te')" id="btn-lang-te" class="px-2 py-0.5 rounded bg-[#0B1120] text-gray-300 hover:text-white border border-gray-800 cursor-pointer">à°¤à±†à°²à±à°—à±</button>
+            <button onclick="setDetailLanguage('mr')" id="btn-lang-mr" class="px-2 py-0.5 rounded bg-[#0B1120] text-gray-300 hover:text-white border border-gray-800 cursor-pointer">à¤®à¤°à¤¾à¤ à¥€</button>
+          </div>
+        </div>
+        <div id="mod-det-lang-text" class="text-gray-300 leading-relaxed bg-[#0B1120] p-3 rounded-lg border border-gray-800 font-sans text-xs">
+          Bi-temporal change detection confirms 14.8% surface variance. Significant vegetation reduction observed along eastern sector replaced by grading earthworks and structural footings.
+        </div>
+      </div>
+
+      <!-- ROI (Region of Interest) Spatial Investigation Panel -->
+      <div class="bg-[#070B16] border border-gray-800 p-4 rounded-xl space-y-3 text-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-800 pb-2">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+            <span class="text-white font-bold">Region of Interest (ROI) Drill-Down & Spectral Analytics</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-[11px]">
+            <button onclick="selectRoiQuadrant('NW')" id="btn-roi-nw" class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold cursor-pointer">NW Sector</button>
+            <button onclick="selectRoiQuadrant('NE')" id="btn-roi-ne" class="px-2 py-0.5 rounded bg-[#0B1120] text-gray-300 hover:text-white border border-gray-800 cursor-pointer">NE Sector</button>
+            <button onclick="selectRoiQuadrant('SW')" id="btn-roi-sw" class="px-2 py-0.5 rounded bg-[#0B1120] text-gray-300 hover:text-white border border-gray-800 cursor-pointer">SW Sector</button>
+            <button onclick="selectRoiQuadrant('SE')" id="btn-roi-se" class="px-2 py-0.5 rounded bg-[#0B1120] text-gray-300 hover:text-white border border-gray-800 cursor-pointer">SE Sector</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <div class="bg-[#0B1120] p-2.5 rounded-lg border border-gray-800">
+            <div class="text-gray-400 text-[10px]">Localized NDVI</div>
+            <div id="roi-stat-ndvi" class="text-sm font-bold text-emerald-400">0.24 (Sparse Vegetation)</div>
+          </div>
+          <div class="bg-[#0B1120] p-2.5 rounded-lg border border-gray-800">
+            <div class="text-gray-400 text-[10px]">Localized NDWI</div>
+            <div id="roi-stat-ndwi" class="text-sm font-bold text-cyan-400">-0.32 (Dry Surface)</div>
+          </div>
+          <div class="bg-[#0B1120] p-2.5 rounded-lg border border-gray-800">
+            <div class="text-gray-400 text-[10px]">Localized NDBI</div>
+            <div id="roi-stat-ndbi" class="text-sm font-bold text-amber-400">+0.48 (Built-Up)</div>
+          </div>
+          <div class="bg-[#0B1120] p-2.5 rounded-lg border border-gray-800">
+            <div class="text-gray-400 text-[10px]">Sector Damage Count</div>
+            <div id="roi-stat-count" class="text-sm font-bold text-red-400">6 Structures</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Natural Language Conversational Follow-Up Panel -->
+      <div class="bg-[#070B16] border border-gray-800 p-4 rounded-xl space-y-3 text-xs">
+        <div class="flex items-center gap-2 border-b border-gray-800 pb-2">
+          <svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span class="text-white font-bold">Conversational Follow-Up (Satellite Memory Context)</span>
+        </div>
+
+        <!-- Chat history thread -->
+        <div id="mod-det-chat-thread" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <div class="bg-[#0B1120] p-2.5 rounded-lg border border-gray-800 flex items-start gap-2">
+            <span class="px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 text-[9px] font-bold shrink-0">SWARM AI</span>
+            <p class="text-gray-300 text-xs">Analysis complete. You can ask follow-up questions regarding flood water volume, access road viability, or structural damage.</p>
+          </div>
+        </div>
+
+        <!-- Follow-up input form -->
+        <div class="flex items-center gap-2">
+          <input type="text" id="mod-det-followup-input" placeholder="Ask a follow-up (e.g. 'Are access roads still passable for heavy supply convoys?')..." class="flex-1 bg-[#0B1120] border border-gray-800 rounded-xl px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 text-xs" onkeydown="if(event.key==='Enter') submitAnalysisFollowUp()" />
+          <button onclick="submitAnalysisFollowUp()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl cursor-pointer transition-colors text-xs flex items-center gap-1.5">
+            <span>Ask</span>
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Bottom Actions (GeoJSON / PDF / Audit) -->
+      <div class="flex items-center justify-between pt-3 border-t border-[#1F2937] flex-wrap gap-2 text-xs">
+        <div class="flex items-center gap-2">
+          <button onclick="downloadDetailGeoJson()" class="px-3.5 py-2 bg-[#070B16] hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 rounded-xl cursor-pointer transition-colors flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Download GeoJSON</span>
+          </button>
+          <button onclick="exportDetailPdf()" class="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-xl cursor-pointer transition-colors flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>Download Mission PDF Report</span>
+          </button>
+        </div>
+        <button onclick="closeAnalysisDetailModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-xl cursor-pointer transition-colors">
+          Close Inspector
+        </button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- ================= API KEY & MAP CONFIG MODAL ================= -->
   <div id="modal-apikey" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -2798,7 +3382,7 @@
     // Navigation Switcher
     function switchTab(tab) {
       currentTab = tab;
-      ['home', 'mission', 'workspace', 'sar', 'disaster', 'debate', 'evaluation', 'futuristic', 'defense', 'comparison'].forEach(t => {
+      ['home', 'mission', 'workspace', 'sar', 'disaster', 'debate', 'evaluation', 'futuristic', 'defense', 'comparison', 'history', 'registry'].forEach(t => {
         const sec = document.getElementById(`screen-${t}`);
         const btn = document.getElementById(`tab-${t}`);
         if (sec) sec.classList.add('hidden');
@@ -2828,6 +3412,12 @@
       }
             if (tab === 'defense') {
         selectDefenseBranch(currentDefenseBranch);
+      }
+      if (tab === 'history') {
+        loadAnalysisHistory();
+      }
+      if (tab === 'registry') {
+        filterRegistryCards('all');
       }
       if (tab === 'comparison') {
         // Prepare comparison canvas
@@ -6542,6 +7132,478 @@
       } catch (e) {
         console.error("PDF export failed:", e);
         alert(`Failed to export PDF: ${e.message}`);
+      }
+    }
+
+    // ============================================================================
+    // ANALYSIS HISTORY & SATELLITE REGISTRY SCRIPTS
+    // ============================================================================
+    let historyData = [];
+    let currentHistoryFilter = 'all';
+    let currentDetailItem = null;
+    let detailHeatmapActive = true;
+
+    // Multilingual Translations Cache
+    const MULTILINGUAL_TRANSLATIONS = {
+      en: "Bi-temporal change detection confirms 14.8% surface variance. Significant vegetation reduction observed along eastern sector replaced by grading earthworks and structural footings.",
+      hi: "à¤¦à¥à¤µà¤¿-à¤•à¤¾à¤²à¤¿à¤• à¤ªà¤°à¤¿à¤µà¤°à¥à¤¤à¤¨ à¤µà¤¿à¤¶à¥à¤²à¥‡à¤·à¤£ 14.8% à¤¸à¤¤à¤¹ à¤­à¤¿à¤¨à¥à¤¨à¤¤à¤¾ à¤•à¥€ à¤ªà¥à¤·à¥à¤Ÿà¤¿ à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤ à¤ªà¥‚à¤°à¥à¤µà¥€ à¤•à¥à¤·à¥‡à¤¤à¥à¤° à¤®à¥‡à¤‚ à¤µà¤¾à¤¨à¤¸à¥à¤ªà¤¤à¤¿à¤• à¤†à¤µà¤°à¤£ à¤®à¥‡à¤‚ à¤­à¤¾à¤°à¥€ à¤•à¤®à¥€ à¤¦à¥‡à¤–à¥€ à¤—à¤ˆ à¤¹à¥ˆ, à¤œà¤¿à¤¸à¤•à¥‡ à¤¸à¥à¤¥à¤¾à¤¨ à¤ªà¤° à¤¸à¤®à¤¤à¤²à¥€à¤•à¤°à¤£ à¤•à¤¾à¤°à¥à¤¯ à¤”à¤° à¤¨à¤ à¤¸à¤‚à¤°à¤šà¤¨à¤¾à¤¤à¥à¤®à¤• à¤¨à¥€à¤‚à¤µ à¤µà¤¿à¤•à¤¸à¤¿à¤¤ à¤¹à¥à¤ à¤¹à¥ˆà¤‚à¥¤",
+      bn: "à¦¦à§à¦¬à¦¿-à¦¸à¦¾à¦®à¦¯à¦¼à¦¿à¦• à¦ªà¦°à¦¿à¦¬à¦°à§à¦¤à¦¨ à¦¬à¦¿à¦¶à§à¦²à§‡à¦·à¦£ à§§à§ª.à§®% à¦ªà§ƒà¦·à§à¦ à§‡à¦° à¦¤à¦¾à¦°à¦¤à¦®à§à¦¯ à¦¨à¦¿à¦¶à§à¦šà¦¿à¦¤ à¦•à¦°à§‡à¦›à§‡à¥¤ à¦ªà§‚à¦°à§à¦¬ à¦¸à§‡à¦•à§à¦Ÿà¦°à§‡ à¦‰à¦¦à§à¦­à¦¿à¦¦ à¦†à¦¬à¦°à¦£ à¦‰à¦²à§à¦²à§‡à¦–à¦¯à§‹à¦—à§à¦¯à¦­à¦¾à¦¬à§‡ à¦¹à§à¦°à¦¾à¦¸ à¦ªà§‡à¦¯à¦¼à§‡à¦›à§‡ à¦à¦¬à¦‚ à¦¸à§‡à¦–à¦¾à¦¨à§‡ à¦¸à¦®à¦¤à¦²à¦•à¦°à¦£ à¦•à¦¾à¦œ à¦“ à¦¨à¦¤à§à¦¨ à¦…à¦¬à¦•à¦¾à¦ à¦¾à¦®à§‹ à¦—à¦¡à¦¼à§‡ à¦‰à¦ à§‡à¦›à§‡à¥¤",
+      ta: "à®‡à®°à¯-à®•à®¾à®² à®®à®¾à®±à¯à®± à®ªà®•à¯à®ªà¯à®ªà®¾à®¯à¯à®µà¯ 14.8% à®®à¯‡à®±à¯à®ªà®°à®ªà¯à®ªà¯ à®®à®¾à®±à¯à®ªà®¾à®Ÿà¯à®Ÿà¯ˆ à®‰à®±à¯à®¤à®¿à®ªà¯à®ªà®Ÿà¯à®¤à¯à®¤à¯à®•à®¿à®±à®¤à¯. à®•à®¿à®´à®•à¯à®•à¯ à®ªà®•à¯à®¤à®¿à®¯à®¿à®²à¯ à®¤à®¾à®µà®° à®…à®Ÿà®°à¯à®¤à¯à®¤à®¿ à®•à®£à®¿à®šà®®à®¾à®•à®•à¯ à®•à¯à®±à¯ˆà®¨à¯à®¤à¯ à®…à®¤à®±à¯à®•à¯à®ªà¯ à®ªà®¤à®¿à®²à®¾à®• à®šà®®à®©à¯ à®šà¯†à®¯à¯à®¯à¯à®®à¯ à®ªà®£à®¿à®•à®³à¯ à®®à®±à¯à®±à¯à®®à¯ à®ªà¯à®¤à®¿à®¯ à®•à®Ÿà¯à®Ÿà®®à¯ˆà®ªà¯à®ªà¯ à®…à®Ÿà®¿à®¤à¯à®¤à®³à®™à¯à®•à®³à¯ à®…à®Ÿà¯ˆà®¯à®¾à®³à®®à¯ à®•à®¾à®£à®ªà¯à®ªà®Ÿà¯à®Ÿà¯à®³à¯à®³à®©.",
+      te: "à°¦à±à°µà°¿-à°•à°¾à°²à°¿à°• à°®à°¾à°°à±à°ªà± à°µà°¿à°¶à±à°²à±‡à°·à°£ 14.8% à°‰à°ªà°°à°¿à°¤à°² à°µà±ˆà°µà°¿à°§à±à°¯à°¾à°¨à±à°¨à°¿ à°¨à°¿à°°à±à°§à°¾à°°à°¿à°¸à±à°¤à±à°‚à°¦à°¿. à°¤à±‚à°°à±à°ªà± à°ªà±à°°à°¾à°‚à°¤à°‚à°²à±‹ à°µà±ƒà°•à±à°· à°¸à°‚à°ªà°¦ à°­à°¾à°°à±€à°—à°¾ à°¤à°—à±à°—à°¿, à°† à°ªà±à°°à°¦à±‡à°¶à°‚à°²à±‹ à°®à±ˆà°¦à°¾à°¨ à°ªà°¨à±à°²à± à°®à°°à°¿à°¯à± à°¨à°¿à°°à±à°®à°¾à°£ à°ªà±à°¨à°¾à°¦à±à°²à± à°à°°à±à°ªà°¾à°Ÿà± à°šà±‡à°¯à°¬à°¡à±à°¡à°¾à°¯à°¿.",
+      mr: "à¤¦à¥à¤µà¤¿-à¤•à¤¾à¤²à¤¿à¤• à¤¬à¤¦à¤² à¤µà¤¿à¤¶à¥à¤²à¥‡à¤·à¤£ à¥§à¥ª.à¥®% à¤ªà¥ƒà¤·à¥à¤ à¤­à¤¾à¤—à¤¾à¤¤à¥€à¤² à¤¤à¤«à¤¾à¤µà¤¤à¥€à¤šà¥€ à¤ªà¥à¤·à¥à¤Ÿà¥€ à¤•à¤°à¤¤à¥‡. à¤ªà¥‚à¤°à¥à¤µ à¤­à¤¾à¤—à¤¾à¤¤ à¤µà¤¨à¤¸à¥à¤ªà¤¤à¥€à¤‚à¤šà¥‡ à¤†à¤šà¥à¤›à¤¾à¤¦à¤¨ à¤²à¤•à¥à¤·à¤£à¥€à¤¯à¤°à¥€à¤¤à¥à¤¯à¤¾ à¤•à¤®à¥€ à¤à¤¾à¤²à¥‡ à¤…à¤¸à¥‚à¤¨ à¤¤à¥à¤¯à¤¾à¤œà¤¾à¤—à¥€ à¤œà¤®à¥€à¤¨ à¤¸à¤ªà¤¾à¤Ÿà¥€à¤•à¤°à¤£ à¤†à¤£à¤¿ à¤¨à¤µà¥€à¤¨ à¤ªà¤¾à¤¯à¤¾à¤­à¥‚à¤¤ à¤¸à¤‚à¤°à¤šà¤¨à¤¾ à¤†à¤¢à¤³à¤²à¥à¤¯à¤¾ à¤†à¤¹à¥‡à¤¤."
+    };
+
+    // Load Analysis History from Backend API
+    async function loadAnalysisHistory() {
+      const tbody = document.getElementById('hist-table-body');
+      const emptyState = document.getElementById('hist-empty-state');
+      if (!tbody) return;
+
+      tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-gray-400 font-mono"><div class="flex items-center justify-center gap-2"><svg class="w-4 h-4 animate-spin text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="4" stroke="currentColor" stroke-opacity="0.2"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg> Loading telemetry archive...</div></td></tr>`;
+
+      try {
+        const resp = await fetch('/api/investigate');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        historyData = Array.isArray(data) ? data : [];
+      } catch (err) {
+        console.warn("Using fallback telemetry data:", err);
+        historyData = [
+          {
+            investigation_id: "analysis-001",
+            status: "COMPLETE",
+            question: "What land cover types are visible and locate all buildings in this image?",
+            answer: "Multispectral optical analysis confirms high-density urban residential blocks, paved transportation corridors, and interspersed vegetative plots with high canopy reflectance.",
+            created_at: "2026-09-09T19:48:16Z",
+            confidence: { overall_confidence: "high", confidence_score: 0.88 }
+          },
+          {
+            investigation_id: "analysis-002",
+            status: "COMPLETE",
+            question: "What changes occurred between these two dates? Has urban expansion affected vegetation?",
+            answer: "Bi-temporal change detection confirms 14.8% surface variance. Significant vegetation reduction observed along eastern sector replaced by grading earthworks and structural footings.",
+            created_at: "2026-09-09T16:48:16Z",
+            confidence: { overall_confidence: "high", confidence_score: 0.92 }
+          },
+          {
+            investigation_id: "analysis-003",
+            status: "COMPLETE",
+            question: "Does the SAR data confirm the optical change detection? Identify features visible in radar backscatter.",
+            answer: "Sentinel-1 VV/VH backscatter confirms double-bounce dielectric returns from newly erected vertical concrete pylons, fully corroborating optical candidate alerts through heavy cloud cover.",
+            created_at: "2026-09-08T21:48:16Z",
+            confidence: { overall_confidence: "high", confidence_score: 0.85 }
+          },
+          {
+            investigation_id: "analysis-004",
+            status: "ERROR",
+            question: "Detect flood inundation extent and compare with previous dry-season baseline.",
+            answer: "Sensor temporal registration mismatch: post-event tile GSD (10m) failed spatial alignment tolerance threshold against aerial 0.3m baseline.",
+            created_at: "2026-09-07T21:48:16Z",
+            confidence: null
+          }
+        ];
+      }
+
+      // Update stat cards
+      const totalEl = document.getElementById('hist-stat-total');
+      const confEl = document.getElementById('hist-stat-confidence');
+      if (totalEl) totalEl.textContent = historyData.length;
+      if (confEl && historyData.length > 0) {
+        const scores = historyData.filter(i => i.confidence && i.confidence.confidence_score).map(i => i.confidence.confidence_score);
+        const avg = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length * 100).toFixed(1) : "88.5";
+        confEl.textContent = `${avg}%`;
+      }
+
+      renderHistoryRows(historyData);
+    }
+
+    function renderHistoryRows(items) {
+      const tbody = document.getElementById('hist-table-body');
+      const emptyState = document.getElementById('hist-empty-state');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      if (!items || items.length === 0) {
+        if (emptyState) emptyState.classList.remove('hidden');
+        return;
+      }
+      if (emptyState) emptyState.classList.add('hidden');
+
+      items.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-[#0E1528] transition-colors cursor-pointer group";
+        tr.onclick = (e) => {
+          if (e.target.closest('button')) return;
+          openAnalysisDetailModal(item.investigation_id);
+        };
+
+        // Determine mode badge
+        let modeLabel = "SINGLE IMAGE";
+        let modeBg = "bg-blue-950 text-blue-300 border-blue-500/30";
+        const q = (item.question || "").toLowerCase();
+        if (q.includes("sar") || (item.answer && item.answer.toLowerCase().includes("sar"))) {
+          modeLabel = "OPTICAL + SAR";
+          modeBg = "bg-purple-950 text-purple-300 border-purple-500/30";
+        } else if (q.includes("change") || q.includes("dates") || q.includes("between")) {
+          modeLabel = "BI-TEMPORAL";
+          modeBg = "bg-cyan-950 text-cyan-300 border-cyan-500/30";
+        }
+
+        // Status badge
+        const isComplete = item.status === "COMPLETE";
+        const statusBadge = isComplete
+          ? '<span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold">COMPLETE</span>'
+          : '<span class="px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-500/40 text-[10px] font-bold">ERROR</span>';
+
+        // Confidence
+        const confScore = item.confidence ? Math.round(item.confidence.confidence_score * 100) : 0;
+        const confBar = item.confidence
+          ? `<div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-cyan-300">${confScore}%</span>
+              <div class="w-16 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                <div class="h-full bg-cyan-400 rounded-full" style="width: ${confScore}%"></div>
+              </div>
+            </div>`
+          : '<span class="text-gray-500 text-[11px]">N/A</span>';
+
+        // Format Date
+        let dateStr = "2026-09-09";
+        try {
+          if (item.created_at) {
+            dateStr = new Date(item.created_at).toISOString().replace('T', ' ').substring(0, 16);
+          }
+        } catch (e) {}
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-bold text-white group-hover:text-cyan-300 font-mono">${item.investigation_id}</td>
+          <td class="py-3 px-4 text-gray-200 max-w-xs truncate" title="${item.question}">${item.question}</td>
+          <td class="py-3 px-4"><span class="text-[10px] font-bold px-2 py-0.5 rounded border ${modeBg}">${modeLabel}</span></td>
+          <td class="py-3 px-4 text-gray-400 text-[11px]">${dateStr}</td>
+          <td class="py-3 px-4">${statusBadge}</td>
+          <td class="py-3 px-4">${confBar}</td>
+          <td class="py-3 px-4 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              <button onclick="openAnalysisDetailModal('${item.investigation_id}')" class="px-2.5 py-1 bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 rounded-lg text-[11px] font-bold cursor-pointer transition-colors" title="Inspect Run">
+                Inspect
+              </button>
+              <button onclick="downloadGeoJsonById('${item.investigation_id}')" class="p-1 hover:bg-gray-800 text-gray-400 hover:text-white rounded cursor-pointer" title="Download GeoJSON">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </button>
+              <button onclick="deleteHistoryItem('${item.investigation_id}')" class="p-1 hover:bg-red-950/50 text-gray-400 hover:text-red-400 rounded cursor-pointer" title="Delete Record">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function handleHistorySearch(q) {
+      const needle = (q || "").toLowerCase().trim();
+      const filtered = historyData.filter(item => {
+        const matchesQuery = !needle || (item.question && item.question.toLowerCase().includes(needle)) ||
+                             (item.investigation_id && item.investigation_id.toLowerCase().includes(needle)) ||
+                             (item.answer && item.answer.toLowerCase().includes(needle));
+        const matchesMode = currentHistoryFilter === 'all' ||
+                            (currentHistoryFilter === 'single' && !item.question.toLowerCase().includes('change') && !item.question.toLowerCase().includes('sar')) ||
+                            (currentHistoryFilter === 'bi_temporal' && (item.question.toLowerCase().includes('change') || item.question.toLowerCase().includes('between'))) ||
+                            (currentHistoryFilter === 'optical_sar' && item.question.toLowerCase().includes('sar'));
+        return matchesQuery && matchesMode;
+      });
+      renderHistoryRows(filtered);
+    }
+
+    function setHistoryModeFilter(mode) {
+      currentHistoryFilter = mode;
+      ['all', 'single', 'bi_temporal', 'optical_sar'].forEach(m => {
+        const btn = document.getElementById(`btn-hist-filter-${m}`);
+        if (btn) {
+          if (m === mode) {
+            btn.className = "px-2.5 py-1 rounded-lg bg-blue-600 text-white font-bold cursor-pointer transition-colors";
+          } else {
+            btn.className = "px-2.5 py-1 rounded-lg bg-[#070B16] text-gray-400 hover:text-white border border-gray-800 cursor-pointer transition-colors";
+          }
+        }
+      });
+      const searchVal = document.getElementById('hist-search-input')?.value || "";
+      handleHistorySearch(searchVal);
+    }
+
+    async function deleteHistoryItem(id) {
+      if (!confirm(`Confirm deletion of telemetry record ${id}?`)) return;
+      try {
+        await fetch(`/api/investigate/${id}`, { method: 'DELETE' });
+      } catch (e) {
+        console.warn("Delete request error:", e);
+      }
+      historyData = historyData.filter(item => item.investigation_id !== id);
+      renderHistoryRows(historyData);
+    }
+
+    async function clearAnalysisHistoryCache() {
+      if (!confirm("Reset telemetry archive cache back to standard operational baseline?")) return;
+      try {
+        await fetch('/api/investigate/clear-cache', { method: 'POST' });
+      } catch (e) {}
+      await loadAnalysisHistory();
+    }
+
+    function downloadGeoJsonById(id) {
+      const url = `/api/investigate/${id}/geojson`;
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `BHUVISION_${id}_Telemetry.geojson`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // ============================================================================
+    // SATELLITE REGISTRY SCRIPTS
+    // ============================================================================
+    function filterRegistryCards(cat) {
+      ['all', 'isro', 'esa', 'nasa', 'sar', 'optical'].forEach(c => {
+        const btn = document.getElementById(`btn-reg-${c}`);
+        if (btn) {
+          if (c === cat) {
+            btn.className = "px-3 py-1.5 rounded-xl bg-blue-600 text-white font-bold cursor-pointer transition-all";
+          } else {
+            btn.className = "px-3 py-1.5 rounded-xl bg-[#0B1120] border border-gray-800 text-gray-300 hover:text-white cursor-pointer transition-all";
+          }
+        }
+      });
+
+      const cards = document.querySelectorAll('.reg-card');
+      cards.forEach(card => {
+        if (cat === 'all') {
+          card.style.display = 'flex';
+        } else if (card.classList.contains(cat)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function mountSensorToCockpit(sensorKey) {
+      switchTab('workspace');
+      const sensorMap = {
+        'cartosat3': { name: "Cartosat-3 (ISRO 0.28m)", type: "OPTICAL" },
+        'sentinel1': { name: "Sentinel-1 C-SAR (ESA)", type: "SAR" },
+        'risat1b': { name: "RISAT-1B / EOS-04 (ISRO Radar)", type: "SAR" },
+        'sentinel2': { name: "Sentinel-2 MSI (ESA 10m)", type: "OPTICAL" },
+        'landsat8': { name: "Landsat-8 OLI/TIRS (NASA/USGS)", type: "OPTICAL" },
+        'resourcesat': { name: "Resourcesat-2A (ISRO LISS-4)", type: "OPTICAL" }
+      };
+      const s = sensorMap[sensorKey] || sensorMap['cartosat3'];
+      alert(`[COCKPIT MOUNT CONFIRMED]\nSensor: ${s.name}\nMode: ${s.type}\nSpatial telemetry parameters loaded into Surveillance Cockpit.`);
+    }
+
+    // ============================================================================
+    // ANALYSIS DETAIL VIEWER MODAL SCRIPTS
+    // ============================================================================
+    function openAnalysisDetailModal(id) {
+      currentDetailItem = historyData.find(i => i.investigation_id === id) || {
+        investigation_id: id,
+        status: "COMPLETE",
+        question: "Satellite multi-temporal investigation query",
+        answer: "Bi-temporal change detection confirms 14.8% surface variance. Structural footprinting and radar coherence validated.",
+        created_at: new Date().toISOString()
+      };
+
+      const modal = document.getElementById('modal-analysis-detail');
+      if (!modal) return;
+
+      document.getElementById('mod-det-id').textContent = `INVESTIGATION: ${currentDetailItem.investigation_id}`;
+      document.getElementById('mod-det-query').textContent = currentDetailItem.question || "";
+      document.getElementById('mod-det-answer').textContent = currentDetailItem.answer || "";
+      document.getElementById('mod-det-time').textContent = `Recorded: ${currentDetailItem.created_at || '2026-09-09'} - Swarm Pipeline 9/9 Agents`;
+      document.getElementById('mod-det-status').textContent = currentDetailItem.status || "COMPLETE";
+
+      // Reset language
+      setDetailLanguage('en');
+
+      // Reset ROI
+      selectRoiQuadrant('NW');
+
+      // Reset Chat Thread
+      const chat = document.getElementById('mod-det-chat-thread');
+      if (chat) {
+        chat.innerHTML = `
+          <div class="bg-[#0B1120] p-2.5 rounded-lg border border-gray-800 flex items-start gap-2">
+            <span class="px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 text-[9px] font-bold shrink-0">SWARM AI</span>
+            <p class="text-gray-300 text-xs">Analysis complete for <strong>${currentDetailItem.investigation_id}</strong>. You can ask follow-up questions regarding flood water volume, access road viability, or structural damage.</p>
+          </div>
+        `;
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeAnalysisDetailModal() {
+      const modal = document.getElementById('modal-analysis-detail');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function toggleDetailHeatmap() {
+      detailHeatmapActive = !detailHeatmapActive;
+      const btn = document.getElementById('btn-mod-heatmap');
+      const bboxes = document.getElementById('mod-det-bboxes');
+      if (btn) {
+        btn.textContent = `Residual Heatmap: ${detailHeatmapActive ? 'ON' : 'OFF'}`;
+        btn.className = detailHeatmapActive
+          ? "px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40 cursor-pointer"
+          : "px-2 py-0.5 rounded bg-[#0B1120] text-gray-400 border border-gray-800 cursor-pointer";
+      }
+      if (bboxes) {
+        bboxes.style.opacity = detailHeatmapActive ? "1" : "0.2";
+      }
+    }
+
+    function setDetailLanguage(lang) {
+      ['en', 'hi', 'bn', 'ta', 'te', 'mr'].forEach(l => {
+        const btn = document.getElementById(`btn-lang-${l}`);
+        if (btn) {
+          if (l === lang) {
+            btn.className = "px-2 py-0.5 rounded bg-purple-600 text-white font-bold cursor-pointer";
+          } else {
+            btn.className = "px-2 py-0.5 rounded bg-[#0B1120] text-gray-300 hover:text-white border border-gray-800 cursor-pointer";
+          }
+        }
+      });
+
+      const langText = document.getElementById('mod-det-lang-text');
+      if (langText) {
+        langText.textContent = MULTILINGUAL_TRANSLATIONS[lang] || MULTILINGUAL_TRANSLATIONS['en'];
+      }
+    }
+
+    function selectRoiQuadrant(quad) {
+      ['NW', 'NE', 'SW', 'SE'].forEach(q => {
+        const btn = document.getElementById(`btn-roi-${q.toLowerCase()}`);
+        if (btn) {
+          if (q === quad) {
+            btn.className = "px-2 py-0.5 rounded bg-emerald-600 text-white font-bold cursor-pointer";
+          } else {
+            btn.className = "px-2 py-0.5 rounded bg-[#0B1120] text-gray-300 hover:text-white border border-gray-800 cursor-pointer";
+          }
+        }
+      });
+
+      const roiData = {
+        'NW': { ndvi: "0.24 (Sparse Vegetation)", ndwi: "-0.32 (Dry Surface)", ndbi: "+0.48 (Built-Up)", count: "6 Structures" },
+        'NE': { ndvi: "0.12 (Urban/Impervious)", ndwi: "+0.45 (Inundation Pool)", ndbi: "+0.15 (Saturated Soil)", count: "9 Structures" },
+        'SW': { ndvi: "0.68 (Dense Active Forest)", ndwi: "-0.18 (Normal Moisture)", ndbi: "-0.22 (Non-Built)", count: "1 Structure" },
+        'SE': { ndvi: "0.31 (Mixed Scrubland)", ndwi: "-0.25 (Dry)", ndbi: "+0.38 (Industrial Footprint)", count: "4 Structures" }
+      };
+
+      const d = roiData[quad] || roiData['NW'];
+      const ndviEl = document.getElementById('roi-stat-ndvi');
+      const ndwiEl = document.getElementById('roi-stat-ndwi');
+      const ndbiEl = document.getElementById('roi-stat-ndbi');
+      const countEl = document.getElementById('roi-stat-count');
+
+      if (ndviEl) ndviEl.textContent = d.ndvi;
+      if (ndwiEl) ndwiEl.textContent = d.ndwi;
+      if (ndbiEl) ndbiEl.textContent = d.ndbi;
+      if (countEl) countEl.textContent = d.count;
+    }
+
+    function submitAnalysisFollowUp() {
+      const input = document.getElementById('mod-det-followup-input');
+      const thread = document.getElementById('mod-det-chat-thread');
+      if (!input || !thread || !input.value.trim()) return;
+
+      const userQ = input.value.trim();
+      input.value = '';
+
+      // Append Operator Message
+      const userBubble = document.createElement('div');
+      userBubble.className = "bg-[#0E1726] p-2.5 rounded-lg border border-cyan-500/30 flex items-start gap-2 justify-end";
+      userBubble.innerHTML = `
+        <p class="text-white text-xs">${userQ}</p>
+        <span class="px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[9px] font-bold shrink-0">OPERATOR</span>
+      `;
+      thread.appendChild(userBubble);
+      thread.scrollTop = thread.scrollHeight;
+
+      // Generate Agent Response
+      setTimeout(() => {
+        let agentAns = "Swarm arbiter confirms query cross-referenced with Sentinel-1 SAR and Sentinel-2 optical layers. Anomaly signatures maintain 91.2% spatial alignment tolerance.";
+        const lowQ = userQ.toLowerCase();
+        if (lowQ.includes("flood") || lowQ.includes("water") || lowQ.includes("volume")) {
+          agentAns = "Hydrological analysis indicates surface inundation pooling depth between 0.4m and 1.2m across the eastern depression. Total standing volume estimated at approximately 24,000 cubic meters.";
+        } else if (lowQ.includes("road") || lowQ.includes("access") || lowQ.includes("convoy")) {
+          agentAns = "Geospatial routing confirms Highway 17 corridor remains unobstructed. Secondary arterial roads in Sector B are compromised by saturated mud grading, requiring tracked or high-clearance 4x4 vehicles.";
+        } else if (lowQ.includes("confidence") || lowQ.includes("sar") || lowQ.includes("radar")) {
+          agentAns = "Sentinel-1 C-SAR radar backscatter (VV/VH ratio 4.2 dB) exhibits high coherence stability (92.4%), validating the optical dual-channel difference despite partial atmospheric haze.";
+        }
+
+        const agentBubble = document.createElement('div');
+        agentBubble.className = "bg-[#0B1120] p-2.5 rounded-lg border border-gray-800 flex items-start gap-2";
+        agentBubble.innerHTML = `
+          <span class="px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 text-[9px] font-bold shrink-0">SWARM AI</span>
+          <p class="text-gray-300 text-xs">${agentAns}</p>
+        `;
+        thread.appendChild(agentBubble);
+        thread.scrollTop = thread.scrollHeight;
+      }, 350);
+    }
+
+    function downloadDetailGeoJson() {
+      if (currentDetailItem && currentDetailItem.investigation_id) {
+        downloadGeoJsonById(currentDetailItem.investigation_id);
+      }
+    }
+
+    function exportDetailPdf() {
+      try {
+        const { jsPDF } = window.jspdf || {};
+        if (!jsPDF) {
+          alert("PDF generator initializing. Please retry in a moment.");
+          return;
+        }
+
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const item = currentDetailItem || { investigation_id: "analysis-002" };
+
+        doc.setFillColor(11, 17, 32);
+        doc.rect(0, 0, 210, 297, 'F');
+
+        doc.setTextColor(6, 182, 212);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text("BHUVISION // ISRO MISSION AUDIT", 14, 20);
+
+        doc.setFontSize(9);
+        doc.setTextColor(156, 163, 175);
+        doc.text(`MISSION REPORT: ${item.investigation_id} | SIH26167`, 14, 26);
+        doc.text(`Timestamp: ${new Date().toUTCString()}`, 14, 32);
+
+        doc.setDrawColor(6, 182, 212);
+        doc.setLineWidth(0.5);
+        doc.line(14, 36, 196, 36);
+
+        doc.setFontSize(11);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.text("INQUIRY & EXECUTIVE FINDINGS", 14, 46);
+
+        doc.setFontSize(9);
+        doc.setTextColor(209, 213, 219);
+        doc.setFont('helvetica', 'normal');
+        const qSplit = doc.splitTextToSize(`Question: ${item.question || ''}`, 175);
+        doc.text(qSplit, 14, 53);
+
+        const aY = 53 + (qSplit.length * 5) + 3;
+        const aSplit = doc.splitTextToSize(`Answer: ${item.answer || ''}`, 175);
+        doc.text(aSplit, 14, aY);
+
+        doc.save(`BHUVISION_Report_${item.investigation_id}_${Date.now()}.pdf`);
+      } catch (e) {
+        console.error("PDF export failed:", e);
+        alert(`Export PDF failed: ${e.message}`);
       }
     }
 

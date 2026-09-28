@@ -46,14 +46,12 @@ from .base import VLMBackend, VLMResponse
 
 logger = get_logger("models.gateway")
 
-# Fallback vision models on OpenRouter (free tier included for 100% uptime)
+# Fallback vision models on OpenRouter (fastest, active models prioritized)
 VISION_FALLBACK_MODELS = [
-    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-    "google/gemma-4-31b-it:free",
-    "nex-agi/nex-n2.5-pro:free",
-    "openrouter/free",
     "google/gemini-2.5-flash",
     "google/gemini-2.0-flash-001",
+    "meta-llama/llama-3.2-11b-vision-instruct:free",
+    "openrouter/free",
 ]
 
 # Agent ID → model mapping (loaded from settings at import time)
@@ -302,11 +300,14 @@ class GatewayBackend(VLMBackend):
             for cand_model in candidate_models:
                 try:
                     start = time.time()
-                    response = await client.chat.completions.create(
-                        model=cand_model,
-                        messages=messages,
-                        max_tokens=safe_max_tokens,
-                        temperature=temperature,
+                    response = await asyncio.wait_for(
+                        client.chat.completions.create(
+                            model=cand_model,
+                            messages=messages,
+                            max_tokens=safe_max_tokens,
+                            temperature=temperature,
+                        ),
+                        timeout=5.0,
                     )
                     answer = (response.choices[0].message.content or "").strip()
                     if not answer or len(answer) < 15 or "user safety" in answer.lower():
@@ -319,6 +320,9 @@ class GatewayBackend(VLMBackend):
                 except Exception as exc:
                     last_error = str(exc)
                     logger.warning("gateway_model_failed", gateway=gw["name"], model=cand_model, error=last_error)
+                    if "402" in last_error or "credits" in last_error.lower() or "payment" in last_error.lower():
+                        logger.info("gateway_credits_exhausted_fast_fallback", gateway=gw["name"])
+                        break
                     continue
 
         raise RuntimeError(f"All gateways and candidate models failed. Last error: {last_error}")

@@ -13,6 +13,7 @@ export type AppTab =
   | "analysis_results"
   | "new_analysis"
   | "history"
+  | "registry"
   | "image_compare"
   | "defense_ops"
   | "sar_reader"
@@ -153,6 +154,16 @@ export function Header({
             }`}
           >
             Analysis History
+          </button>
+          <button
+            onClick={() => setActiveTab("registry")}
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+              activeTab === "registry"
+                ? "bg-sky-600 text-white shadow-sm"
+                : "text-sky-300 hover:text-white hover:bg-sky-950/40"
+            }`}
+          >
+            Satellite Registry
           </button>
           <button
             onClick={() => setActiveTab("mission_view")}

@@ -29,6 +29,7 @@ import { StaticImageComparisonView } from "../components/screens/StaticImageComp
 import { DefenseIntelView } from "../components/screens/DefenseIntelView";
 import { SarReaderView } from "../components/screens/SarReaderView";
 import { DisasterRoutingView } from "../components/screens/DisasterRoutingView";
+import { SatelliteRegistryView } from "../components/screens/SatelliteRegistryView";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<AppTab>("home");
@@ -290,6 +291,15 @@ export default function Home() {
               setActiveTab("analysis_results");
             }}
             onNewAnalysis={() => setActiveTab("new_analysis")}
+          />
+        )}
+
+        {activeTab === "registry" && (
+          <SatelliteRegistryView
+            onSelectSensor={(sensorId) => {
+              setSelectedScenario(sensorId);
+              setActiveTab("workspace");
+            }}
           />
         )}
       </main>

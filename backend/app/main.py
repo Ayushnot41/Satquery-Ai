@@ -135,30 +135,30 @@ app.include_router(sar_reader_router, prefix="/api")
 
 @app.get("/", tags=["Root"])
 async def get_root(request: Request):
-    """System banner and metadata with browser frontend content negotiation."""
+    """Serves the interactive cockpit by default on root, or JSON banner if explicitly requested."""
     accept = request.headers.get("accept", "")
-    if "text/html" in accept:
-        preview_file = (PROJECT_ROOT / "index.html") if (PROJECT_ROOT / "index.html").exists() else (PROJECT_ROOT / "bhuvision_preview.html")
-        if preview_file.exists():
-            return HTMLResponse(
-                content=preview_file.read_text(encoding="utf-8"),
-                headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
-            )
-        return await _proxy_to_nextjs(request, "/")
+    if "application/json" in accept and "text/html" not in accept:
+        return {
+            "product": "BHUVISION",
+            "tagline": "Ask the Earth. AI decides how to investigate it.",
+            "problem_statement_id": "SIH26167",
+            "organization": "Indian Space Research Organisation (ISRO)",
+            "team": "BANKAI",
+            "version": settings.app_version,
+            "app_url": "/app",
+            "docs_url": "/docs",
+            "health_url": "/api/health",
+            "status": "online",
+            "agents": 9,
+        }
 
-    return {
-        "product": "BHUVISION",
-        "tagline": "Ask the Earth. AI decides how to investigate it.",
-        "problem_statement_id": "SIH26167",
-        "organization": "Indian Space Research Organisation (ISRO)",
-        "team": "BANKAI",
-        "version": settings.app_version,
-        "app_url": "/app",
-        "docs_url": "/docs",
-        "health_url": "/api/health",
-        "status": "online",
-        "agents": 9,
-    }
+    preview_file = (PROJECT_ROOT / "index.html") if (PROJECT_ROOT / "index.html").exists() else (PROJECT_ROOT / "bhuvision_preview.html")
+    if preview_file.exists():
+        return HTMLResponse(
+            content=preview_file.read_text(encoding="utf-8"),
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
+        )
+    return await _proxy_to_nextjs(request, "/")
 
 
 @app.get("/manifest.json", tags=["PWA"])
