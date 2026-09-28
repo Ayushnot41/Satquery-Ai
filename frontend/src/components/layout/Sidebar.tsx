@@ -93,6 +93,7 @@ export function Sidebar({
       ),
       action: () => setActiveTab("disaster_routing"),
     },
+    {
       id: "history" as AppTab,
       label: "Analysis History",
       icon: (
@@ -116,6 +117,7 @@ export function Sidebar({
         if (onOpenProfile) onOpenProfile();
       },
     },
+    {
       id: "evaluation" as AppTab,
       label: "Benchmark & Eval",
       icon: (

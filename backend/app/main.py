@@ -219,17 +219,18 @@ async def _proxy_to_nextjs(request: Request, target_path: str) -> Response:
         for base_url in NEXTJS_CANDIDATE_URLS:
             target_url = f"{base_url}{target_path}{query_string}"
             try:
-                async with httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=1.0)) as client:
+                req_headers = {
                     k: v for k, v in request.headers.items()
                     if k.lower() not in ("host", "content-length", "content-encoding")
                 }
-                body = await request.body() if request.method in ("POST", "PUT", "PATCH") else None
-                resp = await client.request(
-                    method=request.method,
-                    url=target_url,
-                    headers=req_headers,
-                    content=body,
-                )
+                async with httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=1.0)) as client:
+                    body = await request.body() if request.method in ("POST", "PUT", "PATCH") else None
+                    resp = await client.request(
+                        method=request.method,
+                        url=target_url,
+                        headers=req_headers,
+                        content=body,
+                    )
                 excluded_headers = {"content-encoding", "content-length", "transfer-encoding", "connection"}
                 headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded_headers}
                 # Prevent browser caching of HTML so edits on localhost:3000 show immediately on :8000/app
