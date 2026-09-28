@@ -218,10 +218,15 @@ def run_siamese_inference(
     t1_norm = _preprocess_image(image_before, (256, 256))
     t2_norm = _preprocess_image(image_after, (256, 256))
 
-    mode_used = "scipy_vectorized"
-    prob_map = None
+    # Compute multi-spectral difference baseline
+    diff_raw = np.abs(t2_norm - t1_norm)
+    l2_dist = np.sqrt(np.sum(diff_raw ** 2, axis=-1))
 
-    if TORCH_AVAILABLE and torch is not None:
+    if np.max(l2_dist) < 0.02:
+        # Identical or near-identical image pair
+        prob_map = np.zeros_like(l2_dist)
+        mode_used = "zero_diff_exact"
+    elif TORCH_AVAILABLE and torch is not None:
         try:
             # Build PyTorch tensors (1, C, H, W)
             t1_tensor = torch.from_numpy(t1_norm).permute(2, 0, 1).unsqueeze(0).float()
@@ -236,32 +241,35 @@ def run_siamese_inference(
 
             with torch.no_grad():
                 pred = model(t1_tensor, t2_tensor)
-                prob_map = pred.squeeze().cpu().numpy()
+                raw_prob = pred.squeeze().cpu().numpy()
+
+            # Calibrate with spatial metric distance gating
+            prob_map = raw_prob * np.clip(l2_dist * 2.2, 0.0, 1.0)
+            prob_map[l2_dist < 0.08] = 0.0
+            prob_map = np.clip(prob_map, 0.0, 1.0)
             mode_used = f"torch_{dev.type}"
         except Exception:
             prob_map = None
 
     if prob_map is None:
-        # High-performance Vectorized Deep Feature Fallback
-        # Simulates deep metric space distance via spectral gradient differencing
-        diff_raw = np.abs(t2_norm - t1_norm)
-        l2_dist = np.sqrt(np.sum(diff_raw ** 2, axis=-1))
-
         # Spatial multi-scale pooling simulation (Gaussian convolution)
         try:
             from scipy.ndimage import gaussian_filter
             smooth_dist = gaussian_filter(l2_dist, sigma=2.0)
-            grad_x = np.abs(np.gradient(t2_norm, axis=0)).sum(axis=-1)
-            grad_y = np.abs(np.gradient(t2_norm, axis=1)).sum(axis=-1)
+            grad_x = np.abs(np.gradient(diff_raw, axis=0)).sum(axis=-1)
+            grad_y = np.abs(np.gradient(diff_raw, axis=1)).sum(axis=-1)
             structural_cue = gaussian_filter(grad_x + grad_y, sigma=1.5)
         except ImportError:
             smooth_dist = l2_dist
             structural_cue = np.zeros_like(l2_dist)
 
         # Non-linear Sigmoid activation calibrated on satellite contrast
-        feature_energy = (smooth_dist * 3.5) + (structural_cue * 0.8) - 1.2
+        feature_energy = (smooth_dist * 4.5) + (structural_cue * 1.2) - 1.6
         prob_map = 1.0 / (1.0 + np.exp(-feature_energy))
+        prob_map[smooth_dist < 0.08] = 0.0
         prob_map = np.clip(prob_map, 0.0, 1.0)
+
+
 
     # Resize probability map back to original input resolution
     prob_pil = Image.fromarray((prob_map * 255).astype(np.uint8))

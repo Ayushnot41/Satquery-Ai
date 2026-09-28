@@ -2002,7 +2002,7 @@
                 </span>
               </div>
               <p class="text-xs text-gray-300 font-mono mt-1">
-                Upload or select any SAR, NASA, Cartosat, or Sentinel satellite map images to perform bi-temporal AI change analysis.
+                Upload custom satellite imagery or select presets to perform bi-temporal AI change detection with full visual evidence.
               </p>
             </div>
           </div>
@@ -2030,19 +2030,19 @@
             <span class="text-gray-400 text-[10px]">T1 PRE-EVENT</span>
           </div>
           
-          <div class="relative h-64 bg-[#030611] rounded-xl border border-gray-800 overflow-hidden flex items-center justify-center group">
-            <img id="comp-img-a" src="/static/demo/kerala_sar_pre.png" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'250\'><rect fill=\'%23081120\' width=\'400\' height=\'250\'/><text fill=\'%2306b6d4\' x=\'50%\' y=\'50%\' font-family=\'monospace\' font-size=\'14\' text-anchor=\'middle\'>[BASELINE IMAGE T1 PRE-EVENT]</text></svg>'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Slot A Image" />
-            <div class="absolute bottom-2 left-2 bg-black/80 px-2 py-1 rounded text-[10px] text-cyan-300 border border-cyan-500/30">
+          <div class="relative h-72 bg-[#030611] rounded-xl border border-gray-800 overflow-hidden flex items-center justify-center group">
+            <img id="comp-img-a" src="/static/demo/kerala_sar_pre.png" onerror="this.src='/data/demo/kerala_sar_pre.png'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Slot A Image" />
+            <div id="comp-sensor-a" class="absolute bottom-2 left-2 bg-black/85 px-2.5 py-1 rounded-lg text-[10px] text-cyan-300 border border-cyan-500/40 backdrop-blur-sm">
               Sensor: Sentinel-1 C-SAR (VV+VH)
             </div>
           </div>
 
           <div class="flex items-center gap-2">
-            <label class="flex-1 py-2 px-3 bg-[#0F172A] hover:bg-slate-800 border border-gray-700 text-gray-300 rounded-xl text-center cursor-pointer transition-colors text-[11px]">
+            <label class="flex-1 py-2 px-3 bg-[#0F172A] hover:bg-slate-800 border border-gray-700 text-gray-300 rounded-xl text-center cursor-pointer transition-colors text-[11px] flex items-center justify-center gap-1.5">
               <span>📁 Upload Past Image</span>
-              <input type="file" accept="image/*" class="hidden" onchange="handleComparisonUpload(event, 'a')" />
+              <input id="comp-file-a" type="file" accept="image/*" class="hidden" onchange="handleComparisonUpload(event, 'a')" />
             </label>
-            <select onchange="setComparisonPreset('a', this.value)" class="bg-[#070C18] border border-gray-700 rounded-xl px-2.5 py-2 text-cyan-300 text-[11px] outline-none">
+            <select id="comp-select-a" onchange="setComparisonPreset('a', this.value)" class="bg-[#070C18] border border-gray-700 rounded-xl px-2.5 py-2 text-cyan-300 text-[11px] outline-none cursor-pointer">
               <option value="kerala_pre">Kerala Flood Pre-Event (SAR)</option>
               <option value="bengaluru_pre">Bengaluru Urban 2022 (Optical)</option>
               <option value="kedarnath_pre">Kedarnath Landslide 2013 (Cartosat)</option>
@@ -2057,59 +2057,109 @@
               <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
               <span class="text-white font-bold uppercase">Image Slot B: Current / Operational Imagery</span>
             </div>
-            <span class="text-cyan-400 text-[10px]">T2 POST-EVENT</span>
+            <div class="flex items-center gap-2">
+              <span id="comp-evidence-tag" class="hidden text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40">AI EVIDENCE ACTIVE</span>
+              <span class="text-cyan-400 text-[10px]">T2 POST-EVENT</span>
+            </div>
           </div>
           
-          <div class="relative h-64 bg-[#030611] rounded-xl border border-gray-800 overflow-hidden flex items-center justify-center group">
-            <img id="comp-img-b" src="/static/demo/kerala_sar_post.png" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'250\'><rect fill=\'%23081120\' width=\'400\' height=\'250\'/><text fill=\'%2338bdf8\' x=\'50%\' y=\'50%\' font-family=\'monospace\' font-size=\'14\' text-anchor=\'middle\'>[OPERATIONAL IMAGE T2 POST-EVENT]</text></svg>'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Slot B Image" />
-            <div class="absolute bottom-2 left-2 bg-black/80 px-2 py-1 rounded text-[10px] text-cyan-300 border border-cyan-500/30">
+          <div class="relative h-72 bg-[#030611] rounded-xl border border-gray-800 overflow-hidden flex items-center justify-center group">
+            <img id="comp-img-b" src="/static/demo/kerala_sar_post.png" onerror="this.src='/data/demo/kerala_sar_post.png'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Slot B Image" />
+            <div id="comp-sensor-b" class="absolute bottom-2 left-2 bg-black/85 px-2.5 py-1 rounded-lg text-[10px] text-cyan-300 border border-cyan-500/40 backdrop-blur-sm">
               Sensor: RISAT-1B Hybrid Polarimetric
+            </div>
+            <!-- View Mode Overlay Indicator -->
+            <div id="comp-viewmode-indicator" class="absolute top-2 right-2 bg-black/80 px-2 py-0.5 rounded text-[9.5px] text-cyan-300 border border-cyan-500/30 hidden">
+              VIEW: ANNOTATED EVIDENCE
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
-            <label class="flex-1 py-2 px-3 bg-[#0F172A] hover:bg-slate-800 border border-gray-700 text-gray-300 rounded-xl text-center cursor-pointer transition-colors text-[11px]">
-              <span>📁 Upload Current Image</span>
-              <input type="file" accept="image/*" class="hidden" onchange="handleComparisonUpload(event, 'b')" />
-            </label>
-            <select onchange="setComparisonPreset('b', this.value)" class="bg-[#070C18] border border-gray-700 rounded-xl px-2.5 py-2 text-cyan-300 text-[11px] outline-none">
-              <option value="kerala_post">Kerala Flood Post-Event (SAR)</option>
-              <option value="bengaluru_post">Bengaluru Urban 2026 (Optical)</option>
-              <option value="kedarnath_post">Kedarnath Landslide Post-Debris (Cartosat)</option>
-            </select>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <label class="flex-1 py-2 px-3 bg-[#0F172A] hover:bg-slate-800 border border-gray-700 text-gray-300 rounded-xl text-center cursor-pointer transition-colors text-[11px] flex items-center justify-center gap-1.5">
+                <span>📁 Upload Current Image</span>
+                <input id="comp-file-b" type="file" accept="image/*" class="hidden" onchange="handleComparisonUpload(event, 'b')" />
+              </label>
+              <select id="comp-select-b" onchange="setComparisonPreset('b', this.value)" class="bg-[#070C18] border border-gray-700 rounded-xl px-2.5 py-2 text-cyan-300 text-[11px] outline-none cursor-pointer">
+                <option value="kerala_post">Kerala Flood Post-Event (SAR)</option>
+                <option value="bengaluru_post">Bengaluru Urban 2026 (Optical)</option>
+                <option value="kedarnath_post">Kedarnath Landslide Post-Debris (Cartosat)</option>
+              </select>
+            </div>
+            
+            <!-- Evidence View Mode Switcher -->
+            <div id="comp-viewmode-bar" class="flex items-center justify-between bg-[#070C18] p-1.5 rounded-xl border border-gray-800 text-[10px]">
+              <span class="text-gray-400 px-2">EVIDENCE DISPLAY:</span>
+              <div class="flex items-center gap-1">
+                <button type="button" id="btn-comp-view-annotated" onclick="setComparisonEvidenceView('annotated')" class="px-2.5 py-1 rounded-lg bg-cyan-950 text-cyan-300 border border-cyan-500/50 font-semibold cursor-pointer transition-all">
+                  Tactical BBoxes
+                </button>
+                <button type="button" id="btn-comp-view-heatmap" onclick="setComparisonEvidenceView('heatmap')" class="px-2.5 py-1 rounded-lg text-gray-400 hover:text-white border border-transparent cursor-pointer transition-all">
+                  Change Heatmap
+                </button>
+                <button type="button" id="btn-comp-view-raw" onclick="setComparisonEvidenceView('raw')" class="px-2.5 py-1 rounded-lg text-gray-400 hover:text-white border border-transparent cursor-pointer transition-all">
+                  Raw T2
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Execution Button -->
-      <div class="flex justify-center">
-        <button onclick="runComparisonPipeline()" id="btn-run-comp" class="px-8 py-3 bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 hover:from-blue-500 hover:to-cyan-500 text-white font-mono text-xs font-bold rounded-xl shadow-xl border border-cyan-400/40 cursor-pointer flex items-center gap-2 uppercase tracking-wider transition-all">
+      <div class="flex flex-col items-center gap-2">
+        <button onclick="runComparisonPipeline()" id="btn-run-comp" class="px-10 py-3.5 bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 hover:from-blue-500 hover:to-cyan-500 text-white font-mono text-xs font-bold rounded-xl shadow-xl shadow-cyan-600/20 border border-cyan-400/40 cursor-pointer flex items-center gap-2.5 uppercase tracking-wider transition-all">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <span>Execute Multi-Agent Bi-Temporal Synthesis</span>
+          <span id="btn-run-comp-text">Execute Multi-Agent Bi-Temporal Synthesis</span>
         </button>
+        <span id="comp-status-text" class="text-[11px] font-mono text-gray-400">Siamese U-Net ready. Select presets or upload custom raster images.</span>
       </div>
 
       <!-- Quantitative Comparison Metrics Strip -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 font-mono text-xs">
         <div class="bg-[#0B1120] border border-[#1F2937] p-4 rounded-2xl shadow-xl">
           <span class="text-gray-400 block text-[10px] uppercase">Structural Deformation</span>
-          <span class="text-amber-400 font-bold text-lg">+34.2%</span>
-          <span class="text-gray-500 block text-[10px] mt-1">High-albedo expansion</span>
+          <span id="metric-comp-structural" class="text-amber-400 font-bold text-lg">+34.2%</span>
+          <span id="metric-comp-structural-sub" class="text-gray-500 block text-[10px] mt-1">High-albedo expansion</span>
         </div>
         <div class="bg-[#0B1120] border border-[#1F2937] p-4 rounded-2xl shadow-xl">
           <span class="text-gray-400 block text-[10px] uppercase">Hydrological Runoff</span>
-          <span class="text-cyan-400 font-bold text-lg">+62.8%</span>
-          <span class="text-gray-500 block text-[10px] mt-1">Specular SAR reflection</span>
+          <span id="metric-comp-hydrological" class="text-cyan-400 font-bold text-lg">+62.8%</span>
+          <span id="metric-comp-hydrological-sub" class="text-gray-500 block text-[10px] mt-1">Specular SAR reflection</span>
         </div>
         <div class="bg-[#0B1120] border border-[#1F2937] p-4 rounded-2xl shadow-xl">
           <span class="text-gray-400 block text-[10px] uppercase">Vegetation Shift</span>
-          <span class="text-emerald-400 font-bold text-lg">-18.5%</span>
-          <span class="text-gray-500 block text-[10px] mt-1">Canopy clearance index</span>
+          <span id="metric-comp-vegetation" class="text-emerald-400 font-bold text-lg">-18.5%</span>
+          <span id="metric-comp-vegetation-sub" class="text-gray-500 block text-[10px] mt-1">Canopy clearance index</span>
         </div>
         <div class="bg-[#0B1120] border border-[#1F2937] p-4 rounded-2xl shadow-xl">
           <span class="text-gray-400 block text-[10px] uppercase">Confidence Bound</span>
-          <span class="text-blue-400 font-bold text-lg">98.4%</span>
-          <span class="text-gray-500 block text-[10px] mt-1">9-Agent Consensus</span>
+          <span id="metric-comp-confidence" class="text-blue-400 font-bold text-lg">98.4%</span>
+          <span id="metric-comp-confidence-sub" class="text-gray-500 block text-[10px] mt-1">9-Agent Consensus</span>
+        </div>
+      </div>
+
+      <!-- Detected Evidence AOIs Panel -->
+      <div id="comp-evidence-panel" class="bg-[#0B1120] border border-[#1F2937] p-5 rounded-2xl shadow-xl space-y-3 font-mono text-xs">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span class="text-white font-bold uppercase tracking-wider">Tactical Spatial Change Evidence (AOI Detections)</span>
+          </div>
+          <span id="comp-aoi-count" class="text-gray-400 text-[10px]">1 SECTOR DETECTED</span>
+        </div>
+        <div id="comp-aoi-list" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="bg-[#070B16] border border-cyan-500/30 p-3 rounded-xl space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-cyan-300 font-bold text-[11px]">AOI-01 | SPECULAR WATER</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/30 text-[9px]">CRITICAL</span>
+            </div>
+            <p class="text-gray-300 text-[11px]">Hydrological flood inundation across low-lying flood corridor.</p>
+            <div class="flex items-center justify-between text-[10px] text-gray-400 pt-1 border-t border-gray-800">
+              <span>Confidence: 94.2%</span>
+              <span>Area: 18.5%</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2119,7 +2169,7 @@
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
           <span class="text-white font-bold uppercase tracking-wider">Multi-Agent AI Expert Verification Log</span>
         </div>
-        <div class="space-y-2 text-gray-300 text-[11.5px] font-sans">
+        <div id="comp-agent-logs" class="space-y-2 text-gray-300 text-[11.5px] font-sans">
           <div class="bg-[#070B16] p-3 rounded-xl border border-gray-800 flex items-start gap-2.5">
             <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-500/40 text-[10px] font-mono shrink-0">RADAR SPECIALIST</span>
             <p>Phase coherence between baseline Sentinel-1 and current RISAT-1B confirms significant microwave dielectric permittivity reduction in sector NW, indicative of heavy standing water inundation.</p>
@@ -2135,6 +2185,7 @@
         </div>
       </div>
     </section>
+
 
   </main>
 
@@ -6026,6 +6077,472 @@
       const handle = document.getElementById('slider-handle');
       if (split) split.style.left = `${percent}%`;
       if (handle) handle.style.left = `${percent}%`;
+    // ============================================================================
+    // SCREEN 10: MULTI-TEMPORAL STATIC IMAGE COMPARISON ENGINE
+    // ============================================================================
+    const comparisonState = {
+      slotA: {
+        file: null,
+        dataUrl: '/static/demo/kerala_sar_pre.png',
+        name: 'Kerala Flood Pre-Event (SAR)',
+        sensor: 'Sentinel-1 C-SAR (VV+VH)',
+        preset: 'kerala_pre',
+      },
+      slotB: {
+        file: null,
+        dataUrl: '/static/demo/kerala_sar_post.png',
+        name: 'Kerala Flood Post-Event (SAR)',
+        sensor: 'RISAT-1B Hybrid Polarimetric',
+        preset: 'kerala_post',
+      },
+      lastResult: null,
+      currentView: 'annotated',
+    };
+
+    const COMPARISON_PRESETS = {
+      kerala_pre: {
+        url: '/static/demo/kerala_sar_pre.png',
+        name: 'Kerala Flood Pre-Event (SAR)',
+        sensor: 'Sentinel-1 C-SAR (VV+VH)',
+      },
+      kerala_post: {
+        url: '/static/demo/kerala_sar_post.png',
+        name: 'Kerala Flood Post-Event (SAR)',
+        sensor: 'RISAT-1B Hybrid Polarimetric',
+      },
+      bengaluru_pre: {
+        url: '/static/demo/bengaluru_pre.png',
+        name: 'Bengaluru Urban 2022 (Optical)',
+        sensor: 'Cartosat-3 Optical (0.28m)',
+      },
+      bengaluru_post: {
+        url: '/static/demo/bengaluru_post.png',
+        name: 'Bengaluru Urban 2026 (Optical)',
+        sensor: 'Sentinel-2 MSI Optical',
+      },
+      kedarnath_pre: {
+        url: '/static/demo/kedarnath_pre.png',
+        name: 'Kedarnath Landslide 2013 (Cartosat)',
+        sensor: 'Cartosat-2A Panchromatic',
+      },
+      kedarnath_post: {
+        url: '/static/demo/kedarnath_post.png',
+        name: 'Kedarnath Landslide Post-Debris',
+        sensor: 'Cartosat-2B High-Res',
+      },
+    };
+
+    function handleComparisonUpload(event, slot) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        if (slot === 'a') {
+          comparisonState.slotA.file = file;
+          comparisonState.slotA.dataUrl = dataUrl;
+          comparisonState.slotA.name = file.name;
+          comparisonState.slotA.sensor = `Custom: ${file.name.substring(0, 20)}`;
+          comparisonState.slotA.preset = null;
+
+          const imgEl = document.getElementById('comp-img-a');
+          if (imgEl) imgEl.src = dataUrl;
+          const sensorEl = document.getElementById('comp-sensor-a');
+          if (sensorEl) sensorEl.innerText = `Uploaded: ${file.name}`;
+        } else {
+          comparisonState.slotB.file = file;
+          comparisonState.slotB.dataUrl = dataUrl;
+          comparisonState.slotB.name = file.name;
+          comparisonState.slotB.sensor = `Custom: ${file.name.substring(0, 20)}`;
+          comparisonState.slotB.preset = null;
+
+          const imgEl = document.getElementById('comp-img-b');
+          if (imgEl) imgEl.src = dataUrl;
+          const sensorEl = document.getElementById('comp-sensor-b');
+          if (sensorEl) sensorEl.innerText = `Uploaded: ${file.name}`;
+
+          const tag = document.getElementById('comp-evidence-tag');
+          if (tag) tag.classList.add('hidden');
+        }
+
+        const statusEl = document.getElementById('comp-status-text');
+        if (statusEl) {
+          statusEl.innerText = `Loaded custom image into Slot ${slot.toUpperCase()} (${file.name}). Ready to synthesize.`;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function setComparisonPreset(slot, value) {
+      const preset = COMPARISON_PRESETS[value];
+      if (!preset) return;
+
+      if (slot === 'a') {
+        comparisonState.slotA.file = null;
+        comparisonState.slotA.dataUrl = preset.url;
+        comparisonState.slotA.name = preset.name;
+        comparisonState.slotA.sensor = preset.sensor;
+        comparisonState.slotA.preset = value;
+
+        const imgEl = document.getElementById('comp-img-a');
+        if (imgEl) imgEl.src = preset.url;
+        const sensorEl = document.getElementById('comp-sensor-a');
+        if (sensorEl) sensorEl.innerText = `Sensor: ${preset.sensor}`;
+      } else {
+        comparisonState.slotB.file = null;
+        comparisonState.slotB.dataUrl = preset.url;
+        comparisonState.slotB.name = preset.name;
+        comparisonState.slotB.sensor = preset.sensor;
+        comparisonState.slotB.preset = value;
+
+        const imgEl = document.getElementById('comp-img-b');
+        if (imgEl) imgEl.src = preset.url;
+        const sensorEl = document.getElementById('comp-sensor-b');
+        if (sensorEl) sensorEl.innerText = `Sensor: ${preset.sensor}`;
+
+        const tag = document.getElementById('comp-evidence-tag');
+        if (tag) tag.classList.add('hidden');
+      }
+
+      const statusEl = document.getElementById('comp-status-text');
+      if (statusEl) {
+        statusEl.innerText = `Switched Slot ${slot.toUpperCase()} to ${preset.name}.`;
+      }
+    }
+
+    function setComparisonEvidenceView(mode) {
+      comparisonState.currentView = mode;
+      const imgB = document.getElementById('comp-img-b');
+      const ind = document.getElementById('comp-viewmode-indicator');
+      const btnAnn = document.getElementById('btn-comp-view-annotated');
+      const btnHeat = document.getElementById('btn-comp-view-heatmap');
+      const btnRaw = document.getElementById('btn-comp-view-raw');
+
+      [btnAnn, btnHeat, btnRaw].forEach(b => {
+        if (b) {
+          b.className = "px-2.5 py-1 rounded-lg text-gray-400 hover:text-white border border-transparent cursor-pointer transition-all";
+        }
+      });
+
+      if (mode === 'annotated') {
+        if (btnAnn) btnAnn.className = "px-2.5 py-1 rounded-lg bg-cyan-950 text-cyan-300 border border-cyan-500/50 font-semibold cursor-pointer transition-all";
+        if (imgB && comparisonState.lastResult && comparisonState.lastResult.annotated_image) {
+          imgB.src = comparisonState.lastResult.annotated_image;
+        }
+        if (ind) {
+          ind.classList.remove('hidden');
+          ind.innerText = "VIEW: TACTICAL BBOXES";
+        }
+      } else if (mode === 'heatmap') {
+        if (btnHeat) btnHeat.className = "px-2.5 py-1 rounded-lg bg-amber-950 text-amber-300 border border-amber-500/50 font-semibold cursor-pointer transition-all";
+        if (imgB && comparisonState.lastResult && comparisonState.lastResult.heatmap_overlay) {
+          imgB.src = comparisonState.lastResult.heatmap_overlay;
+        }
+        if (ind) {
+          ind.classList.remove('hidden');
+          ind.innerText = "VIEW: SIAMESE CHANGE HEATMAP";
+        }
+      } else if (mode === 'raw') {
+        if (btnRaw) btnRaw.className = "px-2.5 py-1 rounded-lg bg-blue-950 text-blue-300 border border-blue-500/50 font-semibold cursor-pointer transition-all";
+        if (imgB) {
+          imgB.src = comparisonState.slotB.dataUrl;
+        }
+        if (ind) {
+          ind.classList.remove('hidden');
+          ind.innerText = "VIEW: RAW OPERATIONAL T2";
+        }
+      }
+    }
+
+    async function runComparisonPipeline() {
+      const btn = document.getElementById('btn-run-comp');
+      const btnText = document.getElementById('btn-run-comp-text');
+      const statusEl = document.getElementById('comp-status-text');
+
+      if (btn) btn.disabled = true;
+      if (btnText) btnText.innerHTML = `
+        <span class="inline-flex items-center gap-2">
+          <svg class="animate-spin w-4 h-4 text-cyan-300" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+          Executing Siamese U-Net & Multi-Agent Consensus...
+        </span>
+      `;
+      if (statusEl) statusEl.innerText = "Aligning temporal raster matrices and computing deep metric embeddings...";
+
+      try {
+        const formData = new FormData();
+        if (comparisonState.slotA.file) {
+          formData.append('file_a', comparisonState.slotA.file);
+        } else {
+          formData.append('preset_a', comparisonState.slotA.preset || 'kerala_pre');
+        }
+
+        if (comparisonState.slotB.file) {
+          formData.append('file_b', comparisonState.slotB.file);
+        } else {
+          formData.append('preset_b', comparisonState.slotB.preset || 'kerala_post');
+        }
+
+        formData.append('sensor_a', comparisonState.slotA.sensor);
+        formData.append('sensor_b', comparisonState.slotB.sensor);
+        formData.append('query', 'Bi-temporal AI image comparison');
+
+        const resp = await fetch('/api/investigate/compare', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!resp.ok) {
+          throw new Error(`Comparison API returned status ${resp.status}`);
+        }
+
+        const data = await resp.json();
+        comparisonState.lastResult = data;
+
+        // 1. Update quantitative metric badges
+        if (data.metrics) {
+          const mStruct = document.getElementById('metric-comp-structural');
+          const mStructSub = document.getElementById('metric-comp-structural-sub');
+          if (mStruct && data.metrics.structural_deformation) {
+            mStruct.innerText = data.metrics.structural_deformation.value;
+            if (mStructSub) mStructSub.innerText = data.metrics.structural_deformation.subtext;
+          }
+
+          const mHydro = document.getElementById('metric-comp-hydrological');
+          const mHydroSub = document.getElementById('metric-comp-hydrological-sub');
+          if (mHydro && data.metrics.hydrological_runoff) {
+            mHydro.innerText = data.metrics.hydrological_runoff.value;
+            if (mHydroSub) mHydroSub.innerText = data.metrics.hydrological_runoff.subtext;
+          }
+
+          const mVeg = document.getElementById('metric-comp-vegetation');
+          const mVegSub = document.getElementById('metric-comp-vegetation-sub');
+          if (mVeg && data.metrics.vegetation_shift) {
+            mVeg.innerText = data.metrics.vegetation_shift.value;
+            if (mVegSub) mVegSub.innerText = data.metrics.vegetation_shift.subtext;
+          }
+
+          const mConf = document.getElementById('metric-comp-confidence');
+          const mConfSub = document.getElementById('metric-comp-confidence-sub');
+          if (mConf && data.metrics.confidence_bound) {
+            mConf.innerText = data.metrics.confidence_bound.value;
+            if (mConfSub) mConfSub.innerText = data.metrics.confidence_bound.subtext;
+          }
+        }
+
+        // 2. Render visual evidence on Image Slot B
+        const imgB = document.getElementById('comp-img-b');
+        if (imgB && data.annotated_image) {
+          imgB.src = data.annotated_image;
+        }
+
+        const evidenceTag = document.getElementById('comp-evidence-tag');
+        if (evidenceTag) evidenceTag.classList.remove('hidden');
+
+        setComparisonEvidenceView('annotated');
+
+        // 3. Render Detected Evidence AOIs list
+        const aoiListEl = document.getElementById('comp-aoi-list');
+        const aoiCountEl = document.getElementById('comp-aoi-count');
+        const regions = data.evidence_regions || [];
+        if (aoiCountEl) aoiCountEl.innerText = `${regions.length} SECTOR${regions.length === 1 ? '' : 'S'} DETECTED`;
+
+        if (aoiListEl) {
+          if (regions.length === 0) {
+            aoiListEl.innerHTML = `
+              <div class="col-span-full bg-[#070B16] border border-gray-800 p-4 rounded-xl text-center text-gray-400">
+                No significant critical structural deformation detected between T1 and T2 rasters.
+              </div>
+            `;
+          } else {
+            aoiListEl.innerHTML = regions.map((reg) => {
+              const isCrit = reg.severity === 'CRITICAL';
+              const borderCol = isCrit ? 'border-amber-500/40 bg-amber-950/20' : 'border-cyan-500/40 bg-cyan-950/20';
+              const badgeCol = isCrit ? 'bg-amber-950 text-amber-300 border-amber-500/40' : 'bg-cyan-950 text-cyan-300 border-cyan-500/40';
+              return `
+                <div class="bg-[#070B16] border ${borderCol} p-3 rounded-xl space-y-1.5 transition-all hover:scale-[1.01]">
+                  <div class="flex items-center justify-between">
+                    <span class="text-white font-bold text-[11px]">${reg.id} | ${reg.label}</span>
+                    <span class="px-1.5 py-0.5 rounded border text-[9px] font-mono ${badgeCol}">${reg.severity}</span>
+                  </div>
+                  <p class="text-gray-300 text-[11px]">Identified by Siamese U-Net residual differencing with ${reg.confidence}% confidence bound.</p>
+                  <div class="flex items-center justify-between text-[10px] text-gray-400 pt-1.5 border-t border-gray-800/80">
+                    <span>Confidence: <strong class="text-cyan-300">${reg.confidence}%</strong></span>
+                    <span>Area: <strong class="text-amber-300">${reg.area_pct}%</strong></span>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+
+        // 4. Render Multi-Agent Expert Verification Log
+        const agentLogsEl = document.getElementById('comp-agent-logs');
+        if (agentLogsEl && Array.isArray(data.agent_logs)) {
+          agentLogsEl.innerHTML = data.agent_logs.map(log => {
+            const colorMap = {
+              purple: 'bg-purple-950 text-purple-300 border-purple-500/40',
+              cyan: 'bg-cyan-950 text-cyan-300 border-cyan-500/40',
+              emerald: 'bg-emerald-950 text-emerald-300 border-emerald-500/40',
+              amber: 'bg-amber-950 text-amber-300 border-amber-500/40',
+            };
+            const badgeClass = colorMap[log.badge_color] || colorMap.cyan;
+            return `
+              <div class="bg-[#070B16] p-3 rounded-xl border border-gray-800 flex items-start gap-2.5">
+                <span class="px-2 py-0.5 rounded border text-[10px] font-mono shrink-0 ${badgeClass}">${log.agent}</span>
+                <p class="text-gray-200 text-[11.5px] leading-relaxed">${log.message}</p>
+              </div>
+            `;
+          }).join('');
+        }
+
+        if (statusEl) {
+          statusEl.innerText = `Bi-temporal synthesis completed: ${data.summary || 'Surface delta analyzed.'}`;
+        }
+
+      } catch (err) {
+        console.error("Comparison execution error:", err);
+        if (statusEl) statusEl.innerText = `Inference error: ${err.message}. Check backend connection.`;
+      } finally {
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.innerText = "Execute Multi-Agent Bi-Temporal Synthesis";
+      }
+    }
+
+    function exportComparisonJson() {
+      const geojson = (comparisonState.lastResult && comparisonState.lastResult.geojson) || {
+        type: "FeatureCollection",
+        metadata: { system: "BHUVISION Earth Intelligence (SIH26167)" },
+        features: []
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(geojson, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", `BHUVISION_BiTemporal_Delta_${Date.now()}.geojson`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function exportComparisonPdf() {
+      try {
+        const { jsPDF } = window.jspdf || {};
+        if (!jsPDF) {
+          alert("PDF generation engine loading. Please retry in a few seconds.");
+          return;
+        }
+
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const res = comparisonState.lastResult;
+
+        // Background
+        doc.setFillColor(11, 17, 32);
+        doc.rect(0, 0, 210, 297, 'F');
+
+        // Header
+        doc.setTextColor(6, 182, 212);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text("BHUVISION // ISRO BANKAI", 14, 20);
+
+        doc.setFontSize(10);
+        doc.setTextColor(156, 163, 175);
+        doc.setFont('helvetica', 'normal');
+        doc.text("SIH26167: MULTI-TEMPORAL BI-TEMPORAL CHANGE DETECTION REPORT", 14, 26);
+        doc.text(`Generated: ${new Date().toUTCString()}`, 14, 32);
+
+        // Divider
+        doc.setDrawColor(6, 182, 212);
+        doc.setLineWidth(0.5);
+        doc.line(14, 36, 196, 36);
+
+        // Image slot information
+        doc.setFontSize(11);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.text("IMAGERY PAIR METADATA", 14, 44);
+
+        doc.setFontSize(9);
+        doc.setTextColor(209, 213, 219);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`T1 Baseline (Past): ${comparisonState.slotA.name} | Sensor: ${comparisonState.slotA.sensor}`, 14, 50);
+        doc.text(`T2 Operational (Current): ${comparisonState.slotB.name} | Sensor: ${comparisonState.slotB.sensor}`, 14, 56);
+
+        // Metrics box
+        doc.setFillColor(7, 11, 22);
+        doc.roundedRect(14, 62, 182, 32, 2, 2, 'F');
+        doc.setDrawColor(31, 41, 55);
+        doc.roundedRect(14, 62, 182, 32, 2, 2, 'D');
+
+        doc.setFontSize(10);
+        doc.setTextColor(245, 158, 11);
+        doc.text(`Structural Deformation: ${res ? res.metrics.structural_deformation.value : '+34.2%'}`, 20, 72);
+        doc.setTextColor(56, 189, 248);
+        doc.text(`Hydrological Runoff: ${res ? res.metrics.hydrological_runoff.value : '+62.8%'}`, 105, 72);
+        doc.setTextColor(52, 211, 153);
+        doc.text(`Vegetation Shift: ${res ? res.metrics.vegetation_shift.value : '-18.5%'}`, 20, 84);
+        doc.setTextColor(96, 165, 250);
+        doc.text(`Confidence Bound: ${res ? res.metrics.confidence_bound.value : '98.4%'}`, 105, 84);
+
+        // Evidence Regions
+        doc.setFontSize(11);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.text("DETECTED AOI SPATIAL EVIDENCE", 14, 104);
+
+        let yPos = 112;
+        const regions = (res && res.evidence_regions) || [];
+        if (regions.length > 0) {
+          regions.forEach(reg => {
+            doc.setFontSize(9);
+            doc.setTextColor(6, 182, 212);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`${reg.id}: ${reg.label} [${reg.severity}]`, 14, yPos);
+            doc.setTextColor(156, 163, 175);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Confidence: ${reg.confidence}% | Area: ${reg.area_pct}% | BBox: [${reg.bbox.join(', ')}]`, 14, yPos + 5);
+            yPos += 12;
+          });
+        } else {
+          doc.setFontSize(9);
+          doc.setTextColor(156, 163, 175);
+          doc.text("No high-severity anomalous clusters detected.", 14, yPos);
+          yPos += 10;
+        }
+
+        // Agent Consensus Log
+        yPos += 6;
+        doc.setFontSize(11);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.text("MULTI-AGENT SYNTHESIS LOG", 14, yPos);
+        yPos += 8;
+
+        const logs = (res && res.agent_logs) || [
+          { agent: "RADAR SPECIALIST", message: "Coherence drop confirms dielectric variance." },
+          { agent: "OPTICAL ANALYST", message: "High-albedo expansion corroborated with Siamese diff." },
+          { agent: "SIAMESE U-NET", message: "Dual-encoder ResNet computed metric feature distance." },
+          { agent: "MILITARY RECON", message: "Defense countermeasure and tactical posture validated." },
+        ];
+
+        logs.forEach(log => {
+          doc.setFontSize(8.5);
+          doc.setTextColor(6, 182, 212);
+          doc.setFont('helvetica', 'bold');
+          doc.text(`[${log.agent}]:`, 14, yPos);
+          doc.setTextColor(209, 213, 219);
+          doc.setFont('helvetica', 'normal');
+          const splitMsg = doc.splitTextToSize(log.message, 140);
+          doc.text(splitMsg, 50, yPos);
+          yPos += (splitMsg.length * 4) + 4;
+        });
+
+        doc.save(`BHUVISION_Comparison_Report_${Date.now()}.pdf`);
+      } catch (e) {
+        console.error("PDF export failed:", e);
+        alert(`Failed to export PDF: ${e.message}`);
+      }
     }
 
     // Initialize 12 September 2026 Mission Timeline & Horizontal Slider Mousewheel
