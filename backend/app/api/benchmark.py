@@ -231,7 +231,6 @@ async def reset_benchmark_protocol() -> dict[str, Any]:
 
     return BENCHMARK_STATE
 
-
 METRIC_DETAILS: dict[str, dict[str, Any]] = {
     "vqa_acc": {
         "id": "vqa_acc",

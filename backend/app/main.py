@@ -135,7 +135,7 @@ app.include_router(sar_reader_router, prefix="/api")
 
 @app.get("/", tags=["Root"])
 async def get_root(request: Request):
-    """System banner and metadata with browser frontend content negotiation."""
+    """Serves the interactive cockpit for browser requests, or JSON banner for API clients."""
     accept = request.headers.get("accept", "")
     if "text/html" in accept:
         preview_file = (PROJECT_ROOT / "index.html") if (PROJECT_ROOT / "index.html").exists() else (PROJECT_ROOT / "bhuvision_preview.html")
@@ -173,6 +173,7 @@ async def get_manifest():
 NEXTJS_CANDIDATE_URLS = [
     "http://127.0.0.1:3000",
     "http://localhost:3000",
+    "http://[::1]:3000",
 ]
 
 _MIME_TYPES = {
@@ -193,7 +194,7 @@ _MIME_TYPES = {
 
 import asyncio
 
-async def _is_nextjs_live(port: int = 3000, timeout: float = 0.05) -> bool:
+async def _is_nextjs_live(port: int = 3000, timeout: float = 0.1) -> bool:
     """Non-blocking async TCP probe to verify if Next.js dev server is running on port 3000."""
     try:
         _, writer = await asyncio.wait_for(
@@ -209,7 +210,6 @@ async def _is_nextjs_live(port: int = 3000, timeout: float = 0.05) -> bool:
     except Exception:
         return False
 
-
 async def _proxy_to_nextjs(request: Request, target_path: str) -> Response:
     """Proxy request to Next.js server with fallback to pre-built Next.js assets or preview HTML."""
     query_string = f"?{request.url.query}" if request.url.query else ""
@@ -219,18 +219,18 @@ async def _proxy_to_nextjs(request: Request, target_path: str) -> Response:
         for base_url in NEXTJS_CANDIDATE_URLS:
             target_url = f"{base_url}{target_path}{query_string}"
             try:
-                async with httpx.AsyncClient(timeout=httpx.Timeout(0.8, connect=0.15)) as client:
-                    req_headers = {
+                req_headers = {
                     k: v for k, v in request.headers.items()
                     if k.lower() not in ("host", "content-length", "content-encoding")
                 }
-                body = await request.body() if request.method in ("POST", "PUT", "PATCH") else None
-                resp = await client.request(
-                    method=request.method,
-                    url=target_url,
-                    headers=req_headers,
-                    content=body,
-                )
+                async with httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=1.0)) as client:
+                    body = await request.body() if request.method in ("POST", "PUT", "PATCH") else None
+                    resp = await client.request(
+                        method=request.method,
+                        url=target_url,
+                        headers=req_headers,
+                        content=body,
+                    )
                 excluded_headers = {"content-encoding", "content-length", "transfer-encoding", "connection"}
                 headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded_headers}
                 # Prevent browser caching of HTML so edits on localhost:3000 show immediately on :8000/app
@@ -243,7 +243,7 @@ async def _proxy_to_nextjs(request: Request, target_path: str) -> Response:
                 continue
 
     # 2. Fallback to locally built Next.js production output if Next.js dev server is not reachable
-    frontend_dir = PROJECT_ROOT / "frontend"
+    frontend_dir = (PROJECT_ROOT / "frontend") if (PROJECT_ROOT / "frontend").exists() else (Path(__file__).resolve().parents[2] / "frontend")
     next_dir = frontend_dir / ".next"
 
     if target_path.startswith("/_next/"):

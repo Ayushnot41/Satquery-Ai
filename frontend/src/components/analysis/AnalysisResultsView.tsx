@@ -226,7 +226,7 @@ export function AnalysisResultsView({ result: propResult, onBack }: AnalysisResu
   return (
     <>
       <PdfReportTemplate ref={workspaceRef} result={result} sarMetrics={sarMetrics as Record<string, string | number>} />
-      
+
       <div className="w-full max-w-7xl mx-auto p-6 space-y-5 text-white select-none relative z-10">
         {/* ─── Export & Demo switcher ─────────────────────────────── */}
       <div className="flex items-center justify-end gap-3">

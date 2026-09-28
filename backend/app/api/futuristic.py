@@ -83,7 +83,7 @@ async def segment_anything_geospatial(
             cy = 0.25 + ((i % 2) * 0.25) + float(rng.uniform(-0.02, 0.02))
             w = float(rng.uniform(0.10, 0.16))
             h = float(rng.uniform(0.08, 0.14))
-            
+
             # Geodesic area calculation: width_m * height_m on 512x512 tile
             w_m = w * 512 * resolution_m
             h_m = h * 512 * resolution_m
@@ -545,7 +545,6 @@ async def get_agent_debate_protocol(
             final_confidence=0.934,
             overruled_sensor="Optical Sensor (Cloud Cover Obscuration)"
         )
-
 
 
 # Direct /api/debate router alias for frontend compatibility

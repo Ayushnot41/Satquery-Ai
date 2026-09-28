@@ -19,7 +19,6 @@ export function EvaluationView() {
   const [isDrawerLoading, setIsDrawerLoading] = useState<boolean>(false);
   const [sampleTestResult, setSampleTestResult] = useState<any | null>(null);
   const [isTestingSample, setIsTestingSample] = useState<boolean>(false);
-
   const loadProtocol = async () => {
     try {
       const data = await fetchBenchmarkProtocol();
@@ -59,7 +58,6 @@ export function EvaluationView() {
       setIsTestingSample(false);
     }
   };
-
   const handleRunEvaluation = async () => {
     setIsRunning(true);
     setToastMessage("Deploying test splits across FastAPI compute pipeline...");
@@ -238,6 +236,7 @@ export function EvaluationView() {
                     )}
                   </div>
 
+
                   <div>
                     {metric.value ? (
                       <div className="flex items-center gap-1.5">
@@ -265,7 +264,7 @@ export function EvaluationView() {
       {selectedMetric && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono select-none">
           <div className="w-full max-w-2xl bg-[#0A0F1C] border border-cyan-500/40 rounded-2xl shadow-2xl shadow-cyan-950/60 overflow-hidden flex flex-col max-h-[90vh]">
-            
+
             {/* Modal Header */}
             <div className="p-5 bg-[#070B14] border-b border-[#1F2937] flex items-center justify-between">
               <div>
@@ -409,6 +408,7 @@ export function EvaluationView() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

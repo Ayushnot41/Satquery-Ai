@@ -1,6 +1,9 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
-from app.main import app
+try:
+    from app.main import app
+except ImportError:
+    from backend.app.main import app
 
 
 @pytest.mark.asyncio

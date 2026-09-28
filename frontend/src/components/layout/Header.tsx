@@ -13,6 +13,7 @@ export type AppTab =
   | "analysis_results"
   | "new_analysis"
   | "history"
+  | "registry"
   | "image_compare"
   | "defense_ops"
   | "sar_reader"
@@ -134,6 +135,37 @@ export function Header({
             Disaster Corridor
           </button>
           <button
+            onClick={() => setActiveTab("new_analysis")}
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "new_analysis"
+                ? "bg-cyan-600 text-white shadow-sm shadow-cyan-500/20"
+                : "text-cyan-300 hover:text-white hover:bg-cyan-950/40"
+            }`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            New Analysis
+          </button>
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+              activeTab === "history"
+                ? "bg-[#3B82F6] text-white shadow-sm"
+                : "text-gray-300 hover:text-white hover:bg-gray-800/60"
+            }`}
+          >
+            Analysis History
+          </button>
+          <button
+            onClick={() => setActiveTab("registry")}
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+              activeTab === "registry"
+                ? "bg-sky-600 text-white shadow-sm"
+                : "text-sky-300 hover:text-white hover:bg-sky-950/40"
+            }`}
+          >
+            Satellite Registry
+          </button>
+          <button
             onClick={() => setActiveTab("mission_view")}
             className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer shrink-0 ${
               activeTab === "mission_view"
@@ -171,7 +203,7 @@ export function Header({
                 : "text-gray-300 hover:text-white hover:bg-gray-800/60"
             }`}
           >
-            Benchmark
+            Benchmark & Eval
           </button>
           <button
             onClick={() => setActiveTab("history")}

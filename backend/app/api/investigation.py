@@ -6,10 +6,9 @@ import math
 from datetime import datetime, timezone
 import uuid
 from pathlib import Path
-from typing import Any
-
+from typing import Any, Optional
 import numpy as np
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile, Request
 from pydantic import BaseModel
 from PIL import Image
 
@@ -17,6 +16,7 @@ from ..agents.orchestrator import InvestigationOrchestrator
 from ..api.imagery import IMAGERY_REGISTRY
 from ..core.config import settings
 from ..geospatial.raster import extract_metadata
+from ..services.image_comparison import perform_bi_temporal_comparison
 from ..models.base import VLMBackend
 from ..models.demo_backend import DemoBackend
 from ..models.gateway_backend import GatewayBackend
@@ -420,4 +420,90 @@ async def clear_cache() -> dict[str, Any]:
     INVESTIGATION_CACHE.clear()
     _seed_default_history()
     return {"status": "cleared", "total_records": len(INVESTIGATION_CACHE)}
+
+
+class BiTemporalCompareRequest(BaseModel):
+    image_a: Optional[str] = None
+    image_b: Optional[str] = None
+    preset_a: Optional[str] = None
+    preset_b: Optional[str] = None
+    sensor_a: Optional[str] = "Sentinel-1 C-SAR (VV+VH)"
+    sensor_b: Optional[str] = "RISAT-1B Hybrid Polarimetric"
+    query: Optional[str] = "Analyze bi-temporal changes between past and current imagery"
+
+
+@router.post("/compare")
+async def compare_imagery(
+    request: Request,
+    file_a: Optional[UploadFile] = File(None),
+    file_b: Optional[UploadFile] = File(None),
+    preset_a: Optional[str] = Form(None),
+    preset_b: Optional[str] = Form(None),
+    sensor_a: Optional[str] = Form(None),
+    sensor_b: Optional[str] = Form(None),
+    query: Optional[str] = Form(None),
+) -> dict[str, Any]:
+    """Execute Siamese U-Net bi-temporal change comparison with multi-agent evidence synthesis."""
+    content_type = request.headers.get("content-type", "")
+    source_a = None
+    source_b = None
+    resolved_sensor_a = sensor_a or "Sentinel-1 C-SAR (VV+VH)"
+    resolved_sensor_b = sensor_b or "RISAT-1B Hybrid Polarimetric"
+    resolved_query = query or "Analyze bi-temporal changes between past and current imagery"
+
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+            source_a = body.get("image_a") or body.get("preset_a") or "kerala_pre"
+            source_b = body.get("image_b") or body.get("preset_b") or "kerala_post"
+            resolved_sensor_a = body.get("sensor_a") or resolved_sensor_a
+            resolved_sensor_b = body.get("sensor_b") or resolved_sensor_b
+            resolved_query = body.get("query") or resolved_query
+        except Exception:
+            pass
+
+    if source_a is None:
+        if file_a is not None and file_a.filename:
+            source_a = await file_a.read()
+        elif preset_a:
+            source_a = preset_a
+        else:
+            source_a = "kerala_pre"
+
+    if source_b is None:
+        if file_b is not None and file_b.filename:
+            source_b = await file_b.read()
+        elif preset_b:
+            source_b = preset_b
+        else:
+            source_b = "kerala_post"
+
+    try:
+        return perform_bi_temporal_comparison(
+            source_a=source_a,
+            source_b=source_b,
+            sensor_a=resolved_sensor_a,
+            sensor_b=resolved_sensor_b,
+            query=resolved_query,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Comparison pipeline failed: {str(e)}")
+
+
+@router.post("/compare-json")
+async def compare_imagery_json(payload: BiTemporalCompareRequest) -> dict[str, Any]:
+    """JSON entrypoint for Siamese U-Net bi-temporal comparison."""
+    source_a = payload.image_a or payload.preset_a or "kerala_pre"
+    source_b = payload.image_b or payload.preset_b or "kerala_post"
+    try:
+        return perform_bi_temporal_comparison(
+            source_a=source_a,
+            source_b=source_b,
+            sensor_a=payload.sensor_a or "Sentinel-1 C-SAR (VV+VH)",
+            sensor_b=payload.sensor_b or "RISAT-1B Hybrid Polarimetric",
+            query=payload.query or "Analyze bi-temporal changes between past and current imagery",
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Comparison pipeline failed: {str(e)}")
+
 

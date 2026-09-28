@@ -33,6 +33,19 @@ export function InvestigationWorkspace({
   const [isExportingData, setIsExportingData] = useState<boolean>(false);
   const pdfTemplateRef = React.useRef<HTMLDivElement>(null);
 
+  // Selected geographic location state for live satellite viewport
+  const [currentLocation, setCurrentLocation] = useState<{
+    name: string;
+    lat: number;
+    lon: number;
+    zoom: number;
+  }>({
+    name: "NCR Delhi Urban Fringe",
+    lat: 28.6139,
+    lon: 77.209,
+    zoom: 13,
+  });
+
   const exportToPDF = async () => {
     if (!pdfTemplateRef.current) return;
     setIsExportingPdf(true);
@@ -136,19 +149,6 @@ export function InvestigationWorkspace({
       setTimeout(() => setIsExportingData(false), 600);
     }
   };
-
-  // Selected geographic location state for live satellite viewport
-  const [currentLocation, setCurrentLocation] = useState<{
-    name: string;
-    lat: number;
-    lon: number;
-    zoom: number;
-  }>({
-    name: "NCR Delhi Urban Fringe",
-    lat: 28.6139,
-    lon: 77.209,
-    zoom: 13,
-  });
 
   const scenarios: DemoScenario[] = [
     {
@@ -418,6 +418,7 @@ export function InvestigationWorkspace({
         isOpen={showTraceModal}
         onClose={() => setShowTraceModal(false)}
       />
+
 
       {/* ─── View Full Results CTA & PDF/DATA EXPORT ─────────────────────────────── */}
       {investigation && investigation.status === "complete" && (

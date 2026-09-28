@@ -18,21 +18,54 @@ export async function runInvestigation(
   imageryIds?: string[],
   mode: string = "auto"
 ): Promise<InvestigationResponse> {
-  const body =
-    typeof questionOrPayload === "string"
-      ? {
-          question: questionOrPayload,
-          imagery_ids: imageryIds || ["demo-construction-before", "demo-construction-after"],
-          mode,
-        }
-      : questionOrPayload;
+  let body: Record<string, unknown>;
+
+  if (typeof questionOrPayload === "string") {
+    const rawMode = (mode || "auto").toLowerCase();
+    const normalizedMode =
+      rawMode === "bi_temporal" ? "temporal" :
+      rawMode === "single_image" ? "optical" :
+      rawMode === "optical_sar" ? "sar" :
+      rawMode;
+
+    const finalQuery = questionOrPayload.trim() || "Analyze bi-temporal changes between past and current imagery";
+    const finalImageryIds = imageryIds && imageryIds.length > 0 ? imageryIds : ["demo-construction-before", "demo-construction-after"];
+
+    body = {
+      question: finalQuery,
+      imagery_ids: finalImageryIds,
+      mode: normalizedMode,
+    };
+  } else {
+    body = { ...questionOrPayload };
+    if (typeof body.mode === "string") {
+      const rm = (body.mode as string).toLowerCase();
+      if (rm === "bi_temporal") body.mode = "temporal";
+      else if (rm === "single_image") body.mode = "optical";
+      else if (rm === "optical_sar") body.mode = "sar";
+    }
+    if (!body.question || typeof body.question !== "string" || !(body.question as string).trim()) {
+      body.question = "Analyze bi-temporal changes between past and current imagery";
+    }
+  }
 
   const res = await fetch(`${API_BASE}/investigate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`Investigation failed: ${res.statusText}`);
+
+  if (!res.ok) {
+    let errorDetail = res.statusText;
+    try {
+      const errJson = await res.json();
+      if (errJson && errJson.detail) {
+        errorDetail = typeof errJson.detail === "string" ? errJson.detail : JSON.stringify(errJson.detail);
+      }
+    } catch {}
+    throw new Error(`Investigation failed: ${errorDetail}`);
+  }
+
   return await res.json();
 }
 
@@ -343,6 +376,7 @@ export async function resetBenchmarkProtocol(): Promise<BenchmarkProtocolState> 
   }
 }
 
+
 export async function fetchMetricDetail(metricId: string): Promise<any> {
   try {
     const res = await fetch(`${API_BASE}/benchmark/metric/${metricId}`);
@@ -523,4 +557,3 @@ export async function getGuestTokenApi(clearanceLevel: string = "Level 2: Field 
     };
   }
 }
-

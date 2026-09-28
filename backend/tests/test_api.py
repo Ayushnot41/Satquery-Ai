@@ -166,14 +166,17 @@ async def test_map_providers_and_nasa_layers():
 
 @pytest.mark.asyncio
 async def test_authentication_suite():
+    import time
     from app.api.auth import DEMO_USERS_DB
+    test_email = f"chandra_{int(time.time())}@isro.gov.in"
     DEMO_USERS_DB.pop("chandra@isro.gov.in", None)
+    DEMO_USERS_DB.pop(test_email, None)
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         # 1. Email Registration
         reg_payload = {
             "name": "Dr. Subrahmanyan Chandrasekhar",
-            "email": "chandra@isro.gov.in",
+            "email": test_email,
             "password": "Astrophysics2026!",
             "phone": "+919811223344",
             "organization": "ISRO Deep Space Network",
@@ -183,13 +186,13 @@ async def test_authentication_suite():
         assert r_reg.status_code == 200
         reg_data = r_reg.json()
         assert "access_token" in reg_data
-        assert reg_data["user"]["email"] == "chandra@isro.gov.in"
+        assert reg_data["user"]["email"] == test_email
         assert reg_data["user"]["clearance_level"] == "LEVEL_4_TOP_SECRET"
         token = reg_data["access_token"]
 
         # 2. Email Login
         login_payload = {
-            "email": "chandra@isro.gov.in",
+            "email": test_email,
             "password": "Astrophysics2026!",
         }
         r_login = await client.post("/api/auth/login", json=login_payload)

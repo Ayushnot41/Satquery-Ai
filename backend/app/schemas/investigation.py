@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from .agents import (
     ChangeResult,
@@ -29,6 +29,11 @@ class InvestigationMode(str, Enum):
     OPTICAL = "optical"
     SAR = "sar"
     TEMPORAL = "temporal"
+    BI_TEMPORAL = "bi_temporal"
+    SINGLE_IMAGE = "single_image"
+    OPTICAL_SAR = "optical_sar"
+    SINGLE = "single"
+    FUSION = "fusion"
 
 
 class InvestigationStatus(str, Enum):
@@ -47,12 +52,51 @@ class InvestigationStatus(str, Enum):
 
 class InvestigationRequest(BaseModel):
     """Request to start an investigation."""
-    question: str = Field(..., min_length=3, max_length=2000)
-    imagery_ids: list[str] = Field(..., min_length=1, max_length=10)
+    question: str = Field(default="Analyze satellite imagery features", max_length=2000)
+    query: str | None = Field(default=None, description="Optional alias for question")
+    imagery_ids: list[str] = Field(
+        default_factory=lambda: ["demo-construction-before", "demo-construction-after"],
+        max_length=10,
+    )
     mode: InvestigationMode = InvestigationMode.AUTO
     demo_scenario: str | None = Field(
         None, description="If set, use deterministic demo data for this scenario"
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_request(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            # Resolve question from query or prompt if needed
+            q = data.get("question") or data.get("query") or data.get("prompt")
+            if q and str(q).strip():
+                data["question"] = str(q).strip()
+            elif not data.get("question"):
+                data["question"] = "Analyze satellite imagery features"
+
+            # Resolve imagery_ids from input_ids, images, or default
+            raw_ids = data.get("imagery_ids") or data.get("input_ids") or data.get("images") or data.get("imageryIds")
+            if isinstance(raw_ids, str):
+                data["imagery_ids"] = [raw_ids]
+            elif isinstance(raw_ids, list) and raw_ids:
+                data["imagery_ids"] = [str(x) for x in raw_ids if x]
+            else:
+                data["imagery_ids"] = ["demo-construction-before", "demo-construction-after"]
+
+            # Normalize mode string to lowercase
+            m = data.get("mode")
+            if isinstance(m, str):
+                norm_m = m.lower().strip()
+                if norm_m in ("temporal", "bi_temporal", "change_detection"):
+                    data["mode"] = InvestigationMode.BI_TEMPORAL
+                elif norm_m in ("optical", "single_image", "single"):
+                    data["mode"] = InvestigationMode.OPTICAL
+                elif norm_m in ("sar", "optical_sar", "fusion"):
+                    data["mode"] = InvestigationMode.SAR
+                else:
+                    data["mode"] = InvestigationMode.AUTO
+
+        return data
 
 
 class AgentStatusUpdate(BaseModel):
