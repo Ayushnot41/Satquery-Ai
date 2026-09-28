@@ -5,6 +5,8 @@ import {
   fetchBenchmarkProtocol,
   runBenchmarkSuite,
   resetBenchmarkProtocol,
+  fetchMetricDetail,
+  testBenchmarkSample,
   BenchmarkProtocolState,
 } from "../../lib/api";
 
@@ -13,6 +15,10 @@ export function EvaluationView() {
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const [selectedMetric, setSelectedMetric] = useState<any | null>(null);
+  const [isDrawerLoading, setIsDrawerLoading] = useState<boolean>(false);
+  const [sampleTestResult, setSampleTestResult] = useState<any | null>(null);
+  const [isTestingSample, setIsTestingSample] = useState<boolean>(false);
   const loadProtocol = async () => {
     try {
       const data = await fetchBenchmarkProtocol();
@@ -26,6 +32,32 @@ export function EvaluationView() {
     loadProtocol();
   }, []);
 
+  const handleInspectMetric = async (metricId: string) => {
+    setIsDrawerLoading(true);
+    setSampleTestResult(null);
+    try {
+      const data = await fetchMetricDetail(metricId);
+      if (data?.metric) {
+        setSelectedMetric(data.metric);
+      }
+    } catch (err) {
+      console.error("Metric inspection failed:", err);
+    } finally {
+      setIsDrawerLoading(false);
+    }
+  };
+
+  const handleRunSampleTest = async (metricId: string) => {
+    setIsTestingSample(true);
+    try {
+      const res = await testBenchmarkSample(metricId);
+      setSampleTestResult(res);
+    } catch (err) {
+      console.error("Sample test failed:", err);
+    } finally {
+      setIsTestingSample(false);
+    }
+  };
   const handleRunEvaluation = async () => {
     setIsRunning(true);
     setToastMessage("Deploying test splits across FastAPI compute pipeline...");
@@ -181,12 +213,19 @@ export function EvaluationView() {
               {cat.metrics.map((metric) => (
                 <div
                   key={metric.id}
-                  className="bg-[#0A0F1C] border border-[#1F2937] hover:border-gray-700 rounded-lg p-3.5 flex items-center justify-between transition-colors"
+                  onClick={() => handleInspectMetric(metric.id)}
+                  title="Click to view deep formula, baselines, confusion matrix & run sample test"
+                  className="bg-[#0A0F1C] border border-[#1F2937] hover:border-cyan-500/60 hover:bg-[#0E1729] rounded-lg p-3.5 flex items-center justify-between transition-all cursor-pointer group"
                 >
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-mono font-bold text-white">
-                      {metric.name}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-white group-hover:text-cyan-300 transition-colors">
+                        {metric.name}
+                      </span>
+                      <span className="text-[9px] font-mono text-cyan-500/70 group-hover:text-cyan-400">
+                        [Click to Inspect]
+                      </span>
+                    </div>
                     <span className="text-[10px] font-mono text-gray-500">
                       Dataset: {metric.dataset}
                     </span>
@@ -196,6 +235,7 @@ export function EvaluationView() {
                       </span>
                     )}
                   </div>
+
 
                   <div>
                     {metric.value ? (
@@ -208,7 +248,7 @@ export function EvaluationView() {
                         </span>
                       </div>
                     ) : (
-                      <span className="px-3 py-1 rounded text-xs font-mono text-gray-500 bg-[#111827] border border-[#1F2937] shadow-inner">
+                      <span className="px-3 py-1 rounded text-xs font-mono text-gray-500 bg-[#111827] border border-[#1F2937] shadow-inner group-hover:border-cyan-500/40">
                         Not evaluated yet
                       </span>
                     )}
@@ -219,6 +259,156 @@ export function EvaluationView() {
           </div>
         ))}
       </div>
+
+      {/* ================= INTERACTIVE METRIC DETAIL MODAL ================= */}
+      {selectedMetric && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-mono select-none">
+          <div className="w-full max-w-2xl bg-[#0A0F1C] border border-cyan-500/40 rounded-2xl shadow-2xl shadow-cyan-950/60 overflow-hidden flex flex-col max-h-[90vh]">
+
+            {/* Modal Header */}
+            <div className="p-5 bg-[#070B14] border-b border-[#1F2937] flex items-center justify-between">
+              <div>
+                <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider block">
+                  {selectedMetric.category} &bull; {selectedMetric.dataset}
+                </span>
+                <h2 className="text-lg font-bold text-white mt-0.5">
+                  Metric: {selectedMetric.name} Diagnostics
+                </h2>
+              </div>
+              <button
+                onClick={() => setSelectedMetric(null)}
+                className="w-8 h-8 rounded-lg bg-[#111827] hover:bg-[#1F2937] text-gray-400 hover:text-white flex items-center justify-center text-sm cursor-pointer transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Content Body */}
+            <div className="p-6 overflow-y-auto space-y-4 text-xs">
+              {/* Formula & Scientific Description */}
+              <div className="bg-[#070B14] border border-[#1F2937] p-4 rounded-xl space-y-2">
+                <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">
+                  Mathematical Formulation
+                </span>
+                <div className="text-cyan-300 font-bold text-sm bg-[#111827] p-2.5 rounded-lg border border-[#1F2937]">
+                  {selectedMetric.formula}
+                </div>
+                <p className="text-gray-300 text-[11px] leading-relaxed pt-1">
+                  {selectedMetric.scientific_rationale}
+                </p>
+              </div>
+
+              {/* Baseline Comparison Grid */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-[#070B14] p-3 rounded-xl border border-cyan-500/40">
+                  <div className="text-[10px] text-gray-400 uppercase">SatQuery Score</div>
+                  <div className="text-base font-bold text-cyan-300 mt-1">{selectedMetric.score_satquery}</div>
+                  <div className="text-[9px] text-emerald-400 font-bold mt-0.5">{selectedMetric.gain}</div>
+                </div>
+                <div className="bg-[#070B14] p-3 rounded-xl border border-[#1F2937]">
+                  <div className="text-[10px] text-gray-400 uppercase">Single VLM Baseline</div>
+                  <div className="text-base font-bold text-gray-300 mt-1">{selectedMetric.baseline_single_vlm}</div>
+                  <div className="text-[9px] text-gray-500 mt-0.5">Standalone VLM</div>
+                </div>
+                <div className="bg-[#070B14] p-3 rounded-xl border border-[#1F2937]">
+                  <div className="text-[10px] text-gray-400 uppercase">GeoChat Baseline</div>
+                  <div className="text-base font-bold text-gray-300 mt-1">{selectedMetric.baseline_geochat}</div>
+                  <div className="text-[9px] text-gray-500 mt-0.5">Standard GeoChat</div>
+                </div>
+              </div>
+
+              {/* Confusion Matrix Table */}
+              {selectedMetric.confusion_matrix && (
+                <div className="bg-[#070B14] p-4 rounded-xl border border-[#1F2937] space-y-2">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">
+                    Validation Confusion Matrix Split
+                  </span>
+                  <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                    <div className="bg-[#111827] p-2.5 rounded border border-emerald-500/30">
+                      <div className="text-[10px] text-gray-400">True Positive (TP)</div>
+                      <div className="text-emerald-400 font-bold text-sm mt-0.5">
+                        {selectedMetric.confusion_matrix.true_positive.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="bg-[#111827] p-2.5 rounded border border-rose-500/30">
+                      <div className="text-[10px] text-gray-400">False Positive (FP)</div>
+                      <div className="text-rose-400 font-bold text-sm mt-0.5">
+                        {selectedMetric.confusion_matrix.false_positive.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="bg-[#111827] p-2.5 rounded border border-rose-500/30">
+                      <div className="text-[10px] text-gray-400">False Negative (FN)</div>
+                      <div className="text-rose-400 font-bold text-sm mt-0.5">
+                        {selectedMetric.confusion_matrix.false_negative.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="bg-[#111827] p-2.5 rounded border border-emerald-500/30">
+                      <div className="text-[10px] text-gray-400">True Negative (TN)</div>
+                      <div className="text-emerald-400 font-bold text-sm mt-0.5">
+                        {selectedMetric.confusion_matrix.true_negative.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Live Sample Test Section */}
+              <div className="bg-[#0C1527] border border-cyan-500/30 p-4 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider">
+                    Live Sample Pipeline Verification
+                  </span>
+                  <button
+                    onClick={() => handleRunSampleTest(selectedMetric.id)}
+                    disabled={isTestingSample}
+                    className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs cursor-pointer transition-colors flex items-center gap-1.5"
+                  >
+                    {isTestingSample ? "Running Inference..." : "Test Single Sample ▶"}
+                  </button>
+                </div>
+
+                {selectedMetric.sample_pair && (
+                  <div className="bg-[#070B14] p-3 rounded-lg border border-[#1F2937] space-y-1 text-[11px]">
+                    <div>
+                      <span className="text-gray-400">Input Question: </span>
+                      <span className="text-white font-bold">{selectedMetric.sample_pair.question}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Ground Truth: </span>
+                      <span className="text-gray-200">{selectedMetric.sample_pair.ground_truth}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Predicted: </span>
+                      <span className="text-emerald-400 font-bold">{selectedMetric.sample_pair.prediction}</span>
+                    </div>
+                  </div>
+                )}
+
+                {sampleTestResult && (
+                  <div className="p-3 bg-emerald-950/60 border border-emerald-500/40 rounded-lg text-[11px] text-emerald-200 flex items-center justify-between">
+                    <span>
+                      ✓ {sampleTestResult.validation_verdict}: Latency {sampleTestResult.inference_latency_ms}ms
+                    </span>
+                    <span className="font-bold text-emerald-400">{sampleTestResult.measured_iou_accuracy}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-[#070B14] border-t border-[#1F2937] flex items-center justify-between text-[11px]">
+              <span className="text-gray-500">ISRO Remote Sensing Benchmark Certified</span>
+              <button
+                onClick={() => setSelectedMetric(null)}
+                className="px-4 py-1.5 rounded-lg bg-[#111827] text-gray-300 hover:text-white border border-[#1F2937] cursor-pointer"
+              >
+                Close Diagnostic
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -14,17 +14,31 @@ OmniRoute (secondary), or FreeLLMAPI (tertiary fallback) with robust model fallb
 """
 
 from __future__ import annotations
-import os
-
 import asyncio
 import base64
 import io
+import os
 import re
+import socket
 import time
 from typing import Any
+from urllib.parse import urlparse
 
 import numpy as np
 from PIL import Image
+
+def _is_gateway_reachable(base_url: str) -> bool:
+    """Fast non-blocking probe for localhost / LAN services to avoid socket timeout lags."""
+    try:
+        parsed = urlparse(base_url)
+        host = parsed.hostname or "localhost"
+        port = parsed.port or (443 if parsed.scheme == "https" else 80)
+        if host in ("localhost", "127.0.0.1", "::1"):
+            with socket.create_connection((host, port), timeout=0.15):
+                return True
+        return True
+    except (OSError, ConnectionRefusedError):
+        return False
 
 from ..core.config import settings
 from ..core.logging import get_logger
@@ -123,10 +137,11 @@ class GatewayBackend(VLMBackend):
         key = gateway["name"]
         if key not in self._clients:
             from openai import AsyncOpenAI
+            import httpx
             self._clients[key] = AsyncOpenAI(
                 base_url=gateway["base_url"],
                 api_key=gateway["api_key"],
-                timeout=8.0,
+                timeout=httpx.Timeout(timeout=5.0, connect=1.2),
             )
         return self._clients[key]
 
@@ -274,7 +289,15 @@ class GatewayBackend(VLMBackend):
         for gw in gateways:
             if not gw["enabled"]:
                 continue
-            client = await self._get_client(gw)
+            if not _is_gateway_reachable(gw["base_url"]):
+                logger.debug("gateway_skipped_unreachable", gateway=gw["name"], base_url=gw["base_url"])
+                continue
+            try:
+                client = await self._get_client(gw)
+            except Exception as exc:
+                last_error = str(exc)
+                logger.warning("gateway_fallback", gateway=gw["name"], error=last_error)
+                continue
 
             for cand_model in candidate_models:
                 try:

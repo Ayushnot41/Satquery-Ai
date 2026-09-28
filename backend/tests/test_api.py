@@ -167,7 +167,10 @@ async def test_map_providers_and_nasa_layers():
 @pytest.mark.asyncio
 async def test_authentication_suite():
     import time
+    from app.api.auth import DEMO_USERS_DB
     test_email = f"chandra_{int(time.time())}@isro.gov.in"
+    DEMO_USERS_DB.pop("chandra@isro.gov.in", None)
+    DEMO_USERS_DB.pop(test_email, None)
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         # 1. Email Registration
@@ -221,6 +224,7 @@ async def test_authentication_suite():
         assert r_me.status_code == 200
         assert r_me.json()["authenticated"] is True
         assert r_me.json()["user"]["name"] == "Dr. Subrahmanyan Chandrasekhar"
+        DEMO_USERS_DB.pop("chandra@isro.gov.in", None)
 
 
 @pytest.mark.asyncio

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 from pathlib import Path
 from typing import Any
@@ -321,7 +321,7 @@ def _seed_default_history() -> None:
         status=InvestigationStatus.COMPLETE,
         question="What land cover types are visible and locate all buildings in this image?",
         answer="Multispectral optical analysis confirms high-density urban residential blocks, paved transportation corridors, and interspersed vegetative plots with high canopy reflectance.",
-        created_at=datetime(2026, 9, 9, 19, 48, 16),
+        created_at=datetime(2026, 9, 9, 19, 48, 16, tzinfo=timezone.utc),
         confidence=ConfidenceReport(
             overall_confidence="high",
             confidence_score=0.88,
@@ -340,7 +340,7 @@ def _seed_default_history() -> None:
         status=InvestigationStatus.COMPLETE,
         question="What changes occurred between these two dates? Has urban expansion affected vegetation?",
         answer="Bi-temporal change detection confirms 14.8% surface variance. Significant vegetation reduction observed along eastern sector replaced by grading earthworks and structural footings.",
-        created_at=datetime(2026, 9, 9, 16, 48, 16),
+        created_at=datetime(2026, 9, 9, 16, 48, 16, tzinfo=timezone.utc),
         confidence=ConfidenceReport(
             overall_confidence="high",
             confidence_score=0.92,
@@ -359,7 +359,7 @@ def _seed_default_history() -> None:
         status=InvestigationStatus.COMPLETE,
         question="Does the SAR data confirm the optical change detection? Identify features visible in radar backscatter.",
         answer="Sentinel-1 VV/VH backscatter confirms double-bounce dielectric returns from newly erected vertical concrete pylons, fully corroborating optical candidate alerts through heavy cloud cover.",
-        created_at=datetime(2026, 9, 8, 21, 48, 16),
+        created_at=datetime(2026, 9, 8, 21, 48, 16, tzinfo=timezone.utc),
         confidence=ConfidenceReport(
             overall_confidence="high",
             confidence_score=0.85,
@@ -378,7 +378,7 @@ def _seed_default_history() -> None:
         status=InvestigationStatus.ERROR,
         question="Detect flood inundation extent and compare with previous dry-season baseline.",
         answer="Sensor temporal registration mismatch: post-event tile GSD (10m) failed spatial alignment tolerance threshold against aerial 0.3m baseline.",
-        created_at=datetime(2026, 9, 7, 21, 48, 16),
+        created_at=datetime(2026, 9, 7, 21, 48, 16, tzinfo=timezone.utc),
         confidence=None,
     )
 
@@ -395,8 +395,13 @@ _seed_default_history()
 @router.get("", response_model=list[InvestigationResponse])
 async def list_investigations() -> list[InvestigationResponse]:
     """List all previous investigations ordered by recency."""
+    def _dt_sort_key(dt: datetime) -> float:
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.timestamp()
+
     items = list(INVESTIGATION_CACHE.values())
-    items.sort(key=lambda x: x.created_at, reverse=True)
+    items.sort(key=lambda x: _dt_sort_key(x.created_at), reverse=True)
     return items
 
 

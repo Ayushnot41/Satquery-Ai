@@ -126,6 +126,18 @@ else:
             self.in_channels = in_channels
             self.out_channels = out_channels
 
+        def to(self, _device: Any) -> "SiameseUNet":
+            """Compatibility no-op matching the torch module API."""
+            return self
+
+        def eval(self) -> "SiameseUNet":
+            """Compatibility no-op matching the torch module API."""
+            return self
+
+        def __call__(self, *_args: Any, **_kwargs: Any) -> np.ndarray:
+            """Torch-style call stub for static analysis compatibility."""
+            raise RuntimeError("Torch backend is unavailable for SiameseUNet inference.")
+
 
 # ============================================================================
 # CHECKPOINT GENERATION & INTEGRITY

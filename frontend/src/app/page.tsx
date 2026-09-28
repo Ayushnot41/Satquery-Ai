@@ -24,6 +24,11 @@ import {
 } from "../lib/api";
 import { AnalysisResult } from "../types/investigation";
 import { AppTab } from "../components/layout/Header";
+import { AuthGatekeeper, AuthUser, getStoredAuthUser, clearStoredAuthUser } from "../components/auth/AuthGatekeeper";
+import { StaticImageComparisonView } from "../components/screens/StaticImageComparisonView";
+import { DefenseIntelView } from "../components/screens/DefenseIntelView";
+import { SarReaderView } from "../components/screens/SarReaderView";
+import { DisasterRoutingView } from "../components/screens/DisasterRoutingView";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<AppTab>("home");
@@ -33,12 +38,24 @@ export default function Home() {
   const [currentResult, setCurrentResult] = useState<AnalysisResult | null>(null);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [showSpecialistModal, setShowSpecialistModal] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
+    // Check local storage for persistent security clearance
+    const saved = getStoredAuthUser();
+    if (saved) {
+      setCurrentUser(saved);
+    }
+
     checkHealth().then((h) => {
       setHealthStatus(h.status || "online");
     });
   }, []);
+
+  const handleLogout = () => {
+    clearStoredAuthUser();
+    setCurrentUser(null);
+  };
 
   const handleStartInvestigation = (scenarioId?: string) => {
     if (scenarioId) {
@@ -182,10 +199,18 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0A0F1C] text-gray-100 font-sans">
+      {/* Mandatory Security Clearance Gatekeeper */}
+      <AuthGatekeeper
+        currentUser={currentUser}
+        onAuthenticated={(user) => setCurrentUser(user)}
+      />
+
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         systemHealth={healthStatus}
+        currentUser={currentUser}
+        onLogout={handleLogout}
       />
 
       <div className="flex-1 flex flex-row overflow-hidden">
@@ -210,6 +235,20 @@ export default function Home() {
           />
         )}
 
+        {activeTab === "image_compare" && (
+          <StaticImageComparisonView
+            onViewDetailedResult={(result) => {
+              setCurrentResult(result);
+              setActiveTab("analysis_results");
+            }}
+          />
+        )}
+
+        {activeTab === "defense_ops" && <DefenseIntelView />}
+
+        {activeTab === "sar_reader" && <SarReaderView />}
+
+        {activeTab === "disaster_routing" && <DisasterRoutingView />}
         {activeTab === "mission_view" && (
           <MissionView onTriggerInvestigation={handleTriggerSpatialInvestigation} />
         )}

@@ -12,7 +12,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 import httpx
 
 from .api.health import router as health_router
@@ -25,6 +25,8 @@ from .api.futuristic import router as futuristic_router, debate_router
 from .api.nasa_tile import router as nasa_tile_router
 from .api.auth import router as auth_router
 from .api.benchmark import router as benchmark_router
+from .api.defense import router as defense_router
+from .api.sar_reader import router as sar_reader_router
 from .core.config import settings
 from .core.logging import get_logger, setup_logging
 
@@ -95,8 +97,23 @@ demo_path.mkdir(parents=True, exist_ok=True)
 app.mount("/static/uploads", StaticFiles(directory=str(upload_path)), name="uploads")
 app.mount("/static/demo", StaticFiles(directory=str(demo_path)), name="demo")
 
+def _get_project_root() -> Path:
+    """Resolve project root directory reliably across local dev, monorepo, and containerized Docker environments."""
+    current = Path(__file__).resolve().parent
+    for p in [current, current.parent, current.parent.parent]:
+        if (p / "bhuvision_preview.html").exists() or (p / "assets").exists() or (p / "index.html").exists():
+            return p
+    cwd = Path.cwd()
+    if (cwd / "bhuvision_preview.html").exists() or (cwd / "assets").exists() or (cwd / "index.html").exists():
+        return cwd
+    parents = Path(__file__).resolve().parents
+    return parents[2] if len(parents) > 2 else parents[-1]
+
+
+PROJECT_ROOT = _get_project_root()
+
 # Mount assets directory for 3D SVGs and PWA icons
-assets_dir = Path(__file__).resolve().parents[2] / "assets"
+assets_dir = PROJECT_ROOT / "assets"
 if assets_dir.exists():
     app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
 
@@ -112,11 +129,23 @@ app.include_router(debate_router, prefix="/api")
 app.include_router(nasa_tile_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(benchmark_router, prefix="/api")
+app.include_router(defense_router, prefix="/api")
+app.include_router(sar_reader_router, prefix="/api")
 
 
 @app.get("/", tags=["Root"])
-async def get_root():
-    """System banner and metadata."""
+async def get_root(request: Request):
+    """System banner and metadata with browser frontend content negotiation."""
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept:
+        preview_file = (PROJECT_ROOT / "index.html") if (PROJECT_ROOT / "index.html").exists() else (PROJECT_ROOT / "bhuvision_preview.html")
+        if preview_file.exists():
+            return HTMLResponse(
+                content=preview_file.read_text(encoding="utf-8"),
+                headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
+            )
+        return await _proxy_to_nextjs(request, "/")
+
     return {
         "product": "BHUVISION",
         "tagline": "Ask the Earth. AI decides how to investigate it.",
@@ -135,7 +164,7 @@ async def get_root():
 @app.get("/manifest.json", tags=["PWA"])
 async def get_manifest():
     """Serves the Progressive Web App (PWA) manifest."""
-    manifest_file = Path(__file__).resolve().parents[2] / "manifest.json"
+    manifest_file = PROJECT_ROOT / "manifest.json"
     if manifest_file.exists():
         return FileResponse(manifest_file, media_type="application/manifest+json")
     return {"name": "BHUVISION", "short_name": "BHUVISION"}
@@ -163,17 +192,34 @@ _MIME_TYPES = {
     ".webp": "image/webp",
 }
 
+import asyncio
+
+async def _is_nextjs_live(port: int = 3000, timeout: float = 0.1) -> bool:
+    """Non-blocking async TCP probe to verify if Next.js dev server is running on port 3000."""
+    try:
+        _, writer = await asyncio.wait_for(
+            asyncio.open_connection("127.0.0.1", port),
+            timeout=timeout,
+        )
+        writer.close()
+        try:
+            await writer.wait_closed()
+        except Exception:
+            pass
+        return True
+    except Exception:
+        return False
 
 async def _proxy_to_nextjs(request: Request, target_path: str) -> Response:
     """Proxy request to Next.js server with fallback to pre-built Next.js assets or preview HTML."""
     query_string = f"?{request.url.query}" if request.url.query else ""
 
-    # 1. Try forwarding to active Next.js server (e.g. running on localhost:3000 or 127.0.0.1:3000)
-    for base_url in NEXTJS_CANDIDATE_URLS:
-        target_url = f"{base_url}{target_path}{query_string}"
-        try:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=1.5)) as client:
-                req_headers = {
+    # 1. Try forwarding to active Next.js server if port 3000 is listening
+    if await _is_nextjs_live(3000):
+        for base_url in NEXTJS_CANDIDATE_URLS:
+            target_url = f"{base_url}{target_path}{query_string}"
+            try:
+                async with httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=1.0)) as client:
                     k: v for k, v in request.headers.items()
                     if k.lower() not in ("host", "content-length", "content-encoding")
                 }
@@ -192,11 +238,11 @@ async def _proxy_to_nextjs(request: Request, target_path: str) -> Response:
                     headers["Pragma"] = "no-cache"
                     headers["Expires"] = "0"
                 return Response(content=resp.content, status_code=resp.status_code, headers=headers)
-        except Exception:
-            continue
+            except Exception:
+                continue
 
     # 2. Fallback to locally built Next.js production output if Next.js dev server is not reachable
-    frontend_dir = Path(__file__).resolve().parents[2] / "frontend"
+    frontend_dir = (PROJECT_ROOT / "frontend") if (PROJECT_ROOT / "frontend").exists() else (Path(__file__).resolve().parents[2] / "frontend")
     next_dir = frontend_dir / ".next"
 
     if target_path.startswith("/_next/"):
@@ -225,12 +271,11 @@ async def _proxy_to_nextjs(request: Request, target_path: str) -> Response:
             headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
         )
 
-    # 3. Fallback to standalone preview HTML
-    preview_file = Path(__file__).resolve().parents[2] / "bhuvision_preview.html"
+    # 3. Fallback to standalone cockpit HTML
+    preview_file = (PROJECT_ROOT / "index.html") if (PROJECT_ROOT / "index.html").exists() else (PROJECT_ROOT / "bhuvision_preview.html")
     if preview_file.exists():
-        return FileResponse(
-            preview_file,
-            media_type="text/html",
+        return HTMLResponse(
+            content=preview_file.read_text(encoding="utf-8"),
             headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
         )
 
@@ -238,10 +283,22 @@ async def _proxy_to_nextjs(request: Request, target_path: str) -> Response:
 
 
 @app.api_route("/app", methods=["GET", "HEAD"], tags=["Frontend Application"])
-@app.api_route("/app/{full_path:path}", methods=["GET", "HEAD", "POST"], tags=["Frontend Application"])
+@app.api_route("/app/", methods=["GET", "HEAD"], tags=["Frontend Application"])
 @app.api_route("/preview", methods=["GET", "HEAD"], tags=["Frontend Application"])
+async def get_interactive_cockpit(request: Request):
+    """Serves the BHUVISION Interactive Satellite Mission Cockpit instantly."""
+    preview_file = (PROJECT_ROOT / "index.html") if (PROJECT_ROOT / "index.html").exists() else (PROJECT_ROOT / "bhuvision_preview.html")
+    if preview_file.exists():
+        return HTMLResponse(
+            content=preview_file.read_text(encoding="utf-8"),
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
+        )
+    return JSONResponse(status_code=404, content={"error": "Mission Cockpit HTML not found"})
+
+
+@app.api_route("/app/{full_path:path}", methods=["GET", "HEAD", "POST"], tags=["Frontend Application"])
 async def get_interactive_app(request: Request, full_path: str = ""):
-    """Serves the active Next.js frontend application with real-time updates."""
+    """Serves sub-paths or proxies to Next.js if requested."""
     target_path = f"/{full_path}" if full_path else "/"
     return await _proxy_to_nextjs(request, target_path)
 
@@ -262,9 +319,9 @@ async def proxy_analysis_pages(request: Request, path: str):
 @app.api_route("/preview-hud", methods=["GET", "HEAD"], tags=["Frontend Application"])
 async def get_standalone_3d_preview():
     """Serves the standalone Three.js God's Eye WebGL preview."""
-    preview_file = Path(__file__).resolve().parents[2] / "bhuvision_preview.html"
+    preview_file = (PROJECT_ROOT / "bhuvision_preview.html") if (PROJECT_ROOT / "bhuvision_preview.html").exists() else (PROJECT_ROOT / "index.html")
     if preview_file.exists():
-        return FileResponse(preview_file, media_type="text/html")
+        return HTMLResponse(content=preview_file.read_text(encoding="utf-8"))
     return {"error": "Application file not found", "path": str(preview_file)}
 
 
@@ -272,7 +329,7 @@ async def get_standalone_3d_preview():
 @app.api_route("/docs/deployment-manual.pdf", methods=["GET", "HEAD"], tags=["Documentation"])
 async def download_deployment_manual_pdf():
     """Serves the complete Enterprise Production Deployment Manual PDF for direct download."""
-    pdf_file = Path(__file__).resolve().parents[2] / "docs" / "BHUVISION_PRODUCTION_DEPLOYMENT_MANUAL.pdf"
+    pdf_file = PROJECT_ROOT / "docs" / "BHUVISION_PRODUCTION_DEPLOYMENT_MANUAL.pdf"
     if pdf_file.exists():
         return FileResponse(
             pdf_file,

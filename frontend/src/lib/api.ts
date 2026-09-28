@@ -342,3 +342,185 @@ export async function resetBenchmarkProtocol(): Promise<BenchmarkProtocolState> 
     throw err;
   }
 }
+
+
+export async function fetchMetricDetail(metricId: string): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE}/benchmark/metric/${metricId}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error("fetchMetricDetail failed:", err);
+    return null;
+  }
+}
+
+export async function testBenchmarkSample(metricId: string = "vqa_acc"): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE}/benchmark/test-sample?metric_id=${metricId}`, { method: "POST" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error("testBenchmarkSample failed:", err);
+    return null;
+  }
+}
+
+// ─── Indian Armed Forces Defense API ──────────────────────────────────────────
+
+export async function fetchDefenseHotspots(branch?: string): Promise<any[]> {
+  try {
+    const url = branch ? `${API_BASE}/defense/hotspots?branch=${branch}` : `${API_BASE}/defense/hotspots`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error("fetchDefenseHotspots failed:", err);
+    return [];
+  }
+}
+
+export async function analyzeDefenseTarget(payload: {
+  branch: string;
+  hotspot_id?: string;
+  lat?: number;
+  lon?: number;
+  tactical_query: string;
+  sensor?: string;
+  clearance_level?: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE}/defense/analyze`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(`Defense analysis failed: ${res.statusText}`);
+  return await res.json();
+}
+
+export async function fetchTacticalLayers(): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE}/defense/tactical-layers`);
+    if (!res.ok) return { layers: [] };
+    return await res.json();
+  } catch {
+    return { layers: [] };
+  }
+}
+
+// ─── SAR Reader & Radar Physics API ───────────────────────────────────────────
+
+export async function fetchSarPresets(): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE}/sar-reader/presets`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error("fetchSarPresets failed:", err);
+    return [];
+  }
+}
+
+export async function processSarRadar(payload: {
+  preset_id?: string;
+  polarization?: string;
+  apply_lee_filter?: boolean;
+  filter_window_size?: number;
+  water_threshold_db?: number;
+  urban_threshold_db?: number;
+  custom_center_lat?: number;
+  custom_center_lon?: number;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE}/sar-reader/process`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(`SAR processing failed: ${res.statusText}`);
+  return await res.json();
+}
+
+// ─── Disaster Assessment & Evacuation Routing API ─────────────────────────────
+
+export async function assessDisasterRisk(payload: {
+  location_name?: string;
+  lat: number;
+  lon: number;
+  disaster_type: string;
+  past_image_url?: string;
+  current_image_url?: string;
+  weather_condition?: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE}/traffic/disaster-assessment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(`Disaster assessment failed: ${res.statusText}`);
+  return await res.json();
+}
+
+export async function calculateEvacuationCorridor(payload: {
+  origin_lat: number;
+  origin_lon: number;
+  dest_lat?: number;
+  dest_lon?: number;
+  disaster_type?: string;
+  api_key?: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE}/traffic/evacuation-corridor`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(`Evacuation corridor calculation failed: ${res.statusText}`);
+  return await res.json();
+}
+
+// ─── Authentication & Security Clearance API ──────────────────────────────────
+
+export async function loginApi(email: string, password: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Invalid credentials" }));
+    throw new Error(err.detail || "Login failed");
+  }
+  return await res.json();
+}
+
+export async function registerApi(name: string, email: string, password: string, organization: string, role: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, password, organization, role }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Registration failed" }));
+    throw new Error(err.detail || "Registration failed");
+  }
+  return await res.json();
+}
+
+export async function getGuestTokenApi(clearanceLevel: string = "Level 2: Field Commander"): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE}/auth/guest-token?clearance_level=${encodeURIComponent(clearanceLevel)}`);
+    if (!res.ok) throw new Error("Guest token request failed");
+    return await res.json();
+  } catch {
+    return {
+      access_token: "guest_defense_clearance_token",
+      token_type: "bearer",
+      user: {
+        id: "usr_guest_01",
+        name: "Field Commander / Tactical Analyst",
+        email: "guest.analyst@isro.gov.in",
+        organization: "Integrated Defense Staff / ISRO Ground Control",
+        clearance_level: clearanceLevel,
+      }
+    };
+  }
+}

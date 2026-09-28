@@ -44,6 +44,10 @@ htmlcov/
 .env.development.local
 .env.test.local
 .env.production.local
+*.key
+*.pem
+*.cert
+*.crt
 
 # IDE & Editor
 .vscode/
@@ -65,3 +69,4 @@ backend/data/
 scratch/
 backend/checkpoints/
 *.pt
+*.tsbuildinfo

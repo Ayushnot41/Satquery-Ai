@@ -16,6 +16,9 @@ services:
       - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
     volumes:
       - ./data:/app/data
+      - ./assets:/app/assets
+      - ./index.html:/app/index.html
+      - ./bhuvision_preview.html:/app/bhuvision_preview.html
     restart: unless-stopped
 
   frontend:

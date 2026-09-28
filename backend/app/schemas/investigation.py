@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Literal
 
@@ -63,7 +63,7 @@ class AgentStatusUpdate(BaseModel):
     status: str  # "started", "processing", "complete", "error"
     message: str = ""
     progress: float | None = Field(None, ge=0.0, le=1.0)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class InvestigationResponse(BaseModel):
@@ -91,7 +91,7 @@ class InvestigationResponse(BaseModel):
 
     # Timing
     total_duration_ms: float | None = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class DemoScenario(BaseModel):
@@ -112,4 +112,4 @@ class HealthResponse(BaseModel):
     model_serving: str = "unknown"
     demo_mode: bool = False
     agents_available: int = 9
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

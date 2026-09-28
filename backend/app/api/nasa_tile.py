@@ -66,9 +66,10 @@ async def proxy_nasa_gibs_tile(
     # Clamp zoom to layer maximum
     max_z = LAYER_MAX_ZOOM.get(layer, 9)
     z_clamped = min(z, max_z)
+    matrix_set = f"GoogleMapsCompatible_Level{max_z}"
 
-    # Build GIBS WMTS tile URL
-    tile_url = f"{GIBS_BASE}/{layer}/default/{date}/250m/{z_clamped}/{y}/{x}.jpg"
+    # Build GIBS WMTS tile URL (EPSG:3857 uses GoogleMapsCompatible_Level{max_z})
+    tile_url = f"{GIBS_BASE}/{layer}/default/{date}/{matrix_set}/{z_clamped}/{y}/{x}.jpg"
 
     # Build request headers — inject NASA Earthdata JWT token if configured
     headers: dict[str, str] = {
@@ -96,22 +97,47 @@ async def proxy_nasa_gibs_tile(
                         "X-Auth": "bearer" if settings.nasa_earthdata_token else "public",
                     }
                 )
-            elif resp.status_code == 404:
-                # Tile not available for this date/zoom — try today's date
-                from datetime import datetime
-                fallback_date = datetime.utcnow().strftime("%Y-%m-%d")
-                fallback_url = f"{GIBS_BASE}/{layer}/default/{fallback_date}/250m/{z_clamped}/{y}/{x}.jpg"
-                resp2 = await client.get(fallback_url, headers=headers)
-                if resp2.status_code == 200:
-                    return Response(
-                        content=resp2.content,
-                        media_type="image/jpeg",
-                        headers={"Cache-Control": "public, max-age=3600", "X-Fallback-Date": fallback_date},
-                    )
+            elif resp.status_code in (400, 404):
+                # GIBS near-real-time tiles can lag by 1-2 days — try yesterday and 2-days-prior
+                from datetime import datetime, timedelta, timezone
+                now_utc = datetime.now(timezone.utc)
+                for day_offset in [1, 2, 3]:
+                    fallback_date = (now_utc - timedelta(days=day_offset)).strftime("%Y-%m-%d")
+                    fallback_url = f"{GIBS_BASE}/{layer}/default/{fallback_date}/{matrix_set}/{z_clamped}/{y}/{x}.jpg"
+                    resp_fallback = await client.get(fallback_url, headers=headers)
+                    if resp_fallback.status_code == 200:
+                        return Response(
+                            content=resp_fallback.content,
+                            media_type="image/jpeg",
+                            headers={"Cache-Control": "public, max-age=3600", "X-Fallback-Date": fallback_date},
+                        )
+
+            # Ultimate fallback to ESRI World Imagery if NASA layer is temporarily unreachable
+            esri_url = f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            esri_resp = await client.get(esri_url)
+            if esri_resp.status_code == 200:
+                return Response(
+                    content=esri_resp.content,
+                    media_type="image/jpeg",
+                    headers={"Cache-Control": "public, max-age=86400", "X-Fallback-Source": "esri-world-imagery"},
+                )
 
             raise HTTPException(status_code=resp.status_code, detail=f"GIBS returned: {resp.status_code}")
 
     except httpx.TimeoutException:
+        # Fallback to ESRI on timeout
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                esri_url = f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                esri_resp = await client.get(esri_url)
+                if esri_resp.status_code == 200:
+                    return Response(
+                        content=esri_resp.content,
+                        media_type="image/jpeg",
+                        headers={"Cache-Control": "public, max-age=86400", "X-Fallback-Source": "esri-world-imagery"},
+                    )
+        except Exception:
+            pass
         raise HTTPException(status_code=504, detail="NASA GIBS tile request timed out")
     except httpx.RequestError as exc:
         logger.error("nasa_tile_error", error=str(exc))

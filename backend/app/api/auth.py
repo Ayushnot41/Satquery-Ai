@@ -64,6 +64,20 @@ class SQLiteDict:
                 "INSERT OR REPLACE INTO users (email, data) VALUES (?, ?)",
                 (key, json.dumps(value))
             )
+            conn.commit()
+
+    def __delitem__(self, key):
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute("DELETE FROM users WHERE email=?", (key,))
+            conn.commit()
+
+    def pop(self, key, default=None):
+        val = self.get(key, default)
+        try:
+            del self[key]
+        except KeyError:
+            pass
+        return val
 
     def get(self, key, default=None):
         try:

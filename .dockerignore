@@ -1,0 +1,35 @@
+# Git
+.git
+.github
+
+# Node / Frontend
+node_modules
+frontend/node_modules
+frontend/.next
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+.venv
+.pytest_cache
+.coverage
+htmlcov
+
+# Environment & Secrets
+.env
+.env.*
+*.key
+*.pem
+*.cert
+
+# Editor & Logs
+.vscode
+.idea
+*.log
+logs
+scratch

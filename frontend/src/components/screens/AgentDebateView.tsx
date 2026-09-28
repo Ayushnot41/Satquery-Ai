@@ -9,6 +9,7 @@ interface AgentDebateViewProps {
 
 export function AgentDebateView({ onTriggerInvestigation }: AgentDebateViewProps) {
   const [selectedScenario, setSelectedScenario] = useState<string>("monsoon_flood");
+  const [searchLocation, setSearchLocation] = useState<string>("Brahmaputra Flood Plain, Assam");
   const [debateData, setDebateData] = useState<any | null>(null);
   const [activeTurnIdx, setActiveTurnIdx] = useState<number>(3); // show all 4 turns by default
   const [loading, setLoading] = useState<boolean>(false);
@@ -23,6 +24,22 @@ export function AgentDebateView({ onTriggerInvestigation }: AgentDebateViewProps
       summary: "Dense monsoon clouds obscure 85% of optical imagery. Sentinel-1 C-Band SAR radar pierces the cloud ceiling at 5.405 GHz.",
     },
     {
+      id: "maritime_dark_vessel",
+      title: "Naval Domain: Optical Solar Glint vs SAR Polarimetric Cross-Section",
+      location: "INS Kadamba / Karwar Naval Base Coast",
+      query: "Detect uncoordinated dark vessels navigating without AIS.",
+      icon: "⚓",
+      summary: "Sea wave chop obscures vessel visual silhouette. SAR dihedral cross-pol returns verify metallic hull and Kelvin wake.",
+    },
+    {
+      id: "himalayan_glacial",
+      title: "High-Altitude Defense: Optical Snow Albedo vs InSAR Subsidence",
+      location: "Siachen Glacier & Saltoro Ridge",
+      query: "Where has terrain slope or crevasse displaced?",
+      icon: "⛰️",
+      summary: "Visual snow cover appears uniform white (NDSI > 0.85). InSAR phase differential reveals millimeter-scale fault slip.",
+    },
+    {
       id: "urban_shadow",
       title: "High-Rise Shadow vs Vertical Construction Framing",
       location: "NCR Delhi Urban Fringe",
@@ -30,28 +47,25 @@ export function AgentDebateView({ onTriggerInvestigation }: AgentDebateViewProps
       icon: "🏗️",
       summary: "Optical sensor misclassifies long building shadow as ground excavation pit. SAR dihedral double-bounce resolves vertical structure.",
     },
-    {
-      id: "landslide",
-      title: "Himalayan Landslide: Surface Debris vs Forest Canopy",
-      location: "Kedarnath Valley, Uttarakhand",
-      query: "Where has terrain slope displaced?",
-      icon: "⛰️",
-      summary: "InSAR phase coherence reveals millimeter-scale hillside subsidence preceding catastrophic slope failure.",
-    },
   ];
 
-  const loadDebate = async (scId: string) => {
+  const loadDebate = async (scId: string, loc: string = searchLocation) => {
     setLoading(true);
-    const sc = scenarios.find((s) => s.id === scId) || scenarios[0];
-    const data = await fetchAgentDebate(scId, sc.location);
+    const data = await fetchAgentDebate(scId, loc);
     setDebateData(data);
-    setActiveTurnIdx((data.turns?.length || 4) - 1);
+    setActiveTurnIdx((data?.turns?.length || 4) - 1);
     setLoading(false);
   };
 
   useEffect(() => {
-    loadDebate(selectedScenario);
+    loadDebate(selectedScenario, searchLocation);
   }, [selectedScenario]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchLocation.trim()) return;
+    loadDebate(selectedScenario, searchLocation);
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6 text-white select-none">
@@ -93,8 +107,55 @@ export function AgentDebateView({ onTriggerInvestigation }: AgentDebateViewProps
         </div>
       </div>
 
+      {/* ================= DYNAMIC LOCATION SEARCH BAR ================= */}
+      <div className="bg-[#090E1A] border border-purple-500/30 p-4 rounded-xl space-y-3 font-mono">
+        <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-2">
+          <div className="flex-1 relative">
+            <input
+              type="text"
+              value={searchLocation}
+              onChange={(e) => setSearchLocation(e.target.value)}
+              placeholder="Search ANY military sector, coordinates, or city on Earth for autonomous debate..."
+              className="w-full bg-[#111827] border border-[#1F2937] focus:border-purple-400 text-white px-4 py-2.5 rounded-lg text-xs font-mono outline-none"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-5 py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 shrink-0"
+          >
+            {loading ? "Arbitrating..." : "Arbitrate Location"}
+          </button>
+        </form>
+
+        {/* Quick Location Chips */}
+        <div className="flex items-center gap-2 flex-wrap text-[10px]">
+          <span className="text-gray-400">Quick Sectors:</span>
+          {[
+            "INS Kadamba, Karwar Coast",
+            "Siachen Glacier & Saltoro",
+            "Galwan Valley LAC",
+            "Ambala Airbase Runway",
+            "Brahmaputra Flood Plain",
+            "Sir Creek Marshlands",
+          ].map((loc) => (
+            <button
+              key={loc}
+              type="button"
+              onClick={() => {
+                setSearchLocation(loc);
+                loadDebate(selectedScenario, loc);
+              }}
+              className="px-2.5 py-1 rounded bg-[#111827] border border-[#1F2937] text-gray-300 hover:text-cyan-300 hover:border-cyan-500/50 cursor-pointer transition-colors"
+            >
+              {loc}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* ================= SCENARIO SELECTOR TABS ================= */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {scenarios.map((sc) => {
           const isSelected = selectedScenario === sc.id;
           return (

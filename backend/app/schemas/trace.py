@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -26,7 +26,7 @@ class TraceEventType(str, Enum):
 
 class TraceEvent(BaseModel):
     """A single event in the investigation execution trace."""
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     event_type: TraceEventType
     agent_name: str
     agent_id: int = Field(..., ge=1, le=9, description="Agent number 1-9")
@@ -40,7 +40,7 @@ class TraceEvent(BaseModel):
 class ExecutionTrace(BaseModel):
     """Complete execution trace for an investigation."""
     investigation_id: str
-    started_at: datetime = Field(default_factory=datetime.utcnow)
+    started_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: datetime | None = None
     events: list[TraceEvent] = Field(default_factory=list)
     total_duration_ms: float | None = None
@@ -66,7 +66,7 @@ class ExecutionTrace(BaseModel):
 
     def complete(self) -> None:
         """Mark the trace as complete."""
-        self.completed_at = datetime.utcnow()
+        self.completed_at = datetime.now(timezone.utc)
         if self.started_at and self.completed_at:
             delta = self.completed_at - self.started_at
             self.total_duration_ms = delta.total_seconds() * 1000
